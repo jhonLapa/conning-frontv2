@@ -8,25 +8,25 @@ import {
   stateFilter,
 } from "./ui/columns";
 
-export default function ClientePage() {
+export default function ConceptoPage() {
   
   const refreshDataTable = useRef<() => void>(null);
 
   return (
     <>
       <HeaderPage
-        title="Fondo de Pensiones"
-        descripcion="Listado de todos los Fondos de pensiones."
+        title="Concepto"
+        descripcion="Listado de todos los concepto."
         linkConfig={{
-          title: "Nuevo Fondo de Pension",
-          url: "/cliente/nuevo",
+          title: "Nuevo Concepto",
+          url: "/concepto/nuevo",
         }}
       />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="cliente/busquedapaginado"
+        url="concepto/busquedapaginado"
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

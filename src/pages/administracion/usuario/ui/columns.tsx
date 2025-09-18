@@ -3,27 +3,27 @@ import { SortedIcon } from "@/components/sorted-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import ActionsRol from "./action-proveedor";
-import { Proveedores } from "@/interfaces/proveedores.interface";
+import ActionsUsuario from "./action-usuario";
+import { Usuario } from "@/interfaces/usuario.interface";
+import { formatDateTime } from "@/utils";
 
 export const columnNames: Record<string, string> = {
   code: "Codigo",
-  tipoDoc: "Tipo Doc.",
+  ruc: "RUT.",
+  razonSocial: "Razon Social",
   direccion: "Direccion",
-  numeroDoc: "Numero Doc.",
-  telefono: "Telefono",
-  email: "Email",
+  fechaCreacion: "Fecha Creacion",
   actions: "Acciones",
 };
 
 export const columnFilter: FilterConfig[] = [
   {
-    id: "name",
-    label: "Nombre",
+    id: "code",
+    label: "Codigo",
   },
   {
-    id: "tipoDoc",
-    label: "Tipo",
+    id: "razonSocial",
+    label: "Razon Social",
   },
 ];
 
@@ -42,9 +42,9 @@ export const stateFilter: FilterConfig[] = [
   },
 ];
 
-export const getColumns = (refreshDataTable: () => void): ColumnDef<Proveedores>[] => [
+export const getColumns = (refreshDataTable: () => void): ColumnDef<Usuario>[] => [
   {
-    id: "code",
+    id: "name",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -52,43 +52,28 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<Proveedores>
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Nombre
+          Nombre Completo
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
-    cell: ({ row }) => <span className="ml-4">{row.original.codigo}</span>,
+    cell: ({ row }) => <span className="ml-4">{`${row.original.firstName} ${row.original.lastName}`}</span>,
   },
   {
-    header: "Tipo Doc.",
-    id: "tipoDoc",
-    cell: ({ row }) => <span>{row.original.tipoDoc}</span>,
-  },
-  {
-    header: "Direccion",
-    id: "direccion",
-    cell: ({ row }) => <span>{row.original.direccion}</span>,
-  },
-  {
-    header: "Numero Doc.",
-    id: "numeroDoc",
-    cell: ({ row }) => <span>{row.original.numeroDoc}</span>,
-  },
-  {
-    header: "Telefono",
-    id: "telefono",
-    cell: ({ row }) => <span>{row.original.telefono}</span>,
-  },
-  {
-    header: "Email",
+    header: "Correo",
     id: "email",
     cell: ({ row }) => <span>{row.original.email}</span>,
+  },
+  {
+    header: "Fecha de Creacion",
+    id: "auditCreateDate",
+    cell: ({ row }) => <span>{formatDateTime(row.original.auditCreateDate)}</span>,
   },
   {
     accessorKey: "status",
     header: "Estado",
     cell: ({ row }) => {
-      const state: boolean = row.original.status;
+      const state: boolean = row.original.state;
       return (
         <Badge variant={state ? "success" : "destructive"}>
           {state ? "Activo" : "Inactivo"}
@@ -99,7 +84,7 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<Proveedores>
   {
     id: "actions",
     cell: ({ row }) => (
-      <ActionsRol proveedor={row.original} onRefresh={refreshDataTable} />
+      <ActionsUsuario usuario={row.original} onRefresh={refreshDataTable} />
     ),
   },
 ];

@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Proveedores } from "@/interfaces/proveedores.interface";
+import { EmpresaList } from "@/interfaces/empresas.interface";
 import {
   BadgeCheck,
   Copy,
@@ -32,11 +32,11 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
-  proveedor: Proveedores;
+  empresa: EmpresaList;
   onRefresh: () => void;
 }
 
-export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
+export default function ActionsEmpresa({ empresa, onRefresh }: Props) {
   
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,21 +70,21 @@ export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(proveedor.id.toString());
+            navigator.clipboard.writeText(empresa.id.toString());
             toast("ID copiado");
           }}
         >
           <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID de proveedor</span>
+          <span className="text-sm ml-2">Copiar ID de Empresa</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/proveedor/${proveedor.id}`}
+            to={`/empresa/${empresa.id}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
-            <span className="text-sm">Editar Proveedor</span>
+            <span className="text-sm">Editar Empresa</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -95,8 +95,8 @@ export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button className="w-full flex flex-row items-center gap-2 py-1">
-                {proveedor.status ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
-                {proveedor.status ? "Desactivar Proveedor" : "Activar Proveedor"}
+                {empresa.estado ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
+                {empresa.estado ? "Desactivar Empresa" : "Activar Empresa"}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -105,7 +105,7 @@ export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
                   ¿Estás absolutamente seguro?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción {proveedor.status ? "desactivara" : "activara"} el proveedor
+                  Esta acción {empresa.estado ? "desactivara" : "activara"} la empresa
                   de nuestros servidores.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -115,7 +115,7 @@ export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(proveedor.id);
+                    handleChangeStatus(empresa.id);
                   }}
                   disabled={isLoading}
                   className="gap-2"

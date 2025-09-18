@@ -1,20 +1,25 @@
 import { MenuItemProps } from "@/interfaces/menu-Interface";
 import {
+  Banknote,
   BarChart,
-  BarChart3,
-  Briefcase,
-  ClipboardCheck,
+  BuildingIcon,
+  ChartLineIcon,
+  ClipboardListIcon,
+  ClipboardPen,
   FileSpreadsheet,
-  FileText,
+  HandCoinsIcon,
+  HandshakeIcon,
+  IdCard,
+  LandmarkIcon,
   LayoutDashboardIcon,
   LayoutGrid,
   Navigation,
   Package,
-  PieChart,
+  ReceiptTextIcon,
   Settings2Icon,
-  ShoppingCart,
-  Truck,
-  User,
+  TreePalmIcon,
+  User2Icon,
+  UserCogIcon,
 } from "lucide-react";
 
 
@@ -45,40 +50,90 @@ export const menusConfig = (): MenuConfigProps =>  {
           rol: "Todos",
         },
         {
-          title: "Gestión Trabajadores",
-          icon: Briefcase,
+          title: "Administración",
+          icon: UserCogIcon,
           rol: "Todos",
           child:[
-              {
-                title: "Trabajadores",
-                icon: User,
-                href: "/cliente",
-                rol: "Todos",
-              },
-              {
-                title: "Proveedores",
-                icon: Truck,
-                href: "/proveedor",
-                rol: "Todos",
-              },
-              {
-                title: "Cotizaciones",
-                icon: FileText,
-                href: "/cotizaciones",
-                rol: "Todos",
-              },
-              {
-                title: "Orden de compra",
-                icon: ShoppingCart,
-                href: "/orden-compra",
-                rol: "Todos",
-              },
-              {
-                title: "Nota de ingreso",
-                icon: ClipboardCheck,
-                href: "/nota-ingreso",
-                rol: "Todos",
-              }
+            {
+              title: "Empresas",
+              icon: BuildingIcon,
+              href: "/empresa",
+              rol: "Todos",
+            },
+            {
+              title: "Usuarios",
+              icon: User2Icon,
+              href: "/usuario",
+              rol: "Todos",
+            },
+            {
+              title: "Conceptos",
+              icon: ClipboardPen,
+              href: "/concepto",
+              rol: "Todos",
+            },
+          ]
+        },
+        {
+          title: "Trabajadores",
+          icon: HandshakeIcon,
+          rol: "Todos",
+          child:[
+            {
+              title: "Trabajadores",
+              icon: IdCard,
+              href: "/trabajador",
+              rol: "Todos",
+            },
+            {
+              title: "Sueldo",
+              icon: Banknote,
+              href: "/sueldo",
+              rol: "Todos",
+            },
+            {
+              title: "Vacaciones",
+              icon: TreePalmIcon,
+              href: "/vacaciones",
+              rol: "Todos",
+            },
+            {
+              title: "Gratificaciones",
+              icon: HandCoinsIcon,
+              href: "/gratificacion",
+              rol: "Todos",
+            },
+            {
+              title: "C.T.S.",
+              icon: LandmarkIcon,
+              href: "/cts",
+              rol: "Todos",
+            },
+          ]
+        },
+        {
+          title: "Procesos de Planillas",
+          icon: BarChart,
+          rol: "Todos",
+          child:[
+            {
+              title: "Planilla",
+              icon: ClipboardListIcon,
+              href: "/planilla",
+              rol: "Todos",
+            },
+            {
+              title: "Boleta de Pago",
+              icon: ReceiptTextIcon,
+              href: "/boleta",
+              rol: "Todos",
+            },
+            {
+              title: "Reporte",
+              icon: ChartLineIcon,
+              href: "/boleta",
+              rol: "Todos",
+            },
           ]
         },
         {
@@ -104,26 +159,6 @@ export const menusConfig = (): MenuConfigProps =>  {
               href: "/guiado",
               rol: "Todos",
             }
-          ]
-        },
-        {
-          title: "Reportes",
-          icon: BarChart,
-          rol: "Todos",
-          child:[
-            {
-              title: "Reporte valorizado",
-              icon: BarChart3,
-              href: "/reporte-valorizado",
-              rol: "Todos",
-            },
-            
-            {
-              title: "Reportes",
-              icon: PieChart,
-              href: "/reportes",
-              rol: "Todos",
-            },
           ]
         },
         

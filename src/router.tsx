@@ -3,12 +3,12 @@ import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/dashboard/page"
 import AuthLayout from "./layouts/AuthLayout";
 import LoginPage from "./pages/auth/login/page";
-import ClientePage from "./pages/clients/page";
-import ClienteIdPage from "./pages/clients/[id]/page";
-import ProveedorePage from "./pages/proveedores/page";
-import ProveedorIdPage from "./pages/proveedores/[id]/page";
-import CotizacionesPage from "./pages/cotizaciones/page";
-import CotizacionesIdPage from "./pages/cotizaciones/[id]/page";
+import EmpresaPage from "./pages/administracion/empresa/page";
+import EmpresaIdPage from "./pages/administracion/empresa/[id]/page";
+import UsuarioPage from "./pages/administracion/usuario/page";
+import UsuarioIdPage from "./pages/administracion/usuario/[id]/page";
+import ConceptoPage from "./pages/administracion/conceptos/page";
+import ConceptosIdPage from "./pages/administracion/conceptos/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -31,29 +31,30 @@ export const router = createBrowserRouter([
         element: <AdminDashboard />,
       },
       {
-        path:"/fondo-pension" ,
-        element: <ClientePage />,
+        path:"/empresa" ,
+        element: <EmpresaPage />,
       },
       {
-        path:"/fondo-pension/:id" ,
-        element: <ClienteIdPage />,
+        path:"/empresa/:id" ,
+        element: <EmpresaIdPage />,
       },
       {
-        path:"/proveedor" ,
-        element: <ProveedorePage />,
+        path:"/usuario" ,
+        element: <UsuarioPage />,
       },
       {
-        path:"/proveedor/:id" ,
-        element: <ProveedorIdPage />,
+        path:"/usuario/:id" ,
+        element: <UsuarioIdPage />,
       },
       {
-        path:"/cotizaciones" ,
-        element: <CotizacionesPage />,
+        path:"/concepto" ,
+        element: <ConceptoPage />,
       },
       {
-        path:"/cotizaciones/:id" ,
-        element: <CotizacionesIdPage />,
-      }
+        path:"/concepto/:id" ,
+        element: <ConceptosIdPage />,
+      },
+      
     ],
   },
 ]);

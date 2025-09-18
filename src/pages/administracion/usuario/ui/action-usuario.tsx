@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Proveedores } from "@/interfaces/proveedores.interface";
+import { Usuario } from "@/interfaces/usuario.interface";
 import {
   BadgeCheck,
   Copy,
@@ -32,20 +32,20 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
-  proveedor: Proveedores;
+  usuario: Usuario;
   onRefresh: () => void;
 }
 
-export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
+export default function ActionsUsuario({ usuario, onRefresh }: Props) {
   
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChangeStatus = async (id: number) => {
+  const handleChangeStatus = async (userId: number) => {
     setIsLoading(true);
-    console.log(id)
+    console.log(userId)
 
-    // const response = await activeOrinactiveRol(id);
+    // const response = await activeOrinactiveRol(userId);
 
     setIsLoading(false);
 
@@ -70,21 +70,21 @@ export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(proveedor.id.toString());
+            navigator.clipboard.writeText( usuario.userId.toString());
             toast("ID copiado");
           }}
         >
           <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID de proveedor</span>
+          <span className="text-sm ml-2">Copiar ID de  usuario</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/proveedor/${proveedor.id}`}
+            to={`/ usuario/${ usuario.userId}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
-            <span className="text-sm">Editar Proveedor</span>
+            <span className="text-sm">Editar  usuario</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -95,8 +95,8 @@ export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button className="w-full flex flex-row items-center gap-2 py-1">
-                {proveedor.status ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
-                {proveedor.status ? "Desactivar Proveedor" : "Activar Proveedor"}
+                { usuario.state ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
+                { usuario.state ? "Desactivar  usuario" : "Activar  usuario"}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -105,7 +105,7 @@ export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
                   ¿Estás absolutamente seguro?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción {proveedor.status ? "desactivara" : "activara"} el proveedor
+                  Esta acción { usuario.state ? "desactivara" : "activara"} la  usuario
                   de nuestros servidores.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -115,7 +115,7 @@ export default function ActionsProveedor({ proveedor, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(proveedor.id);
+                    handleChangeStatus( usuario.userId);
                   }}
                   disabled={isLoading}
                   className="gap-2"

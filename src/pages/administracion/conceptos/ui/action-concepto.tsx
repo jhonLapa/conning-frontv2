@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Cliente } from "@/interfaces/cliente.interface";
+import { Concepto } from "@/interfaces/concepto.interface";
 import {
   BadgeCheck,
   Copy,
@@ -32,20 +32,20 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
-  cliente: Cliente;
+  concepto: Concepto;
   onRefresh: () => void;
 }
 
-export default function ActionsRol({ cliente, onRefresh }: Props) {
+export default function ActionsConcepto({ concepto, onRefresh }: Props) {
   
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChangeStatus = async (id: number) => {
+  const handleChangeStatus = async (userId: number) => {
     setIsLoading(true);
-    console.log(id)
+    console.log(userId)
 
-    // const response = await activeOrinactiveRol(id);
+    // const response = await activeOrinactiveRol(userId);
 
     setIsLoading(false);
 
@@ -70,21 +70,21 @@ export default function ActionsRol({ cliente, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(cliente.id.toString());
+            navigator.clipboard.writeText( concepto.id.toString());
             toast("ID copiado");
           }}
         >
           <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID de cliente</span>
+          <span className="text-sm ml-2">Copiar ID de  concepto</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/cliente/${cliente.id}`}
+            to={`/concepto/${ concepto.id}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
-            <span className="text-sm">Editar Cliente</span>
+            <span className="text-sm">Editar  concepto</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -95,8 +95,8 @@ export default function ActionsRol({ cliente, onRefresh }: Props) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button className="w-full flex flex-row items-center gap-2 py-1">
-                {cliente.status ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
-                {cliente.status ? "Desactivar Cliente" : "Activar Cliente"}
+                { concepto.state ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
+                { concepto.state ? "Desactivar  concepto" : "Activar  concepto"}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -105,7 +105,7 @@ export default function ActionsRol({ cliente, onRefresh }: Props) {
                   ¿Estás absolutamente seguro?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción {cliente.status ? "desactivara" : "activara"} el cliente
+                  Esta acción { concepto.state ? "desactivara" : "activara"} el  concepto
                   de nuestros servidores.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -115,7 +115,7 @@ export default function ActionsRol({ cliente, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(cliente.id);
+                    handleChangeStatus( concepto.id);
                   }}
                   disabled={isLoading}
                   className="gap-2"

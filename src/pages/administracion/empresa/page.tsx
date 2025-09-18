@@ -8,25 +8,25 @@ import {
   stateFilter,
 } from "./ui/columns";
 
-export default function ProveedorePage() {
+export default function EmpresaPage() {
   
   const refreshDataTable = useRef<() => void>(null);
 
   return (
     <>
       <HeaderPage
-        title="Proveedor"
-        descripcion="Listado de todos los Proveedores."
+        title="Empresas"
+        descripcion="Listado de todas las empresa."
         linkConfig={{
-          title: "Nuevo Proveedor",
-          url: "/proveedor/nuevo",
+          title: "Nueva empresa",
+          url: "/empresa/nuevo",
         }}
       />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="proveedor/busquedapaginado"
+        url="empresa/busquedapaginado"
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

@@ -7,33 +7,26 @@ import {
   getColumns,
   stateFilter,
 } from "./ui/columns";
-import { Button } from "@/components/ui/button";
-import { FileTextIcon } from "lucide-react";
 
-export default function CotizacionesPage() {
+export default function UsuarioPage() {
   
   const refreshDataTable = useRef<() => void>(null);
 
   return (
     <>
       <HeaderPage
-        title="Cotizaciones"
-        descripcion="Listado de todos los Cotizaciones."
+        title="Usuarios"
+        descripcion="Listado de todas las usuarios."
         linkConfig={{
-          title: "Nuevo Proveedor",
-          url: "/cotizaciones/nuevo",
+          title: "Nuevo Usuario",
+          url: "/usuario/nuevo",
         }}
-      >
-        <Button className="bg-red-500 hover:bg-red-500/80 text-white rounded-md px-4 py-1.5 flex gap-2 items-center justify-center w-full lg:w-auto cursor-pointer">
-          <FileTextIcon />
-          Exportar PDF
-        </Button>
-      </HeaderPage>
+      />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="cotizaciones/busquedapaginado"
+        url="usuario/busquedapaginado"
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {
