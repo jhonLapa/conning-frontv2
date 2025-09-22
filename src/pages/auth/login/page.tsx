@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoginDto } from "@/interfaces/auth.interface";
 import { callLogin } from "@/services/auth.service";
 import { useAuthStore } from "@/stores/auth.store";
 import { Eye, EyeOff } from "lucide-react";
@@ -9,10 +10,6 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-export interface LoginDto {
-  username: string,
-  password: string,
-}
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -24,24 +21,24 @@ export default function LoginPage() {
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginDto>({
     defaultValues: {
-      username: "admin",
-      password: "123",
+      email: "admincommig@gmail.com",
+      password: "admin",
     },
   });
 
   const onSubmit = async (values: LoginDto) => {
     const response = await callLogin(values);
-
+    console.log("response",response)
     if (!response?.success) {
       toast.warning(response?.message, { position: "top-center" });
       return;
     }
 
     if (response.data) {
-      login(response.data?.user, response.data?.token);
+      login(response.data?.user, response.data?.accessToken);
       navigate("/");
     }
 
@@ -58,17 +55,17 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4">
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="email">Correo</Label>
             <Input
-              {...register("username", {
+              {...register("email", {
                 required: "El nombre de usuario es requerido",
               })}
-              type="username"
-              id="username"
-              placeholder="Ingrese su nombre de usuario"
+              type="email"
+              id="email"
+              placeholder="Ingrese su email de usuario"
             />
-            {errors.username && (
-              <p className="msg-error">{errors.username.message}</p>
+            {errors.email && (
+              <p className="msg-error">{errors.email.message}</p>
             )}
           </div>
 
@@ -108,11 +105,9 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        {/* <Button variant="sidebar" className="w-full mt-4" type="submit" disabled={isSubmitting}>
+        <Button variant="sidebar" className="w-full mt-4" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
-        </Button> */}
-         <Button variant="sidebar" className="w-full mt-4" type="button" onClick={() => navigate("/")}>
-          Iniciar sesión
+            Iniciar sesión
         </Button>
 
         <div className="mt-4 flex flex-col justify-center items-center">
