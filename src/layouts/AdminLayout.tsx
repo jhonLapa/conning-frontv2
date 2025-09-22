@@ -7,8 +7,8 @@ import Header from "@/components/partials/header";
 import Sidebar from "@/components/partials/sidebar";
 import Footer from "@/components/partials/footer";
 import LayoutLoader from "@/components/layout-loader";
-import { Outlet } from "react-router-dom";
-// import { useAuthStore } from "@/stores/auth.store";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuthStore } from "@/stores/auth.store";
 
 
 const AdminLayout = () => {
@@ -17,11 +17,11 @@ const AdminLayout = () => {
     const [open, setOpen] = useState(false);
     const mounted = useMounted();
   
-    // const { isAuthenticated, user } = useAuthStore((state) => state);
+    const { isAuthenticated, user } = useAuthStore((state) => state);
 
-    // if (!isAuthenticated || !user) {
-    //   return <Navigate to="/auth" replace />;
-    // }
+    if (!isAuthenticated || !user) {
+      return <Navigate to="/auth" replace />;
+    }
 
 
     if (!mounted) {

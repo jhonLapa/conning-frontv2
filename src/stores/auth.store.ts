@@ -4,7 +4,11 @@ import { create } from "zustand";
 import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
 
 export interface User {
-  name: string
+  userId: number,
+  firstName:string,
+  lasName:string,
+  email:string,
+  state: boolean
 }
 
 // Interfaces mejoradas
