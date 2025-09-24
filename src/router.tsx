@@ -9,6 +9,8 @@ import UsuarioPage from "./pages/administracion/usuario/page";
 import UsuarioIdPage from "./pages/administracion/usuario/[id]/page";
 import ConceptoPage from "./pages/administracion/conceptos/page";
 import ConceptosIdPage from "./pages/administracion/conceptos/[id]/page";
+import AfectacionesPage from "./pages/administracion/afectaciones/page";
+import AfectactioneIdPage from "./pages/administracion/afectaciones/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -54,7 +56,14 @@ export const router = createBrowserRouter([
         path:"/concepto/:id" ,
         element: <ConceptosIdPage />,
       },
-      
+      {
+        path:"/afectacion" ,
+        element: <AfectacionesPage />,
+      },
+      {
+        path:"/afectacion/:id" ,
+        element: <AfectactioneIdPage />,
+      },
     ],
   },
 ]);

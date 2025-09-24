@@ -6,6 +6,7 @@ import {
   ChartLineIcon,
   ClipboardListIcon,
   ClipboardPen,
+  CloudCog,
   FileSpreadsheet,
   HandCoinsIcon,
   HandshakeIcon,
@@ -70,6 +71,12 @@ export const menusConfig = (): MenuConfigProps =>  {
               title: "Conceptos",
               icon: ClipboardPen,
               href: "/concepto",
+              rol: "Todos",
+            },
+            {
+              title: "Afectaciones",
+              icon: CloudCog,
+              href: "/afectacion",
               rol: "Todos",
             },
           ]
