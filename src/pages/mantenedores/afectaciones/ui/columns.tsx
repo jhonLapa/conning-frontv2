@@ -3,14 +3,13 @@ import { SortedIcon } from "@/components/sorted-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import ActionsConcepto from "./action-concepto";
-import { Concepto } from "@/interfaces/concepto.interface";
-import { formatDateTimeLOCAL } from "@/utils";
+import ActionsAfectacion from "./action-afectacion";
+import { Afectacion } from "@/interfaces/afectacione.interface";
 
 export const columnNames: Record<string, string> = {
   code: "Codigo",
-  decripcion: "Descripcion",
-  fechaCreacion: "Fecha Creacion",
+  name: "Nombre.",
+  createAt: "Fecha Creacion",
   actions: "Acciones",
 };
 
@@ -18,7 +17,11 @@ export const columnFilter: FilterConfig[] = [
   {
     id: "code",
     label: "Codigo",
-  }
+  },
+  {
+    id: "name",
+    label: "Nombre",
+  },
 ];
 
 export const stateFilter: FilterConfig[] = [
@@ -36,14 +39,16 @@ export const stateFilter: FilterConfig[] = [
   },
 ];
 
-export const getColumns = (refreshDataTable: () => void): ColumnDef<Concepto>[] => [
- 
+export const getColumns = (refreshDataTable: () => void): ColumnDef<Afectacion>[] => [
   {
     id: "code",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(isSorted === "asc")}>
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
           Codigo
           <SortedIcon isSorted={isSorted} />
         </Button>
@@ -52,17 +57,29 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<Concepto>[] 
     cell: ({ row }) => <span className="ml-4">{row.original.codigo}</span>,
   },
   {
-    header: "Descripcion",
-    id: "descripcion",
-    cell: ({ row }) => <span>{row.original.descripcion}</span>,
+    id: "name",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Nombre Completo
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <span className="ml-4">{row.original.nombre}</span>,
   },
   {
-    header: "Fecha Creacio",
-    id: "fechaCreacion",
-    cell: ({ row }) => <span>{formatDateTimeLOCAL(row.original.fechaCreacion)}</span>,
+    header: "Fecha Creacion",
+    id: "createAt",
+    cell: ({ row }) => <span>{row.original.fechaCreacion}</span>,
   },
   {
-    accessorKey: "status",
+    accessorKey: "Estado",
+    id: "status",
     header: "Estado",
     cell: ({ row }) => {
       const state: boolean = row.original.estado === 1 ;
@@ -76,7 +93,7 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<Concepto>[] 
   {
     id: "actions",
     cell: ({ row }) => (
-      <ActionsConcepto concepto={row.original} onRefresh={refreshDataTable} />
+      <ActionsAfectacion afectacion={row.original} onRefresh={refreshDataTable} />
     ),
   },
 ];

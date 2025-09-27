@@ -3,15 +3,13 @@ import { SortedIcon } from "@/components/sorted-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import ActionsConcepto from "./action-afectacion";
-import { Concepto } from "@/interfaces/concepto.interface";
+import { GrupoConcepto } from "@/interfaces/grupo-concepto";
+import ActionsGrupoConcepto from "./action-concepto";
 
 export const columnNames: Record<string, string> = {
   code: "Codigo",
-  ruc: "RUT.",
-  razonSocial: "Razon Social",
-  direccion: "Direccion",
-  fechaCreacion: "Fecha Creacion",
+  name: "Nombre.",
+  createAt: "Fecha Creacion",
   actions: "Acciones",
 };
 
@@ -21,8 +19,8 @@ export const columnFilter: FilterConfig[] = [
     label: "Codigo",
   },
   {
-    id: "razonSocial",
-    label: "Razon Social",
+    id: "name",
+    label: "Nombre",
   },
 ];
 
@@ -41,11 +39,22 @@ export const stateFilter: FilterConfig[] = [
   },
 ];
 
-export const getColumns = (refreshDataTable: () => void): ColumnDef<Concepto>[] => [
+export const getColumns = (refreshDataTable: () => void): ColumnDef<GrupoConcepto>[] => [
   {
-    header: "Codigo",
     id: "code",
-    cell: ({ row }) => <span>{row.original.code}</span>,
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Codigo
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <span className="ml-4">{row.original.codigo}</span>,
   },
   {
     id: "name",
@@ -61,18 +70,19 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<Concepto>[] 
         </Button>
       );
     },
-    cell: ({ row }) => <span className="ml-4">{row.original.grupo}</span>,
+    cell: ({ row }) => <span className="ml-4">{row.original.nombre}</span>,
   },
   {
-    header: "Descripcion",
-    id: "descripcion",
-    cell: ({ row }) => <span>{row.original.descripcion}</span>,
+    header: "Fecha Creacion",
+    id: "createAt",
+    cell: ({ row }) => <span>{row.original.fechaCreacion}</span>,
   },
   {
-    accessorKey: "status",
+    accessorKey: "Estado",
+    id: "status",
     header: "Estado",
     cell: ({ row }) => {
-      const state: boolean = row.original.state;
+      const state: boolean = row.original.estado === 1 ;
       return (
         <Badge variant={state ? "success" : "destructive"}>
           {state ? "Activo" : "Inactivo"}
@@ -83,7 +93,7 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<Concepto>[] 
   {
     id: "actions",
     cell: ({ row }) => (
-      <ActionsConcepto concepto={row.original} onRefresh={refreshDataTable} />
+      <ActionsGrupoConcepto grupoConcepto={row.original} onRefresh={refreshDataTable} />
     ),
   },
 ];

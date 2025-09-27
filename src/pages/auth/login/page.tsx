@@ -31,7 +31,6 @@ export default function LoginPage() {
 
   const onSubmit = async (values: LoginDto) => {
     const response = await callLogin(values);
-    console.log("response",response)
     if (!response?.success) {
       toast.warning(response?.message, { position: "top-center" });
       return;

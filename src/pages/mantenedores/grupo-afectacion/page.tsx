@@ -1,0 +1,38 @@
+import { DataTable } from "@/components/datatable";
+import HeaderPage from "@/components/header-page";
+import { useRef } from "react";
+import {
+  columnFilter,
+  columnNames,
+  getColumns,
+  stateFilter,
+} from "./ui/columns";
+
+export default function GrupoConceptoPage() {
+  
+  const refreshDataTable = useRef<() => void>(null);
+
+  return (
+    <>
+      <HeaderPage
+        title="Grupo Concepto"
+        descripcion="Listado de todas los grupos."
+        linkConfig={{
+          title: "Nueva Afectacion",
+          url: "/grupo-concepto/nuevo",
+        }}
+      />
+
+      <DataTable
+        columns={getColumns(() => refreshDataTable.current?.())}
+        columnNames={columnNames}
+        url="grupoConcepto/busquedapaginado"
+        typeFilter={columnFilter}
+        stateFilter={stateFilter}
+        onRefresh={(callback) => {
+          refreshDataTable.current = callback;
+        }}
+      />
+    </>
+  );
+}

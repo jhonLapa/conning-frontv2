@@ -15,13 +15,24 @@ export interface AfectacionMap{
     code: string
 }
 
+export interface AfectacionSelect {
+    nombre: string
+    codigo: string
+}
+
 export interface AfectacionRequest {
     nombre: string,
     codigo: string
 }
 
+export interface AfectacionConfiguracion{
+    idEmpresa: number
+    idAfectacion: number
+    porcentaje: number
+    activo: boolean
+}
 
-export interface AfectacionConfiguracion {
+export interface AfectacionConfiguracionRequest {
     idEmpresa: number
     idAfectacion: number
     porcentaje: number
