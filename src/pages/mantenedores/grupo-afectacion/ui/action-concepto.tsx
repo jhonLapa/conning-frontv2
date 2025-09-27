@@ -18,8 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Concepto } from "@/interfaces/concepto.interface";
-import { activeOrdesactiveConcepto } from "@/services/concepto.service";
+import { GrupoConcepto } from "@/interfaces/grupo-concepto";
+import { activeOrdesactiveAfectacion } from "@/services/afectacion.service";
 import {
   BadgeCheck,
   Copy,
@@ -33,11 +33,11 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
-  concepto: Concepto;
+  grupoConcepto: GrupoConcepto;
   onRefresh: () => void;
 }
 
-export default function ActionsConcepto({ concepto, onRefresh }: Props) {
+export default function ActionsGrupoConcepto ({ grupoConcepto, onRefresh }: Props) {
   
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -45,16 +45,16 @@ export default function ActionsConcepto({ concepto, onRefresh }: Props) {
   const handleChangeStatus = async (id: number) => {
     setIsLoading(true);
     
-    const response = await activeOrdesactiveConcepto(id);
+    const response = await activeOrdesactiveAfectacion(id);
 
-    if (!response?.success) {
-      toast.warning(response?.message, { position: "top-center" });
+    if (!response.success) {
       setIsLoading(false);
+      toast.warning(response?.message, { position: "top-center" });
       return;
     }
 
-    toast.success(response?.message, { position: "top-center" });
     setIsLoading(false);
+    toast.success(response?.message, { position: "top-right" });
     onRefresh();
   };
 
@@ -70,21 +70,21 @@ export default function ActionsConcepto({ concepto, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText( concepto.idConcepto.toString());
+            navigator.clipboard.writeText( grupoConcepto.idGrupo.toString());
             toast("ID copiado");
           }}
         >
           <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID de  concepto</span>
+          <span className="text-sm ml-2">Copiar ID del grupo</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/concepto/${ concepto.idConcepto}`}
+            to={`/grupo-concepto/${grupoConcepto.idGrupo}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
-            <span className="text-sm">Editar  concepto</span>
+            <span className="text-sm">Editar  grupo</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -95,8 +95,8 @@ export default function ActionsConcepto({ concepto, onRefresh }: Props) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button className="w-full flex flex-row items-center gap-2 py-1">
-                { concepto.state ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
-                { concepto.state ? "Desactivar  concepto" : "Activar  concepto"}
+                { (grupoConcepto.estado === 1) ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
+                { (grupoConcepto.estado === 1) ? "Desactivar  Grupo" : "Activar  Grupo"}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -105,7 +105,7 @@ export default function ActionsConcepto({ concepto, onRefresh }: Props) {
                   ¿Estás absolutamente seguro?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción { concepto.state ? "desactivara" : "activara"} el  concepto
+                  Esta acción { (grupoConcepto.estado === 1) ? "desactivara" : "activara"} el Grupo 
                   de nuestros servidores.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -115,7 +115,7 @@ export default function ActionsConcepto({ concepto, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus( concepto.idConcepto);
+                    handleChangeStatus( grupoConcepto.idGrupo);
                   }}
                   disabled={isLoading}
                   className="gap-2"

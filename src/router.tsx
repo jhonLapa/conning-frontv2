@@ -9,6 +9,14 @@ import UsuarioPage from "./pages/administracion/usuario/page";
 import UsuarioIdPage from "./pages/administracion/usuario/[id]/page";
 import ConceptoPage from "./pages/administracion/conceptos/page";
 import ConceptosIdPage from "./pages/administracion/conceptos/[id]/page";
+import AfectacionesPage from "./pages/mantenedores/afectaciones/page";
+import AfectactioneIdPage from "./pages/mantenedores/afectaciones/[id]/page";
+import BanksPage from "./pages/mantenedores/banks/page";
+import BankIdPage from "./pages/mantenedores/banks/[id]/page";
+import MantenimientoConceptoIdPage from "./pages/administracion/mantenimientos/[id]/page";
+import MantenimientoConceptoPage from "./pages/administracion/mantenimientos/page";
+import GrupoConceptoPage from "./pages/mantenedores/grupo-afectacion/page";
+import GrupoConceptoIdPage from "./pages/mantenedores/grupo-afectacion/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -54,7 +62,38 @@ export const router = createBrowserRouter([
         path:"/concepto/:id" ,
         element: <ConceptosIdPage />,
       },
-      
+      {
+        path:"/afectacion" ,
+        element: <AfectacionesPage />,
+      },
+      {
+        path:"/afectacion/:id" ,
+        element: <AfectactioneIdPage />,
+      },
+      {
+        path:"/banco" ,
+        element: <BanksPage />,
+      },
+      {
+        path:"/banco/:id" ,
+        element: <BankIdPage />,
+      },
+      {
+        path:"/mantenimiento" ,
+        element: <MantenimientoConceptoPage />,
+      },
+      {
+        path:"/mantenimiento/:id" ,
+        element: <MantenimientoConceptoIdPage />,
+      },
+      {
+        path:"/grupo-concepto" ,
+        element: <GrupoConceptoPage />,
+      },
+      {
+        path:"/grupo-concepto/:id" ,
+        element: <GrupoConceptoIdPage />,
+      },
     ],
   },
 ]);

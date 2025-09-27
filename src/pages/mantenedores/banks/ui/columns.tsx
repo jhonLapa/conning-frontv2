@@ -3,22 +3,22 @@ import { SortedIcon } from "@/components/sorted-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import ActionsConcepto from "./action-concepto";
-import { Concepto } from "@/interfaces/concepto.interface";
-import { formatDateTimeLOCAL } from "@/utils";
+import ActionsBank from "./action-banco";
+import { Bank } from "@/interfaces/bank.interface";
+import { formatDateTime } from "@/utils";
 
 export const columnNames: Record<string, string> = {
-  code: "Codigo",
-  decripcion: "Descripcion",
-  fechaCreacion: "Fecha Creacion",
+  name: "Nombre.",
+  nameShort: "Nombre Corto",
+  createAt: "Fecha Creacion",
   actions: "Acciones",
 };
 
 export const columnFilter: FilterConfig[] = [
   {
-    id: "code",
-    label: "Codigo",
-  }
+    id: "name",
+    label: "Nombre",
+  },
 ];
 
 export const stateFilter: FilterConfig[] = [
@@ -36,33 +36,36 @@ export const stateFilter: FilterConfig[] = [
   },
 ];
 
-export const getColumns = (refreshDataTable: () => void): ColumnDef<Concepto>[] => [
- 
+export const getColumns = (refreshDataTable: () => void): ColumnDef<Bank>[] => [
   {
-    id: "code",
+    id: "name",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(isSorted === "asc")}>
-          Codigo
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Nombre Completo
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
-    cell: ({ row }) => <span className="ml-4">{row.original.codigo}</span>,
+    cell: ({ row }) => <span className="ml-4">{row.original.nombre}</span>,
   },
   {
-    header: "Descripcion",
-    id: "descripcion",
-    cell: ({ row }) => <span>{row.original.descripcion}</span>,
+    id: "nameShort ",
+    header: "Nombre Corto",
+    cell: ({ row }) => <span>{row.original.nombreCorto}</span>,
   },
   {
-    header: "Fecha Creacio",
-    id: "fechaCreacion",
-    cell: ({ row }) => <span>{formatDateTimeLOCAL(row.original.fechaCreacion)}</span>,
+    header: "Fecha Creacion",
+    id: "createAt",
+    cell: ({ row }) => <span>{formatDateTime(row.original.fechaCreacion)}</span>,
   },
   {
-    accessorKey: "status",
+    accessorKey: "Estado",
+    id: "status",
     header: "Estado",
     cell: ({ row }) => {
       const state: boolean = row.original.estado === 1 ;
@@ -76,7 +79,7 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<Concepto>[] 
   {
     id: "actions",
     cell: ({ row }) => (
-      <ActionsConcepto concepto={row.original} onRefresh={refreshDataTable} />
+      <ActionsBank bank={row.original} onRefresh={refreshDataTable} />
     ),
   },
 ];

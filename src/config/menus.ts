@@ -6,15 +6,16 @@ import {
   ChartLineIcon,
   ClipboardListIcon,
   ClipboardPen,
-  FileSpreadsheet,
+  CloudCog,
   HandCoinsIcon,
   HandshakeIcon,
   IdCard,
+  Keyboard,
+  Landmark,
   LandmarkIcon,
   LayoutDashboardIcon,
   LayoutGrid,
-  Navigation,
-  Package,
+  PackageIcon,
   ReceiptTextIcon,
   Settings2Icon,
   TreePalmIcon,
@@ -70,6 +71,12 @@ export const menusConfig = (): MenuConfigProps =>  {
               title: "Conceptos",
               icon: ClipboardPen,
               href: "/concepto",
+              rol: "Todos",
+            },
+            {
+              title: "Mantenimiento",
+              icon: Keyboard,
+              href: "/mantenimiento",
               rol: "Todos",
             },
           ]
@@ -142,23 +149,23 @@ export const menusConfig = (): MenuConfigProps =>  {
           rol: "Todos",
           child:[
             {
-              title: "Fondos de Pensiones",
-              icon: FileSpreadsheet,
-              href: "/fondo-pension",
-              rol: "Todos",
-            },
-            {
-              title: "Categoria",
-              icon: Package,
-              href: "/opcion-despacho",
+              title: "Afectaciones",
+              icon: CloudCog,
+              href: "/afectacion",
               rol: "Todos",
             },
             {
               title: "Bancos",
-              icon: Navigation,
-              href: "/guiado",
+              icon: Landmark,
+              href: "/banco",
               rol: "Todos",
-            }
+            },
+            {
+              title: "Grupo Concepciones",
+              icon: PackageIcon,
+              href: "/grupo-concepto",
+              rol: "Todos",
+            },
           ]
         },
         
