@@ -317,7 +317,7 @@ const MantenimientoConceptoIdPage = () => {
                         <hr />
                     </CardHeader>
                     <CardContent>
-                        <div className="flex items-center  rounded-md shadow-md">
+                        <div className="flex items-center rounded-md shadow-md">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
