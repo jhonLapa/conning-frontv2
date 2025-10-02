@@ -7,7 +7,7 @@ export const fetchData = async <T>(
 ) => {
   const { pageIndex, pageSize, sortBy, filters } = filtersAndPagination;
 
-  let customURL = `${url}?page=${pageIndex}&take=${pageSize}`;
+  let customURL = `${url}?Page=${pageIndex}&Take=${pageSize}`;
 
   if (filters && filters.length > 0) {
     const filterParams = filters

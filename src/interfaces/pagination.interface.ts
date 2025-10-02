@@ -4,5 +4,6 @@ export interface Pagination<T> {
     totalCount: number;
     page: number;
     totalPages: number;
+    currentPage: number;
   };
 }

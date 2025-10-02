@@ -99,7 +99,11 @@ export function DataTable<TData, TValue>({
 
     setLastpage(meta.totalPages);
     setData(data as TData[]);
-  }, [pagination, sorting, columnFilters, url]);
+    setPagination((prev) => ({
+      ...prev,
+      pageIndex: meta.page,
+    }));
+  }, [pagination.pageIndex, pagination.pageSize, sorting, columnFilters, url]);
 
   useEffect(() => {
     if (onRefresh) {
