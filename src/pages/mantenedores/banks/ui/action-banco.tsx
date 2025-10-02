@@ -37,15 +37,14 @@ interface Props {
   onRefresh: () => void;
 }
 
-export default function ActionsBank ({ bank, onRefresh }: Props) {
-  
+export default function ActionsBank({ bank, onRefresh }: Props) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChangeStatus = async (id: number) => {
+  const handleChangeStatus = async (idBanco: number) => {
     setIsLoading(true);
-    
-    const response = await activeOrdesactiveBank(id);
+
+    const response = await activeOrdesactiveBank(idBanco);
 
     if (!response.success) {
       setIsLoading(false);
@@ -70,7 +69,7 @@ export default function ActionsBank ({ bank, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText( bank.id.toString());
+            navigator.clipboard.writeText(bank.idBanco.toString());
             toast("ID copiado");
           }}
         >
@@ -80,11 +79,11 @@ export default function ActionsBank ({ bank, onRefresh }: Props) {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/banco/${ bank.id}`}
+            to={`/banco/${bank.idBanco}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
-            <span className="text-sm">Editar  banco</span>
+            <span className="text-sm">Editar banco</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -95,8 +94,12 @@ export default function ActionsBank ({ bank, onRefresh }: Props) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button className="w-full flex flex-row items-center gap-2 py-1">
-                { (bank.estado === 1) ? <Trash2 size={18} /> : <BadgeCheck size={18} />}
-                { (bank.estado === 1) ? "Desactivar  banco" : "Activar  banco"}
+                {bank.estado === 1 ? (
+                  <Trash2 size={18} />
+                ) : (
+                  <BadgeCheck size={18} />
+                )}
+                {bank.estado === 1 ? "Desactivar  banco" : "Activar  banco"}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -105,8 +108,8 @@ export default function ActionsBank ({ bank, onRefresh }: Props) {
                   ¿Estás absolutamente seguro?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción { (bank.estado === 1) ? "desactivar" : "activar"} el banco 
-                  de nuestros servidores.
+                  Esta acción {bank.estado === 1 ? "desactivara" : "activara"}{" "}
+                  el banco de nuestros servidores.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -115,7 +118,7 @@ export default function ActionsBank ({ bank, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(bank.id);
+                    handleChangeStatus(bank.idBanco);
                   }}
                   disabled={isLoading}
                   className="gap-2"

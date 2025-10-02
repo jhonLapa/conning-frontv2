@@ -9,7 +9,6 @@ import {
 } from "./ui/columns";
 
 export default function BanksPage() {
-  
   const refreshDataTable = useRef<() => void>(null);
 
   return (
@@ -26,7 +25,7 @@ export default function BanksPage() {
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="bank/busquedapaginado"
+        url="banco/busquedapaginado"
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {
