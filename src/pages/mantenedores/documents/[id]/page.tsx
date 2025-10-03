@@ -9,7 +9,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Document, DocumentRequest } from "@/interfaces/document.interface";
+import {
+  TipoDocumento,
+  TipoDocumentoRequest,
+} from "@/interfaces/document.interface";
 import {
   getFetchDocumentById,
   postDocument,
@@ -23,14 +26,14 @@ import { toast } from "sonner";
 const DocumentosIdPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [documento, setDocumento] = useState<Document | null>(null);
+  const [documento, setDocumento] = useState<TipoDocumento | null>(null);
   const title = id == "nuevo" ? "Nueva Documento" : "Editar Documento";
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<DocumentRequest>({
+  } = useForm<TipoDocumentoRequest>({
     defaultValues: {
       codigo: "",
       nombre: "",
@@ -46,7 +49,7 @@ const DocumentosIdPage = () => {
     setDocumento(response);
   };
 
-  const onSubmit = async (data: DocumentRequest) => {
+  const onSubmit = async (data: TipoDocumentoRequest) => {
     const response = documento
       ? await putDocument(documento.idTipoDocumento, data)
       : await postDocument(data);

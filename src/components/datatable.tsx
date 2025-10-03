@@ -166,7 +166,7 @@ export function DataTable<TData, TValue>({
                 if (columnFilters.length > 0) {
                   setSearchTerm("");
                   const status = columnFilters.find(
-                    (item) => item.id === "estado"
+                    (item) => item.id === "status"
                   );
                   if (status) {
                     setColumnFilters([status]);
@@ -209,7 +209,7 @@ export function DataTable<TData, TValue>({
               value={currentStatus}
               onValueChange={(value) => {
                 setCurrentStatus(value);
-                table.getColumn("estado")?.setFilterValue(value);
+                table.getColumn("status")?.setFilterValue(value);
               }}
             >
               <SelectTrigger className="w-32 bg-white">

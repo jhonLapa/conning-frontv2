@@ -19,6 +19,8 @@ import GrupoConceptoPage from "./pages/mantenedores/grupo-afectacion/page";
 import GrupoConceptoIdPage from "./pages/mantenedores/grupo-afectacion/[id]/page";
 import DocumentoPage from "./pages/mantenedores/documents/page";
 import DocumentosIdPage from "./pages/mantenedores/documents/[id]/page";
+import ClientePage from "./pages/administracion/cliente/page";
+import ClientesIdPage from "./pages/administracion/cliente/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -102,6 +104,14 @@ export const router = createBrowserRouter([
       {
         path: "/tipodocumento/:id",
         element: <DocumentosIdPage />,
+      },
+      {
+        path: "/cliente",
+        element: <ClientePage />,
+      },
+      {
+        path: "/cliente/:id",
+        element: <ClientesIdPage />,
       },
     ],
   },

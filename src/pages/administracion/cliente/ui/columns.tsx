@@ -3,13 +3,13 @@ import { SortedIcon } from "@/components/sorted-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import ActionsDocumento from "./action-documento";
-import { TipoDocumento } from "@/interfaces/document.interface";
 import { formatDateTime } from "@/utils";
+import ActionsCliente from "./action-cliente";
+import { Cliente } from "@/interfaces/cliente.interface";
 
 export const columnNames: Record<string, string> = {
-  codigo: "Codigo",
-  nombre: "Nombre.",
+  nombreCompleto: "Nombre.",
+  telefono: "Telefono",
   fechaCreacion: "Fecha Creacion",
   estado: "Estado",
   actions: "Acciones",
@@ -17,11 +17,11 @@ export const columnNames: Record<string, string> = {
 
 export const columnFilter: FilterConfig[] = [
   {
-    id: "codigo",
-    label: "Codigo",
+    id: "telefono",
+    label: "Telefono",
   },
   {
-    id: "nombre",
+    id: "nombreCompleto",
     label: "Nombre",
   },
 ];
@@ -43,9 +43,9 @@ export const stateFilter: FilterConfig[] = [
 
 export const getColumns = (
   refreshDataTable: () => void
-): ColumnDef<TipoDocumento>[] => [
+): ColumnDef<Cliente>[] => [
   {
-    id: "codigo",
+    id: "nombreCompleto",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -53,15 +53,17 @@ export const getColumns = (
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Codigo
+          Nombre Completo
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
-    cell: ({ row }) => <span className="ml-4">{row.original.codigo}</span>,
+    cell: ({ row }) => (
+      <span className="ml-4">{row.original.nombreCompleto}</span>
+    ),
   },
   {
-    id: "nombre",
+    id: "telefono",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -69,12 +71,12 @@ export const getColumns = (
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Nombre
+          Telefono
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
-    cell: ({ row }) => <span className="ml-4">{row.original.nombre}</span>,
+    cell: ({ row }) => <span className="ml-4">{row.original.telefono}</span>,
   },
   {
     header: "Fecha Creacion",
@@ -99,7 +101,7 @@ export const getColumns = (
   {
     id: "actions",
     cell: ({ row }) => (
-      <ActionsDocumento document={row.original} onRefresh={refreshDataTable} />
+      <ActionsCliente cliente={row.original} onRefresh={refreshDataTable} />
     ),
   },
 ];

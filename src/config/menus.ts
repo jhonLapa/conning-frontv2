@@ -22,6 +22,7 @@ import {
   TreePalmIcon,
   User2Icon,
   UserCogIcon,
+  UsersRoundIcon,
 } from "lucide-react";
 
 export interface MenuConfigProps {
@@ -63,6 +64,12 @@ export const menusConfig = (): MenuConfigProps => {
               title: "Usuarios",
               icon: User2Icon,
               href: "/usuario",
+              rol: "Todos",
+            },
+            {
+              title: "Clientes",
+              icon: UsersRoundIcon,
+              href: "/cliente",
               rol: "Todos",
             },
             {

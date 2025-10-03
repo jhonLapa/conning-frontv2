@@ -18,8 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TipoDocumento } from "@/interfaces/document.interface";
-import { activeOrdesactiveDocument } from "@/services/document.service";
+import { Cliente } from "@/interfaces/cliente.interface";
+import { activeOrdesactiveCliente } from "@/services/cliente.service";
 import {
   BadgeCheck,
   Copy,
@@ -33,18 +33,18 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
-  document: TipoDocumento;
+  cliente: Cliente;
   onRefresh: () => void;
 }
 
-export default function ActionsDocument({ document, onRefresh }: Props) {
+export default function ActionsCliente({ cliente, onRefresh }: Props) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChangeStatus = async (idTipoDocumento: number) => {
+  const handleChangeStatus = async (idCliente: number) => {
     setIsLoading(true);
 
-    const response = await activeOrdesactiveDocument(idTipoDocumento);
+    const response = await activeOrdesactiveCliente(idCliente);
 
     if (!response.success) {
       setIsLoading(false);
@@ -69,21 +69,21 @@ export default function ActionsDocument({ document, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(document.idTipoDocumento.toString());
+            navigator.clipboard.writeText(cliente.idCliente.toString());
             toast("ID copiado");
           }}
         >
           <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID del documento</span>
+          <span className="text-sm ml-2">Copiar ID del cliente</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/tipodocumento/${document.idTipoDocumento}`}
+            to={`/cliente/${cliente.idCliente}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
-            <span className="text-sm">Editar documento</span>
+            <span className="text-sm">Editar cliente</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -94,14 +94,14 @@ export default function ActionsDocument({ document, onRefresh }: Props) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button className="w-full flex flex-row items-center gap-2 py-1">
-                {document.estado === 1 ? (
+                {cliente.estado === 1 ? (
                   <Trash2 size={18} />
                 ) : (
                   <BadgeCheck size={18} />
                 )}
-                {document.estado === 1
-                  ? "Desactivar  documento"
-                  : "Activar  documento"}
+                {cliente.estado === 1
+                  ? "Desactivar  cliente"
+                  : "Activar  cliente"}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -111,8 +111,8 @@ export default function ActionsDocument({ document, onRefresh }: Props) {
                 </AlertDialogTitle>
                 <AlertDialogDescription>
                   Esta acción
-                  {document.estado === 1 ? "desactivara" : "activara"} el
-                  documento de nuestros servidores.
+                  {cliente.estado === 1 ? "desactivara" : "activara"} al cliente
+                  de nuestros servidores.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -121,7 +121,7 @@ export default function ActionsDocument({ document, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(document.idTipoDocumento);
+                    handleChangeStatus(cliente.idCliente);
                   }}
                   disabled={isLoading}
                   className="gap-2"

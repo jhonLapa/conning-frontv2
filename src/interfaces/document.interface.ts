@@ -1,4 +1,4 @@
-export interface Document {
+export interface TipoDocumento {
   idTipoDocumento: number;
   nombre: string;
   codigo: string;
@@ -6,7 +6,7 @@ export interface Document {
   fechaCreacion: string;
 }
 
-export interface DocumentRequest {
+export interface TipoDocumentoRequest {
   nombre: string;
   codigo: string;
 }
