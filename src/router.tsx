@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import AdminLayout from "./layouts/AdminLayout";
-import AdminDashboard from "./pages/dashboard/page"
+import AdminDashboard from "./pages/dashboard/page";
 import AuthLayout from "./layouts/AuthLayout";
 import LoginPage from "./pages/auth/login/page";
 import EmpresaPage from "./pages/administracion/empresa/page";
@@ -17,6 +17,8 @@ import MantenimientoConceptoIdPage from "./pages/administracion/mantenimientos/[
 import MantenimientoConceptoPage from "./pages/administracion/mantenimientos/page";
 import GrupoConceptoPage from "./pages/mantenedores/grupo-afectacion/page";
 import GrupoConceptoIdPage from "./pages/mantenedores/grupo-afectacion/[id]/page";
+import DocumentoPage from "./pages/mantenedores/documents/page";
+import DocumentosIdPage from "./pages/mantenedores/documents/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -27,7 +29,6 @@ export const router = createBrowserRouter([
         index: true,
         element: <LoginPage />,
       },
-      
     ],
   },
   {
@@ -39,60 +40,68 @@ export const router = createBrowserRouter([
         element: <AdminDashboard />,
       },
       {
-        path:"/empresa" ,
+        path: "/empresa",
         element: <EmpresaPage />,
       },
       {
-        path:"/empresa/:id" ,
+        path: "/empresa/:id",
         element: <EmpresaIdPage />,
       },
       {
-        path:"/usuario" ,
+        path: "/usuario",
         element: <UsuarioPage />,
       },
       {
-        path:"/usuario/:id" ,
+        path: "/usuario/:id",
         element: <UsuarioIdPage />,
       },
       {
-        path:"/concepto" ,
+        path: "/concepto",
         element: <ConceptoPage />,
       },
       {
-        path:"/concepto/:id" ,
+        path: "/concepto/:id",
         element: <ConceptosIdPage />,
       },
       {
-        path:"/afectacion" ,
+        path: "/afectacion",
         element: <AfectacionesPage />,
       },
       {
-        path:"/afectacion/:id" ,
+        path: "/afectacion/:id",
         element: <AfectactioneIdPage />,
       },
       {
-        path:"/banco" ,
+        path: "/banco",
         element: <BanksPage />,
       },
       {
-        path:"/banco/:id" ,
+        path: "/banco/:id",
         element: <BankIdPage />,
       },
       {
-        path:"/mantenimiento" ,
+        path: "/mantenimiento",
         element: <MantenimientoConceptoPage />,
       },
       {
-        path:"/mantenimiento/:id" ,
+        path: "/mantenimiento/:id",
         element: <MantenimientoConceptoIdPage />,
       },
       {
-        path:"/grupo-concepto" ,
+        path: "/grupo-concepto",
         element: <GrupoConceptoPage />,
       },
       {
-        path:"/grupo-concepto/:id" ,
+        path: "/grupo-concepto/:id",
         element: <GrupoConceptoIdPage />,
+      },
+      {
+        path: "/tipodocumento",
+        element: <DocumentoPage />,
+      },
+      {
+        path: "/tipodocumento/:id",
+        element: <DocumentosIdPage />,
       },
     ],
   },

@@ -7,6 +7,7 @@ import {
   ClipboardListIcon,
   ClipboardPen,
   CloudCog,
+  FilesIcon,
   HandCoinsIcon,
   HandshakeIcon,
   IdCard,
@@ -23,7 +24,6 @@ import {
   UserCogIcon,
 } from "lucide-react";
 
-
 export interface MenuConfigProps {
   mainNav: MenuItemProps[];
   sidebarNav: {
@@ -31,8 +31,7 @@ export interface MenuConfigProps {
   };
 }
 
-export const menusConfig = (): MenuConfigProps =>  {
-
+export const menusConfig = (): MenuConfigProps => {
   const menus: MenuConfigProps = {
     mainNav: [
       {
@@ -42,8 +41,7 @@ export const menusConfig = (): MenuConfigProps =>  {
       },
     ],
     sidebarNav: {
-      modern:
-       [
+      modern: [
         {
           title: "Inicio",
           icon: LayoutGrid,
@@ -54,7 +52,7 @@ export const menusConfig = (): MenuConfigProps =>  {
           title: "Administración",
           icon: UserCogIcon,
           rol: "Todos",
-          child:[
+          child: [
             {
               title: "Empresas",
               icon: BuildingIcon,
@@ -79,13 +77,13 @@ export const menusConfig = (): MenuConfigProps =>  {
               href: "/mantenimiento",
               rol: "Todos",
             },
-          ]
+          ],
         },
         {
           title: "Trabajadores",
           icon: HandshakeIcon,
           rol: "Todos",
-          child:[
+          child: [
             {
               title: "Trabajadores",
               icon: IdCard,
@@ -116,13 +114,13 @@ export const menusConfig = (): MenuConfigProps =>  {
               href: "/cts",
               rol: "Todos",
             },
-          ]
+          ],
         },
         {
           title: "Procesos de Planillas",
           icon: BarChart,
           rol: "Todos",
-          child:[
+          child: [
             {
               title: "Planilla",
               icon: ClipboardListIcon,
@@ -141,13 +139,13 @@ export const menusConfig = (): MenuConfigProps =>  {
               href: "/boleta",
               rol: "Todos",
             },
-          ]
+          ],
         },
         {
           title: "Configuracion",
           icon: Settings2Icon,
           rol: "Todos",
-          child:[
+          child: [
             {
               title: "Afectaciones",
               icon: CloudCog,
@@ -166,13 +164,17 @@ export const menusConfig = (): MenuConfigProps =>  {
               href: "/grupo-concepto",
               rol: "Todos",
             },
-          ]
+            {
+              title: "Documentos",
+              icon: FilesIcon,
+              href: "/tipodocumento",
+              rol: "Todos",
+            },
+          ],
         },
-        
-       ]
-    }
-  }
+      ],
+    },
+  };
 
-  return menus
+  return menus;
 };
-
