@@ -5,21 +5,23 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import ActionsDocumento from "./action-documento";
 import { Document } from "@/interfaces/document.interface";
+import { formatDateTime } from "@/utils";
 
 export const columnNames: Record<string, string> = {
-  code: "Codigo",
-  name: "Nombre.",
-  createAt: "Fecha Creacion",
+  codigo: "Codigo",
+  nombre: "Nombre.",
+  fechaCreacion: "Fecha Creacion",
+  estado: "Estado",
   actions: "Acciones",
 };
 
 export const columnFilter: FilterConfig[] = [
   {
-    id: "code",
+    id: "codigo",
     label: "Codigo",
   },
   {
-    id: "name",
+    id: "nombre",
     label: "Nombre",
   },
 ];
@@ -43,7 +45,7 @@ export const getColumns = (
   refreshDataTable: () => void
 ): ColumnDef<Document>[] => [
   {
-    id: "code",
+    id: "codigo",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -59,7 +61,7 @@ export const getColumns = (
     cell: ({ row }) => <span className="ml-4">{row.original.codigo}</span>,
   },
   {
-    id: "name",
+    id: "nombre",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -76,12 +78,14 @@ export const getColumns = (
   },
   {
     header: "Fecha Creacion",
-    id: "createAt",
-    cell: ({ row }) => <span>{row.original.fechaCreacion}</span>,
+    id: "fechaCreacion",
+    cell: ({ row }) => (
+      <span>{formatDateTime(row.original.fechaCreacion)}</span>
+    ),
   },
   {
-    accessorKey: "Estado",
-    id: "status",
+    accessorKey: "estado",
+    id: "estado",
     header: "Estado",
     cell: ({ row }) => {
       const state: boolean = row.original.estado === 1;

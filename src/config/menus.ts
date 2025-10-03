@@ -165,7 +165,7 @@ export const menusConfig = (): MenuConfigProps => {
               rol: "Todos",
             },
             {
-              title: "Documentos",
+              title: "Tipo de Documentos",
               icon: FilesIcon,
               href: "/tipodocumento",
               rol: "Todos",
