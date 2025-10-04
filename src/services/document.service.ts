@@ -51,3 +51,15 @@ export const activeOrdesactiveDocument = async (
   );
   return response.data;
 };
+
+export const fetchTiposDocumento = async (): Promise<
+  { idTipoDocumento: number; nombre: string }[]
+> => {
+  const documentos = await getDocumentFetch();
+  return documentos
+    .filter((doc) => doc.estado === 1)
+    .map((doc) => ({
+      idTipoDocumento: doc.idTipoDocumento,
+      nombre: doc.nombre,
+    }));
+};
