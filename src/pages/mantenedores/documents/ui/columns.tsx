@@ -85,7 +85,7 @@ export const getColumns = (
   },
   {
     accessorKey: "estado",
-    id: "estado",
+    id: "status",
     header: "Estado",
     cell: ({ row }) => {
       const state: boolean = row.original.estado === 1;

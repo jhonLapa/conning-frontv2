@@ -8,7 +8,7 @@ import ActionsCliente from "./action-cliente";
 import { Cliente } from "@/interfaces/cliente.interface";
 
 export const columnNames: Record<string, string> = {
-  nombreCompleto: "Nombre.",
+  nombreCompleto: "Nombre",
   telefono: "Telefono",
   fechaCreacion: "Fecha Creacion",
   estado: "Estado",
@@ -17,12 +17,12 @@ export const columnNames: Record<string, string> = {
 
 export const columnFilter: FilterConfig[] = [
   {
-    id: "telefono",
-    label: "Telefono",
+    id: "name",
+    label: "Nombre",
   },
   {
-    id: "nombreCompleto",
-    label: "Nombre",
+    id: "phone",
+    label: "Telefono",
   },
 ];
 
@@ -45,7 +45,7 @@ export const getColumns = (
   refreshDataTable: () => void
 ): ColumnDef<Cliente>[] => [
   {
-    id: "nombreCompleto",
+    id: "name",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -63,7 +63,7 @@ export const getColumns = (
     ),
   },
   {
-    id: "telefono",
+    id: "phone",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -87,7 +87,7 @@ export const getColumns = (
   },
   {
     accessorKey: "estado",
-    id: "estado",
+    id: "status",
     header: "Estado",
     cell: ({ row }) => {
       const state: boolean = row.original.estado === 1;
