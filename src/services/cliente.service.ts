@@ -43,11 +43,11 @@ export const activeOrdesactiveCliente = async (
   return response.data;
 };
 
-// export const getClientesActivos = async (): Promise<
-//   { idCliente: number; nombreCompleto: string }[]
-// > => {
-//   const response: AxiosResponse<
-//     { idCliente: number; nombreCompleto: string }[]
-//   > = await api.get("/cliente/selectactivos");
-//   return response.data;
-// };
+export const getClientesActivos = async (): Promise<
+  { idCliente: number; nombreCompleto: string }[]
+> => {
+  const response: AxiosResponse<
+    { idCliente: number; nombreCompleto: string }[]
+  > = await api.get("/cliente/selectactivos");
+  return response.data;
+};

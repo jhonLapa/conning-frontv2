@@ -21,6 +21,8 @@ import DocumentoPage from "./pages/mantenedores/documents/page";
 import DocumentosIdPage from "./pages/mantenedores/documents/[id]/page";
 import ClientePage from "./pages/administracion/cliente/page";
 import ClientesIdPage from "./pages/administracion/cliente/[id]/page";
+import VentasPage from "./pages/ingresos-egresos/page";
+import VentasIdPage from "./pages/ingresos-egresos/ventas/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -112,6 +114,14 @@ export const router = createBrowserRouter([
       {
         path: "/cliente/:id",
         element: <ClientesIdPage />,
+      },
+      {
+        path: "/venta",
+        element: <VentasPage />,
+      },
+      {
+        path: "/venta/:id",
+        element: <VentasIdPage />,
       },
     ],
   },

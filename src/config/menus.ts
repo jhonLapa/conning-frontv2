@@ -4,9 +4,9 @@ import {
   BarChart,
   BuildingIcon,
   ChartLineIcon,
+  CircleDollarSignIcon,
   ClipboardListIcon,
   ClipboardPen,
-  CloudCog,
   FilesIcon,
   HandCoinsIcon,
   HandshakeIcon,
@@ -16,7 +16,6 @@ import {
   LandmarkIcon,
   LayoutDashboardIcon,
   LayoutGrid,
-  PackageIcon,
   ReceiptTextIcon,
   Settings2Icon,
   TreePalmIcon,
@@ -124,7 +123,7 @@ export const menusConfig = (): MenuConfigProps => {
           ],
         },
         {
-          title: "Procesos de Planillas",
+          title: "Ingresos y Egresos",
           icon: BarChart,
           rol: "Todos",
           child: [
@@ -141,6 +140,12 @@ export const menusConfig = (): MenuConfigProps => {
               rol: "Todos",
             },
             {
+              title: "Ventas",
+              icon: CircleDollarSignIcon,
+              href: "/venta",
+              rol: "Todos",
+            },
+            {
               title: "Reporte",
               icon: ChartLineIcon,
               href: "/boleta",
@@ -154,21 +159,9 @@ export const menusConfig = (): MenuConfigProps => {
           rol: "Todos",
           child: [
             {
-              title: "Afectaciones",
-              icon: CloudCog,
-              href: "/afectacion",
-              rol: "Todos",
-            },
-            {
               title: "Bancos",
               icon: Landmark,
               href: "/banco",
-              rol: "Todos",
-            },
-            {
-              title: "Grupo Concepciones",
-              icon: PackageIcon,
-              href: "/grupo-concepto",
               rol: "Todos",
             },
             {
