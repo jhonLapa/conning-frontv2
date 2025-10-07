@@ -25,17 +25,6 @@ export const postVenta = async (
   return response.data;
 };
 
-export const putVenta = async (
-  id: number,
-  paylod: VentaRequest
-): Promise<ApiResponse<Venta>> => {
-  const response: AxiosResponse<ApiResponse<Venta>> = await api.put(
-    `/venta/${id}`,
-    paylod
-  );
-  return response.data;
-};
-
 export const activeOrdesactiveVenta = async (
   id: number
 ): Promise<ApiResponse<Venta>> => {

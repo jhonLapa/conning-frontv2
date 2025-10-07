@@ -12,11 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Venta, VentaRequest } from "@/interfaces/venta.interface";
 import { getClientesActivos } from "@/services/cliente.service";
 import { getComprobantesActivos } from "@/services/tipo-comprobante.service";
-import {
-  getFetchVentaByIdData,
-  postVenta,
-  putVenta,
-} from "@/services/venta.service";
+import { getFetchVentaByIdData, postVenta } from "@/services/venta.service";
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
@@ -163,7 +159,12 @@ const VentasIdPage = () => {
     setValue("formaPago", response.formaPago);
     setValue("tipoMoneda", response.tipoMoneda);
     setValue("observacion", response.observacion);
-    setValue("pagosCredito", mapPagos(response.pagosCredito));
+
+    if (response.formaPago === "CREDITO") {
+      setValue("pagosCredito", mapPagos(response.pagosCredito));
+    } else {
+      setValue("pagosCredito", []);
+    }
 
     setValue("detalles", mapDetalles(response.detalles));
     setVenta(response);
@@ -180,8 +181,9 @@ const VentasIdPage = () => {
 
     const payload: VentaRequest = {
       ...data,
+      idVenta: venta?.idVenta ?? 0,
       detalles: detallesConTotales,
-      pagosCredito: data.formaPago == "CREDITO" ? pagosNormalizados : [],
+      pagosCredito: data.formaPago === "CREDITO" ? pagosNormalizados : [],
 
       subTotal: Number(subTotal.toFixed(2)),
       valorVenta: Number(valorVenta.toFixed(2)),
@@ -189,18 +191,23 @@ const VentasIdPage = () => {
       importeTotal: Number(importeTotal.toFixed(2)),
     };
 
-    const response = venta
-      ? await putVenta(venta.idVenta, payload)
-      : await postVenta(payload);
-
-    if (!response?.message) {
-      toast.warning("Error al Guardar el registro", { position: "top-right" });
-      return;
+    try {
+      const response = await postVenta(payload);
+      if (!response?.message) {
+        toast.warning("Error al Guardar el registro", {
+          position: "top-right",
+        });
+        return;
+      }
+      toast.success(response.message, { position: "top-right" });
+      setVenta(null);
+      navigate("/venta");
+    } catch (error) {
+      console.error(error);
+      toast.error("Ocurrió un error al guardar la venta", {
+        position: "top-right",
+      });
     }
-
-    toast.success(response.message, { position: "top-right" });
-    setVenta(null);
-    navigate("/venta");
   };
 
   useEffect(() => {
@@ -302,6 +309,13 @@ const VentasIdPage = () => {
                 <Label>Forma de Pago</Label>
                 <select
                   {...register("formaPago")}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setValue("formaPago", value as "CONTADO" | "CREDITO");
+                    if (value === "CONTADO") {
+                      setValue("pagosCredito", []);
+                    }
+                  }}
                   className="w-full border rounded p-2"
                 >
                   <option value="CONTADO">Contado</option>

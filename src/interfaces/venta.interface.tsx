@@ -53,6 +53,7 @@ export interface PagoCredito {
 }
 
 export interface VentaRequest {
+  idVenta?: number;
   idTipoComprobante: number;
   serie: string;
   numero: string;
@@ -60,7 +61,7 @@ export interface VentaRequest {
   idCliente: number;
   formaPago: string;
   tipoMoneda: string;
-  observacion: string;
+  observacion?: string;
   subTotal: number;
   descuentos: number;
   valorVenta: number;
