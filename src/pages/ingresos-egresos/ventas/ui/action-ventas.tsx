@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Venta } from "@/interfaces/venta.interface";
-import { Copy, MoreHorizontal, Eye } from "lucide-react";
+import { Copy, MoreHorizontal, Eye, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import {
@@ -17,6 +17,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { getFetchVentaByIdData } from "@/services/venta.service";
+import { Link } from "react-router-dom";
 
 interface Props {
   venta: Venta;
@@ -41,6 +42,11 @@ export default function ActionsVenta({ venta }: Props) {
       setLoading(false);
     }
   };
+  const formatCurrency = (value: number, currency: "PEN" | "USD") =>
+    new Intl.NumberFormat("es-PE", {
+      style: "currency",
+      currency: currency,
+    }).format(value);
 
   return (
     <>
@@ -53,26 +59,37 @@ export default function ActionsVenta({ venta }: Props) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-
           <DropdownMenuItem
             onClick={() => {
               navigator.clipboard.writeText(venta.idVenta.toString());
-              toast("ID copiado al portapapeles");
+              toast("ID copiado");
             }}
           >
             <Copy size={18} />
             <span className="text-sm ml-2">Copiar ID de la venta</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={handleVerDetalle}>
+          <DropdownMenuItem onClick={handleVerDetalle} disabled={loading}>
             <Eye size={18} />
-            <span className="text-sm ml-2">Ver detalle</span>
+            <span className="text-sm ml-2">
+              {loading ? "Cargando..." : "Ver detalle"}
+            </span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem>
+            <Link
+              to={`/venta/${venta.idVenta}`}
+              className="flex flex-row items-center gap-2"
+            >
+              <Pencil size={18} />
+              <span className="text-sm">Editar venta</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-lg rounded-xl p-6 bg-white shadow-lg">
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto rounded-xl p-6 bg-white shadow-lg">
           <div className="flex justify-between items-center mb-4">
             <DialogTitle className="text-lg font-semibold text-gray-800">
               Detalle de la venta #{venta.idVenta}
@@ -113,8 +130,10 @@ export default function ActionsVenta({ venta }: Props) {
                       <li key={d.idDetalleVenta}>
                         {d.descripcion} - {d.cantidad} {d.unidadMedida} -
                         V.unitario:{" "}
-                        {ventaDetalle.tipoMoneda === "PEN" ? "S/." : "$"}
-                        {d.valorUnitario.toFixed(2)}
+                        {formatCurrency(
+                          d.valorUnitario,
+                          ventaDetalle.tipoMoneda as "PEN" | "USD"
+                        )}
                       </li>
                     ))}
                   </ul>

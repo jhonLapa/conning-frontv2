@@ -13,7 +13,7 @@ import { Venta, VentaRequest } from "@/interfaces/venta.interface";
 import { getClientesActivos } from "@/services/cliente.service";
 import { getComprobantesActivos } from "@/services/tipo-comprobante.service";
 import {
-  getFetchVentaById,
+  getFetchVentaByIdData,
   postVenta,
   putVenta,
 } from "@/services/venta.service";
@@ -71,9 +71,9 @@ const VentasIdPage = () => {
   const {
     register,
     handleSubmit,
-    setValue,
     control,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<VentaRequest>({
     defaultValues: {
@@ -142,19 +142,24 @@ const VentasIdPage = () => {
     pagos: Venta["pagosCredito"] = []
   ): VentaRequest["pagosCredito"] =>
     (pagos ?? []).map((p) => ({
-      fechaVencimiento: p.fechaVencimiento ?? "",
+      fechaVencimiento: p.fechaVencimiento
+        ? p.fechaVencimiento.substring(0, 10)
+        : "",
       montoCuota: Number(p.montoCuota ?? 0),
     }));
 
   const getVenta = async () => {
-    if (id == "nuevo") return;
+    if (id === "nuevo") return;
 
-    const response = await getFetchVentaById(Number(id));
+    const response = await getFetchVentaByIdData(Number(id));
     setValue("idCliente", response.idCliente);
     setValue("idTipoComprobante", response.idTipoComprobante);
     setValue("serie", response.serie);
     setValue("numero", response.numero);
-    setValue("fechaEmision", response.fechaEmision);
+    setValue(
+      "fechaEmision",
+      response.fechaEmision ? response.fechaEmision.substring(0, 10) : ""
+    );
     setValue("formaPago", response.formaPago);
     setValue("tipoMoneda", response.tipoMoneda);
     setValue("observacion", response.observacion);
@@ -188,7 +193,7 @@ const VentasIdPage = () => {
       ? await putVenta(venta.idVenta, payload)
       : await postVenta(payload);
 
-    if (!response?.success) {
+    if (!response?.message) {
       toast.warning("Error al Guardar el registro", { position: "top-right" });
       return;
     }
@@ -374,127 +379,125 @@ const VentasIdPage = () => {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Detalle</CardTitle>
+          <CardHeader className="flex flex-row justify-between items-center">
+            <CardTitle className="text-lg font-light text-gray-500">
+              Detalle
+            </CardTitle>
+            <Button
+              type="button"
+              onClick={() =>
+                append({
+                  cantidad: 1,
+                  unidadMedida: "UND",
+                  descripcion: "",
+                  valorUnitario: 0,
+                  valorTotal: 0,
+                })
+              }
+            >
+              Agregar Detalle
+            </Button>
           </CardHeader>
-          <CardContent>
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="grid grid-cols-1 md:grid-cols-8 gap-2 mb-2 items-end"
-              >
-                <div>
-                  <Label htmlFor="cantidad">
-                    Cantidad
-                    <span className="font-semibold text-red-600">*</span>
-                  </Label>
-                  <Input
-                    type="number"
-                    step="1"
-                    min="1"
-                    placeholder="Cantidad"
-                    {...register(`detalles.${index}.cantidad` as const, {
-                      valueAsNumber: true,
-                      required: "La cantidad es obligatorio",
-                      min: 1,
-                    })}
-                    onInput={(e) => {
-                      const input = e.target as HTMLInputElement;
-                      if (parseInt(input.value) < 1) input.value = "1";
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="unidadMedida">
-                    U.Medida
-                    <span className="font-semibold text-red-600">*</span>
-                  </Label>
-                  <select
-                    {...register(`detalles.${index}.unidadMedida` as const, {
-                      required: true,
-                    })}
-                    className="w-full border rounded px-2 py-1"
-                  >
-                    <option value="UNID">UNID</option>
-                    <option value="KG">KG</option>
-                    <option value="LT">LT</option>
-                    <option value="M">M</option>
-                    <option value="CAJA">CAJA</option>
-                  </select>
-                </div>
-                <div className="col-span-3">
-                  <Label htmlFor="descripcion">
-                    Descripcion
-                    <span className="font-semibold text-red-600">*</span>
-                  </Label>
-                  <Input
-                    placeholder="Descripción"
-                    {...register(`detalles.${index}.descripcion` as const)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="valorUnitario">
-                    V.unitario
-                    <span className="font-semibold text-red-600">*</span>
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    placeholder="Valor Unitario"
-                    {...register(`detalles.${index}.valorUnitario` as const, {
-                      valueAsNumber: true,
-                      required: true,
-                      min: 0.01,
-                    })}
-                    onInput={(e) => {
-                      const input = e.target as HTMLInputElement;
-                      if (input.value === "") return;
-                      if (parseFloat(input.value) < 0.01) input.value = "";
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="valorTotal">
-                    Total
-                    <span className="font-semibold text-red-600">*</span>
-                  </Label>
-                  <Input
-                    value={(
-                      (detalles[index]?.cantidad || 0) *
-                      (detalles[index]?.valorUnitario || 0)
-                    ).toFixed(2)}
-                    readOnly
-                  />
-                </div>
 
+          <CardContent>
+            <table className="w-full border rounded-md">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-3 py-2 text-left text-sm font-medium">
+                    Cant.
+                  </th>
+                  <th className="px-3 py-2 text-left text-sm font-medium">
+                    U.Medida
+                  </th>
+                  <th className="px-3 py-2 text-left text-sm font-medium">
+                    Descripción
+                  </th>
+                  <th className="px-3 py-2 text-left text-sm font-medium">
+                    V.Unitario
+                  </th>
+                  <th className="px-3 py-2 text-left text-sm font-medium">
+                    Total
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {fields.map((field, index) => (
+                  <tr key={field.id} className="border-t">
+                    <td className="px-2 py-1">
+                      <Input
+                        type="number"
+                        step="1"
+                        min="1"
+                        {...register(`detalles.${index}.cantidad` as const, {
+                          valueAsNumber: true,
+                          required: "La cantidad es obligatorio",
+                          min: 1,
+                        })}
+                      />
+                    </td>
+                    <td className="px-2 py-1">
+                      <select
+                        {...register(
+                          `detalles.${index}.unidadMedida` as const,
+                          {
+                            required: true,
+                          }
+                        )}
+                        className="w-full border rounded px-2 py-1"
+                      >
+                        <option value="UNID">UNID</option>
+                        <option value="KG">KG</option>
+                        <option value="LT">LT</option>
+                        <option value="M">M</option>
+                        <option value="CAJA">CAJA</option>
+                      </select>
+                    </td>
+                    <td className="px-2 py-1">
+                      <Input
+                        placeholder="Descripción"
+                        {...register(`detalles.${index}.descripcion` as const)}
+                      />
+                    </td>
+                    <td className="px-2 py-1">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        {...register(
+                          `detalles.${index}.valorUnitario` as const,
+                          {
+                            valueAsNumber: true,
+                            required: true,
+                            min: 0.01,
+                          }
+                        )}
+                      />
+                    </td>
+                    <td className="px-2 py-1">
+                      <Input
+                        value={(
+                          (detalles[index]?.cantidad || 0) *
+                          (detalles[index]?.valorUnitario || 0)
+                        ).toFixed(2)}
+                        readOnly
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {fields.length > 0 && (
+              <div className="flex justify-end mt-3">
                 <Button
                   type="button"
                   variant="destructive"
-                  onClick={() => remove(index)}
-                  className="w-28"
+                  onClick={() => remove(fields.length - 1)}
                 >
-                  Eliminar
+                  Eliminar último detalle
                 </Button>
               </div>
-            ))}
-
-            <div className="mt-2">
-              <Button
-                type="button"
-                onClick={() =>
-                  append({
-                    cantidad: 1,
-                    unidadMedida: "UND",
-                    descripcion: "",
-                    valorUnitario: 0,
-                    valorTotal: 0,
-                  })
-                }
-              >
-                Agregar Detalle
-              </Button>
-            </div>
+            )}
           </CardContent>
         </Card>
 

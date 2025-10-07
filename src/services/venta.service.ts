@@ -8,10 +8,6 @@ export const getVentaFetch = async (): Promise<Venta[]> => {
   return response.data;
 };
 
-export const getFetchVentaById = async (id: number): Promise<Venta> => {
-  const response: AxiosResponse<Venta> = await api.get(`/venta/${id}`);
-  return response.data;
-};
 export const getFetchVentaByIdData = async (id: number): Promise<Venta> => {
   const response: AxiosResponse<{ data: Venta }> = await api.get(
     `/venta/${id}`
