@@ -6,3 +6,7 @@ export interface TipoComprobante {
   fechaCreacion: string;
   usuarioCreacion: string | null;
 }
+export interface TipoComprobanteRequest {
+  codigo: string;
+  nombre: string;
+}

@@ -27,7 +27,7 @@ const DocumentosIdPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [documento, setDocumento] = useState<TipoDocumento | null>(null);
-  const title = id == "nuevo" ? "Nueva Documento" : "Editar Documento";
+  const title = id == "nuevo" ? "Nuevo Documento" : "Editar Documento";
   const {
     register,
     handleSubmit,

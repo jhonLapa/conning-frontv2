@@ -14,7 +14,7 @@ export default function DocumentoPage() {
   return (
     <>
       <HeaderPage
-        title="Documento"
+        title="Documentos"
         descripcion="Listado de todos los documentos."
         linkConfig={{
           title: "Nuevo Documento",

@@ -17,12 +17,14 @@ import MantenimientoConceptoIdPage from "./pages/administracion/mantenimientos/[
 import MantenimientoConceptoPage from "./pages/administracion/mantenimientos/page";
 import GrupoConceptoPage from "./pages/mantenedores/grupo-afectacion/page";
 import GrupoConceptoIdPage from "./pages/mantenedores/grupo-afectacion/[id]/page";
-import DocumentoPage from "./pages/mantenedores/documents/page";
-import DocumentosIdPage from "./pages/mantenedores/documents/[id]/page";
 import ClientePage from "./pages/administracion/cliente/page";
 import ClientesIdPage from "./pages/administracion/cliente/[id]/page";
 import VentasPage from "./pages/ingresos-egresos/ventas/page";
 import VentasIdPage from "./pages/ingresos-egresos/ventas/[id]/page";
+import DocumentoPage from "./pages/mantenedores/tipo-documento/page";
+import DocumentosIdPage from "./pages/mantenedores/tipo-documento/[id]/page";
+import ComprobantePage from "./pages/mantenedores/tipo-comprobante/page";
+import ComprobanteIdPage from "./pages/mantenedores/tipo-comprobante/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -131,6 +133,14 @@ export const router = createBrowserRouter([
       //   path: "/movimientoespecial/:id",
       //   element: <VentasIdPage />,
       // },
+      {
+        path: "/tipocomprobante",
+        element: <ComprobantePage />,
+      },
+      {
+        path: "/tipocomprobante/:id",
+        element: <ComprobanteIdPage />,
+      },
     ],
   },
 ]);
