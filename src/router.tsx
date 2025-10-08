@@ -21,7 +21,7 @@ import DocumentoPage from "./pages/mantenedores/documents/page";
 import DocumentosIdPage from "./pages/mantenedores/documents/[id]/page";
 import ClientePage from "./pages/administracion/cliente/page";
 import ClientesIdPage from "./pages/administracion/cliente/[id]/page";
-import VentasPage from "./pages/ingresos-egresos/page";
+import VentasPage from "./pages/ingresos-egresos/ventas/page";
 import VentasIdPage from "./pages/ingresos-egresos/ventas/[id]/page";
 
 export const router = createBrowserRouter([
@@ -123,6 +123,14 @@ export const router = createBrowserRouter([
         path: "/venta/:id",
         element: <VentasIdPage />,
       },
+      {
+        path: "/movimientoespecial",
+        //element: <VentasPage />,
+      },
+      // {
+      //   path: "/movimientoespecial/:id",
+      //   element: <VentasIdPage />,
+      // },
     ],
   },
 ]);

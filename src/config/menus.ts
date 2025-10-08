@@ -1,5 +1,6 @@
 import { MenuItemProps } from "@/interfaces/menu-Interface";
 import {
+  ArrowLeftRightIcon,
   Banknote,
   BarChart,
   BuildingIcon,
@@ -14,6 +15,7 @@ import {
   LandmarkIcon,
   LayoutDashboardIcon,
   LayoutGrid,
+  ReceiptIcon,
   ReceiptTextIcon,
   Settings2Icon,
   TreePalmIcon,
@@ -144,6 +146,12 @@ export const menusConfig = (): MenuConfigProps => {
               rol: "Todos",
             },
             {
+              title: "Movimiento Especial",
+              icon: ArrowLeftRightIcon,
+              href: "/movimientoespecial",
+              rol: "Todos",
+            },
+            {
               title: "Reporte",
               icon: ChartLineIcon,
               href: "/boleta",
@@ -166,6 +174,12 @@ export const menusConfig = (): MenuConfigProps => {
               title: "Tipo de Documentos",
               icon: FilesIcon,
               href: "/tipodocumento",
+              rol: "Todos",
+            },
+            {
+              title: "Tipo de Comprobantes",
+              icon: ReceiptIcon,
+              href: "/tipocomprobante",
               rol: "Todos",
             },
           ],

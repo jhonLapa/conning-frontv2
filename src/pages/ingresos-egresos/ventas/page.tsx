@@ -6,7 +6,7 @@ import {
   columnNames,
   getColumns,
   stateFilter,
-} from "./ventas/ui/columns";
+} from "./ui/columns";
 
 export default function VentasPage() {
   const refreshDataTable = useRef<() => void>(null);
