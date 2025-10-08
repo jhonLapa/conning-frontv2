@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Venta } from "@/interfaces/venta.interface";
-import { Copy, MoreHorizontal, Eye, Pencil } from "lucide-react";
+import { Copy, MoreHorizontal, Eye, Pencil, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import {
@@ -17,7 +17,19 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { getFetchVentaByIdData } from "@/services/venta.service";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 interface Props {
   venta: Venta;
@@ -28,6 +40,10 @@ export default function ActionsVenta({ venta }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [ventaDetalle, setVentaDetalle] = useState<Venta | null>(null);
   const [loading, setLoading] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleVerDetalle = async () => {
     try {
@@ -42,6 +58,23 @@ export default function ActionsVenta({ venta }: Props) {
       setLoading(false);
     }
   };
+
+  const handleEditVenta = async () => {
+    setIsEditing(true);
+    try {
+      navigate(`/venta/${venta.idVenta}`);
+      toast.success("Redirigiendo a editar venta...", {
+        position: "top-right",
+      });
+    } catch (error: unknown) {
+      console.error(error);
+      toast.error("No se pudo editar la venta", { position: "top-center" });
+    } finally {
+      setIsEditing(false);
+      setAlertOpen(false);
+    }
+  };
+
   const formatCurrency = (value: number, currency: "PEN" | "USD") =>
     new Intl.NumberFormat("es-PE", {
       style: "currency",
@@ -76,14 +109,48 @@ export default function ActionsVenta({ venta }: Props) {
             </span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem>
-            <Link
-              to={`/venta/${venta.idVenta}`}
-              className="flex flex-row items-center gap-2"
-            >
-              <Pencil size={18} />
-              <span className="text-sm">Editar venta</span>
-            </Link>
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+            }}
+          >
+            <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+              <AlertDialogTrigger asChild>
+                <button className="w-full flex flex-row items-center gap-2 py-1">
+                  <Pencil size={18} />
+                  <span className="text-sm">Editar venta</span>
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    ¿Estás seguro de editar esta venta?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción te llevará al formulario de edición de la venta.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isEditing}>
+                    Cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleEditVenta}
+                    disabled={isEditing}
+                    className="gap-2"
+                  >
+                    {isEditing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Cargando...
+                      </>
+                    ) : (
+                      "Continuar"
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

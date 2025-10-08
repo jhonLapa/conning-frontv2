@@ -13,6 +13,7 @@ import { Venta, VentaRequest } from "@/interfaces/venta.interface";
 import { getClientesActivos } from "@/services/cliente.service";
 import { getComprobantesActivos } from "@/services/tipo-comprobante.service";
 import { getFetchVentaByIdData, postVenta } from "@/services/venta.service";
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
@@ -325,14 +326,23 @@ const VentasIdPage = () => {
 
               {formaPago === "CREDITO" && (
                 <Card className="mt-4">
-                  <CardHeader>
+                  <CardHeader className="flex justify-between items-center">
                     <CardTitle>Pagos a Crédito</CardTitle>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() =>
+                        addPago({ fechaVencimiento: "", montoCuota: 0 })
+                      }
+                    >
+                      Agregar Pago
+                    </Button>
                   </CardHeader>
                   <CardContent>
                     {pagos.map((field, index) => (
                       <div
                         key={field.id}
-                        className="grid grid-cols-3 gap-2 mb-2"
+                        className="grid grid-cols-[1fr_1fr_auto] gap-2 mb-2 items-center"
                       >
                         <Input
                           type="date"
@@ -353,20 +363,13 @@ const VentasIdPage = () => {
                         <Button
                           type="button"
                           variant="destructive"
+                          size="icon"
                           onClick={() => removePago(index)}
                         >
-                          Eliminar
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        addPago({ fechaVencimiento: "", montoCuota: 0 })
-                      }
-                    >
-                      Agregar Pago
-                    </Button>
                   </CardContent>
                 </Card>
               )}
@@ -432,6 +435,9 @@ const VentasIdPage = () => {
                   <th className="px-3 py-2 text-left text-sm font-medium">
                     Total
                   </th>
+                  <th className="px-3 py-2 text-left text-sm font-medium">
+                    Eliminar
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -496,22 +502,20 @@ const VentasIdPage = () => {
                         readOnly
                       />
                     </td>
+                    <td className="px-2 py-1 text-center">
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
-            {fields.length > 0 && (
-              <div className="flex justify-end mt-3">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => remove(fields.length - 1)}
-                >
-                  Eliminar último detalle
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
 
