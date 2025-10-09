@@ -4,7 +4,6 @@ import {
   Banknote,
   BarChart,
   BuildingIcon,
-  ChartLineIcon,
   CircleDollarSignIcon,
   ClipboardListIcon,
   FilesIcon,
@@ -16,7 +15,6 @@ import {
   LayoutDashboardIcon,
   LayoutGrid,
   ReceiptIcon,
-  ReceiptTextIcon,
   Settings2Icon,
   ShoppingCart,
   TreePalmIcon,
@@ -84,13 +82,6 @@ export const menusConfig = (): MenuConfigProps => {
             //   href: "/mantenimiento",
             //   rol: "Todos",
             // },
-
-            {
-              title: "Cobranza",
-              icon: ShoppingCart,
-              href: "/cobranza",
-              rol: "Todos",
-            },
           ],
         },
         {
@@ -141,12 +132,7 @@ export const menusConfig = (): MenuConfigProps => {
               href: "/planilla",
               rol: "Todos",
             },
-            {
-              title: "Boleta de Pago",
-              icon: ReceiptTextIcon,
-              href: "/boleta",
-              rol: "Todos",
-            },
+
             {
               title: "Ventas",
               icon: CircleDollarSignIcon,
@@ -154,15 +140,15 @@ export const menusConfig = (): MenuConfigProps => {
               rol: "Todos",
             },
             {
-              title: "Movimiento Especial",
-              icon: ArrowLeftRightIcon,
-              href: "/movimientoespecial",
+              title: "Cobranza",
+              icon: ShoppingCart,
+              href: "/cobranza",
               rol: "Todos",
             },
             {
-              title: "Reporte",
-              icon: ChartLineIcon,
-              href: "/boleta",
+              title: "Movimiento Especial",
+              icon: ArrowLeftRightIcon,
+              href: "/movimientoespecial",
               rol: "Todos",
             },
           ],
