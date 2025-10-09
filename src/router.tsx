@@ -25,6 +25,8 @@ import DocumentoPage from "./pages/mantenedores/tipo-documento/page";
 import DocumentosIdPage from "./pages/mantenedores/tipo-documento/[id]/page";
 import ComprobantePage from "./pages/mantenedores/tipo-comprobante/page";
 import ComprobanteIdPage from "./pages/mantenedores/tipo-comprobante/[id]/page";
+import MovimientoEspecialPage from "./pages/ingresos-egresos/movimiento-especial/page";
+import MovimientoEspecialIdPage from "./pages/ingresos-egresos/movimiento-especial/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -127,12 +129,12 @@ export const router = createBrowserRouter([
       },
       {
         path: "/movimientoespecial",
-        //element: <VentasPage />,
+        element: <MovimientoEspecialPage />,
       },
-      // {
-      //   path: "/movimientoespecial/:id",
-      //   element: <VentasIdPage />,
-      // },
+      {
+        path: "/movimientoespecial/:id",
+        element: <MovimientoEspecialIdPage />,
+      },
       {
         path: "/tipocomprobante",
         element: <ComprobantePage />,

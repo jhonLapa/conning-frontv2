@@ -1,0 +1,220 @@
+import HeaderPage from "@/components/header-page";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  MovimientoEspecial,
+  MovimientoEspecialRequest,
+} from "@/interfaces/movimiento-especial";
+import {
+  getFetchMovimientoEspecialById,
+  postMovimientoEspecial,
+  putMovimientoEspecial,
+} from "@/services/movimiento-especial.service";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+
+const MovimientoEspecialIdPage = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [movimiento, setMovimiento] = useState<MovimientoEspecial | null>(null);
+  const title = id == "nuevo" ? "Nuevo Movimiento" : "Editar Movimiento";
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<MovimientoEspecialRequest>({
+    defaultValues: {
+      fecha: "",
+      descripcion: "",
+      monto: 0,
+      tipoMovimiento: "INGRESO",
+      cuentaBancaria: "",
+      observacion: "",
+    },
+  });
+
+  const getMovimientoEspecial = async () => {
+    if (id == "nuevo") return;
+
+    const response = await getFetchMovimientoEspecialById(Number(id));
+    setValue("fecha", response.fecha ? response.fecha.substring(0, 10) : "");
+    setValue("descripcion", response.descripcion);
+    setValue("monto", response.monto);
+    setValue("tipoMovimiento", response.tipoMovimiento);
+    setValue("cuentaBancaria", response.cuentaBancaria);
+    setValue("observacion", response.observacion);
+    setMovimiento(response);
+  };
+
+  const onSubmit = async (data: MovimientoEspecialRequest) => {
+    const response = movimiento
+      ? await putMovimientoEspecial(movimiento.idMovimientoEspecial, data)
+      : await postMovimientoEspecial(data);
+
+    if (!response.success) {
+      toast.warning("Error al Guardar el registro", { position: "top-right" });
+      return;
+    }
+
+    toast.success(response.message, { position: "top-right" });
+    setMovimiento(null);
+    navigate("/movimientoespecial");
+    return;
+  };
+
+  useEffect(() => {
+    getMovimientoEspecial();
+  }, [id]);
+
+  const getTodayLocal = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  return (
+    <>
+      <HeaderPage
+        title="Datos del movimiento"
+        descripcion="Informacion detallada del movimiento"
+      />
+      <form
+        className="flex  flex-col gap-5 mt-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-light text-gray-500">
+              {title}
+            </CardTitle>
+            <hr />
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col space-y-2">
+              <div className="flex flex-col col-span-4 space-y-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Fecha</Label>
+                    <Input
+                      type="date"
+                      min={getTodayLocal()}
+                      {...register("fecha", {
+                        required: "La fecha es obligatoria",
+                        validate: (value) => {
+                          const today = getTodayLocal();
+                          return (
+                            value >= today ||
+                            "La fecha no puede ser anterior a hoy"
+                          );
+                        },
+                      })}
+                    />
+                    {errors.fecha && (
+                      <p className="msg-error">{errors.fecha.message}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="descripcion">
+                      Descripcion
+                      <span className="font-semibold text-red-600">*</span>
+                    </Label>
+                    <Input
+                      type="text"
+                      placeholder="descripcion"
+                      {...register("descripcion", {
+                        required: "La descripcion es requerida",
+                      })}
+                    />
+                    {errors.descripcion && (
+                      <p className="msg-error">{errors.descripcion.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label>Monto</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...register("monto", {
+                        required: "Debes poner un monto",
+                        valueAsNumber: true,
+                        min: {
+                          value: 1,
+                          message: "El monto debe ser mayor a 0",
+                        },
+                      })}
+                    />
+                    {errors.monto && (
+                      <p className="msg-error">{errors.monto.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label>Tipo de movimiento</Label>
+                    <select
+                      {...register("tipoMovimiento", { required: true })}
+                      className="w-full border rounded p-2"
+                    >
+                      <option value="INGRESO">Ingreso</option>
+                      <option value="EGRESO">Egreso</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="cuentaBancaria">
+                      Cuenta bancaria
+                      <span className="font-semibold text-red-600">*</span>
+                    </Label>
+                    <Input
+                      type="text"
+                      placeholder="cta.bancaria"
+                      {...register("cuentaBancaria", {
+                        required: "La cuenta bancaria es requerida",
+                      })}
+                    />
+                    {errors.cuentaBancaria && (
+                      <p className="msg-error">
+                        {errors.cuentaBancaria.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>Observación</Label>
+                    <textarea
+                      className="w-full border rounded p-2"
+                      {...register("observacion")}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-nowrap justify-end gap-5">
+            <Button variant={"sidebar"} type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Guardando..." : "Guardar"}
+            </Button>
+            <Button
+              variant={"default"}
+              type="button"
+              onClick={() => navigate("/movimientoespecial")}
+            >
+              Cancelar
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
+    </>
+  );
+};
+
+export default MovimientoEspecialIdPage;
