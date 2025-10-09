@@ -1,3 +1,4 @@
+import { TipoDocumento } from '@/interfaces/document.interface';
 import axios from 'axios';
 
 const API_BASE = 'http://cotos02-002-site3.qtempurl.com/api';
@@ -37,7 +38,7 @@ export interface Proveedor {
   fechaModificacion?: string;
   usuarioCreacion?: string | null;
   usuarioModificacion?: string | null;
-  tipoDocumento?: any;
+  tipoDocumento?: TipoDocumento;
 }
 
 /**
@@ -221,5 +222,16 @@ export const registrarCompraCompleta = async (compraData: CompraRequest): Promis
     throw error;
   }
 };
+
+export const eliminarCompra = async (id: number): Promise<void> => {
+  try {
+    const response = await api.delete(`/compra/${id}`);
+    console.log('Compra eliminada correctamente:', response.data);
+  } catch (error) {
+    console.error('Error al eliminar compra:', error);
+    throw error;
+  }
+};
+
 
 export default api;
