@@ -21,6 +21,7 @@ import DocumentoPage from "./pages/mantenedores/documents/page";
 import DocumentosIdPage from "./pages/mantenedores/documents/[id]/page";
 import ClientePage from "./pages/administracion/cliente/page";
 import ClientesIdPage from "./pages/administracion/cliente/[id]/page";
+import CobranzaPage from "./pages/administracion/cobranza/page";
 
 export const router = createBrowserRouter([
   {
@@ -112,6 +113,10 @@ export const router = createBrowserRouter([
       {
         path: "/cliente/:id",
         element: <ClientesIdPage />,
+      },
+      {
+        path: "/cobranza",
+        element: <CobranzaPage />,
       },
     ],
   },
