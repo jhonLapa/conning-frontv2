@@ -18,6 +18,7 @@ import {
   ReceiptIcon,
   ReceiptTextIcon,
   Settings2Icon,
+  ShoppingCart,
   TreePalmIcon,
   User2Icon,
   UserCogIcon,
@@ -83,6 +84,13 @@ export const menusConfig = (): MenuConfigProps => {
             //   href: "/mantenimiento",
             //   rol: "Todos",
             // },
+
+            {
+              title: "Cobranza",
+              icon: ShoppingCart,
+              href: "/cobranza",
+              rol: "Todos",
+            },
           ],
         },
         {

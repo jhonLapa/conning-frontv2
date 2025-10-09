@@ -27,6 +27,7 @@ import ComprobantePage from "./pages/mantenedores/tipo-comprobante/page";
 import ComprobanteIdPage from "./pages/mantenedores/tipo-comprobante/[id]/page";
 import MovimientoEspecialPage from "./pages/ingresos-egresos/movimiento-especial/page";
 import MovimientoEspecialIdPage from "./pages/ingresos-egresos/movimiento-especial/[id]/page";
+import CobranzaPage from "./pages/administracion/cobranza/page";
 
 export const router = createBrowserRouter([
   {
@@ -142,6 +143,11 @@ export const router = createBrowserRouter([
       {
         path: "/tipocomprobante/:id",
         element: <ComprobanteIdPage />,
+      },
+
+      {
+        path: "/cobranza",
+        element: <CobranzaPage />,
       },
     ],
   },
