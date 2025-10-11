@@ -70,6 +70,12 @@ export const menusConfig = (): MenuConfigProps => {
               href: "/cliente",
               rol: "Todos",
             },
+            {
+              title: "Rol",
+              icon: UserCogIcon,
+              href: "/rol",
+              rol: "Todos",
+            },
             // {
             //   title: "Conceptos",
             //   icon: ClipboardPen,

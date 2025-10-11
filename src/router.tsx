@@ -28,6 +28,8 @@ import ComprobanteIdPage from "./pages/mantenedores/tipo-comprobante/[id]/page";
 import MovimientoEspecialPage from "./pages/ingresos-egresos/movimiento-especial/page";
 import MovimientoEspecialIdPage from "./pages/ingresos-egresos/movimiento-especial/[id]/page";
 import CobranzaPage from "./pages/administracion/cobranza/page";
+import RolPage from "./pages/mantenedores/rol/page";
+import RolIdPage from "./pages/mantenedores/rol/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -148,6 +150,14 @@ export const router = createBrowserRouter([
       {
         path: "/cobranza",
         element: <CobranzaPage />,
+      },
+      {
+        path: "/rol",
+        element: <RolPage />,
+      },
+      {
+        path: "/rol/:id",
+        element: <RolIdPage />,
       },
     ],
   },
