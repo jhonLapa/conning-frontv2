@@ -34,3 +34,24 @@ export const formatDateTimeLOCAL = (date: Date | string): string => {
 
   return new Intl.DateTimeFormat("es-ES", options).format(localDate);
 };
+
+export const formatDateForInput = (dateValue: Date | string | null): string => {
+  if (!dateValue) return '';
+  
+  let date: Date;
+
+  if (typeof dateValue === 'string') {
+    date = new Date(dateValue);
+  } else if (dateValue instanceof Date) {
+    date = dateValue;
+  } else {
+    return '';
+  }
+  if (isNaN(date.getTime())) {
+    return ''; 
+  }
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};

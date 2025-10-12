@@ -23,6 +23,10 @@ import ClientePage from "./pages/administracion/cliente/page";
 import ClientesIdPage from "./pages/administracion/cliente/[id]/page";
 import VentasPage from "./pages/ingresos-egresos/page";
 import VentasIdPage from "./pages/ingresos-egresos/ventas/[id]/page";
+import CategoriaPage from "./pages/mantenedores/categorias/page";
+import CategoriasIdPage from "./pages/mantenedores/categorias/[id]/page";
+import ProyectoPage from "./pages/mantenedores/proyectos/page";
+import ProyectosIdPage from "./pages/mantenedores/proyectos/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -122,6 +126,22 @@ export const router = createBrowserRouter([
       {
         path: "/venta/:id",
         element: <VentasIdPage />,
+      },
+      {
+        path: "/categoria",
+        element: <CategoriaPage />,
+      },
+      {
+        path: "/categoria/:id",
+        element: <CategoriasIdPage />,
+      },
+      {
+        path: "/proyecto",
+        element: <ProyectoPage />,
+      },
+      {
+        path: "/proyecto/:id",
+        element: <ProyectosIdPage />,
       },
     ],
   },

@@ -18,8 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Usuario } from "@/interfaces/usuario.interface";
-import { activeOrdesactiveUsuario } from "@/services/usuario.service";
+import { Categoria } from "@/interfaces/categoria.interface";
+import { activeOrdesactiveCategoria } from "@/services/categoria.service";
 import {
   BadgeCheck,
   Copy,
@@ -33,28 +33,26 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
-  usuario: Usuario;
+  categoria: Categoria;
   onRefresh: () => void;
 }
 
-export default function ActionsUsuario({ usuario, onRefresh }: Props) {
+export default function ActionsCategoria({ categoria, onRefresh }: Props) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChangeStatus = async (userId: number) => {
+  const handleChangeStatus = async (idCategoria: number) => {
     setIsLoading(true);
 
-    const response = await activeOrdesactiveUsuario(userId);
+    const response = await activeOrdesactiveCategoria(idCategoria);
 
     if (!response.success) {
       setIsLoading(false);
-      setOpen(false);
       toast.warning(response?.message, { position: "top-center" });
       return;
     }
 
     setIsLoading(false);
-    setOpen(false);
     toast.success(response?.message, { position: "top-right" });
     onRefresh();
   };
@@ -71,21 +69,21 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(usuario.userId.toString());
+            navigator.clipboard.writeText(categoria.idCategoria.toString());
             toast("ID copiado");
           }}
         >
           <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID del usuario</span>
+          <span className="text-sm ml-2">Copiar ID de la categoria</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/usuario/${usuario.userId}`}
+            to={`/categoria/${categoria.idCategoria}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
-            <span className="text-sm">Editar usuario</span>
+            <span className="text-sm">Editar categoria</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -96,12 +94,12 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button className="w-full flex flex-row items-center gap-2 py-1">
-                {usuario.state === true ? (
+                {categoria.estado === 1 ? (
                   <Trash2 size={18} />
                 ) : (
                   <BadgeCheck size={18} />
                 )}
-                {usuario.state === true ? "Desactivar  usuario" : "Activar  usuario"}
+                {categoria.estado === 1 ? "Desactivar  categoria" : "Activar  categoria"}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -110,8 +108,8 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
                   ¿Estás absolutamente seguro?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción {usuario.state === true ? "desactivara" : "activara"}{" "}
-                  el usuario de nuestros servidores.
+                  Esta acción {categoria.estado === 1 ? "desactivara" : "activara"}{" "}
+                  el categoria de nuestros servidores.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -120,7 +118,7 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(usuario.userId);
+                    handleChangeStatus(categoria.idCategoria);
                   }}
                   disabled={isLoading}
                   className="gap-2"

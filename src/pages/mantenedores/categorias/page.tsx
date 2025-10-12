@@ -8,24 +8,24 @@ import {
   stateFilter,
 } from "./ui/columns";
 
-export default function UsuariosPage() {
+export default function CategoriasPage() {
   const refreshDataTable = useRef<() => void>(null);
 
   return (
     <>
       <HeaderPage
-        title="Usuario"
-        descripcion="Listado de todos las usuarios."
+        title="Categoria"
+        descripcion="Listado de todos las categorias."
         linkConfig={{
-          title: "Nuevo Usuario",
-          url: "/usuario/nuevo",
+          title: "Nuevo Categoria",
+          url: "/categoria/nuevo",
         }}
       />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="usuario/busquedapaginado"
+        url="categoria/busquedapaginado"
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

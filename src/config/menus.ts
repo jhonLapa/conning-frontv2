@@ -81,6 +81,12 @@ export const menusConfig = (): MenuConfigProps => {
             //   href: "/mantenimiento",
             //   rol: "Todos",
             // },
+            {
+              title: "Proyectos",
+              icon: FilesIcon,
+              href: "/proyecto",
+              rol: "Todos",
+            },
           ],
         },
         {
@@ -168,6 +174,13 @@ export const menusConfig = (): MenuConfigProps => {
               href: "/tipodocumento",
               rol: "Todos",
             },
+            {
+              title: "Categorias",
+              icon: FilesIcon,
+              href: "/categoria",
+              rol: "Todos",
+            },
+
           ],
         },
       ],

@@ -1,0 +1,218 @@
+import HeaderPage from "@/components/header-page";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Proyecto, ProyectoRequest } from "@/interfaces/proyecto.interface";
+import { getFechtProyectoById, postProyecto, putProyecto } from "@/services/proyecto.service";
+import { formatDateForInput } from "@/utils/formatDate";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+
+const ProyectoIdPage = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [proyecto, setProyecto] = useState<Proyecto | null>(null);
+
+  const title = id == "nuevo" ? "Nuevo Proyecto" : "Editar Proyecto";
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ProyectoRequest>({
+    defaultValues: {
+      nombre: "",
+      descripcion: "",
+      fechaInicio: "",
+      fechaFin: "",
+    },
+  });
+
+  const getProyecto = async () => {
+    if (id == "nuevo") return;
+
+    const response = await getFechtProyectoById(Number(id));
+    setValue("nombre", response.nombre);
+    setValue("descripcion", response.descripcion);
+    setValue("fechaInicio", formatDateForInput(response.fechaInicio));
+    setValue("fechaFin",  formatDateForInput(response.fechaFin));
+    setValue("idCliente", response.idCliente);
+    setValue("frecuenciaPago", response.frecuenciaPago);
+    setProyecto(response);
+  };
+
+  const onSubmit = async (data: ProyectoRequest) => {
+    const response = proyecto
+      ? await putProyecto(proyecto.idProyecto, data)
+      : await postProyecto(data);
+
+    if (!response.success) {
+      toast.warning("Error al Guardar el registro", { position: "top-right" });
+      return;
+    }
+
+    toast.success(response.message, { position: "top-right" });
+    setProyecto(null);
+    navigate("/proyecto");
+    return;
+  };
+
+  useEffect(() => {
+    getProyecto();
+  }, [id]);
+
+  return (
+    <>
+      <HeaderPage
+        title="Nuevo Proyecto"
+        descripcion="Informacion detallada del proyecto"
+      />
+      <form
+        className="flex  flex-col gap-5 mt-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-light text-gray-500">
+              {title}
+            </CardTitle>
+            <hr />
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col space-y-2">
+              <div className="flex flex-col col-span-4 space-y-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="nombre">
+                      Nombre
+                      <span className="font-semibold text-red-600">*</span>
+                    </Label>
+                    <Input
+                      type="text"
+                      placeholder="Nombre"
+                      {...register("nombre", {
+                        required: "El nombre es requerido",
+                      })}
+                    />
+                    {errors.nombre && (
+                      <p className="msg-error">{errors.nombre.message}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="descripcion">
+                      Descripcion
+                      <span className="font-semibold text-red-600">*</span>
+                    </Label>
+                    <Input
+                      type="text"
+                      placeholder="Descripcion"
+                      {...register("descripcion", {
+                        required: "La descripcion es requerida",
+                      })}
+                    />
+                    {errors.descripcion && (
+                      <p className="msg-error">{errors.descripcion.message}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="fechaInicio">
+                      Fecha Inicio
+                      <span className="font-semibold text-red-600">*</span>
+                    </Label>
+                    <Input
+                      type="date"
+                      placeholder="Fecha de Inicio"
+                      {...register("fechaInicio", {
+                        required: "La fecha de inicio es requerida",
+                      })}
+                    />
+                    {errors.fechaInicio && (
+                      <p className="msg-error">{errors.fechaInicio.message}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="fechaFin">
+                      Fecha Fin
+                      <span className="font-semibold text-red-600">*</span>
+                    </Label>
+                    <Input
+                      type="date"
+                      placeholder="Fecha de Fin"
+                      {...register("fechaFin", {
+                        required: "La fecha de fin es requerida",
+                      })}
+                    />
+                    {errors.fechaFin && (
+                      <p className="msg-error">{errors.fechaFin.message}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="idCliente">
+                      Cliente ID
+                      <span className="font-semibold text-red-600">*</span>
+                    </Label>
+                    <Input
+                      type="number" // O un componente Select (opción más profesional)
+                      placeholder="ID del Cliente"
+                      {...register("idCliente", {
+                        required: "El ID del cliente es requerido",
+                        valueAsNumber: true, // Importante para que react-hook-form lo tipifique como number
+                      })}
+                    />
+                      {errors.idCliente && (
+                      <p className="msg-error">{errors.idCliente.message}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="frecuenciaPago">
+                      Frecuencia de Pago
+                      <span className="font-semibold text-red-600">*</span>
+                    </Label>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      {...register("frecuenciaPago", {
+                        required: "La frecuencia de pago es requerida",
+                      })}
+                    >
+                        <option value="">Seleccione Frecuencia</option>
+                        <option value="Semanal">Semanal</option>
+                        <option value="Quincenal">Quincenal</option>
+                        <option value="Mensual">Mensual</option>
+                        </select>
+                      {errors.frecuenciaPago && (
+                       <p className="msg-error">{errors.frecuenciaPago.message}</p>
+                    )}
+                  </div> 
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-nowrap justify-end gap-5">
+            <Button variant={"sidebar"} type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Guardando..." : "Guardar"}
+            </Button>
+            <Button
+              variant={"default"}
+              type="button"
+              onClick={() => navigate("/proyecto")}
+            >
+              Cancelar
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
+    </>
+  );
+};
+
+export default ProyectoIdPage;
