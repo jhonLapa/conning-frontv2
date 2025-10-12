@@ -6,26 +6,25 @@ import {
   columnNames,
   getColumns,
   stateFilter,
-} from "./ui/columns";
-
-export default function UsuariosPage() {
-  const refreshDataTable = useRef<() => void>(null);
+} from "./ui/columns"; 
+export default function ProyectosPage() {
+  const refreshDataTable = useRef<(() => void) | null>(null);
 
   return (
     <>
       <HeaderPage
-        title="Usuario"
-        descripcion="Listado de todos las usuarios."
+        title="Proyectos" 
+        descripcion="Listado de todos los proyectos." 
         linkConfig={{
-          title: "Nuevo Usuario",
-          url: "/usuario/nuevo",
+          title: "Nuevo Proyecto", 
+          url: "/proyecto/nuevo", 
         }}
       />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="usuario/busquedapaginado"
+        url="proyecto/busquedapaginado" 
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

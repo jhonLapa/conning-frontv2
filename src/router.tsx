@@ -28,6 +28,10 @@ import ComprobanteIdPage from "./pages/mantenedores/tipo-comprobante/[id]/page";
 import MovimientoEspecialPage from "./pages/ingresos-egresos/movimiento-especial/page";
 import MovimientoEspecialIdPage from "./pages/ingresos-egresos/movimiento-especial/[id]/page";
 import CobranzaPage from "./pages/administracion/cobranza/page";
+import CategoriaPage from "./pages/mantenedores/categorias/page";
+import CategoriasIdPage from "./pages/mantenedores/categorias/[id]/page";
+import ProyectoPage from "./pages/mantenedores/proyectos/page";
+import ProyectosIdPage from "./pages/mantenedores/proyectos/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -148,6 +152,23 @@ export const router = createBrowserRouter([
       {
         path: "/cobranza",
         element: <CobranzaPage />,
+      },
+      {
+        path: "/categoria",
+        element: <CategoriaPage />,
+      },
+
+      {
+        path: "/categoria/:id",
+        element: <CategoriasIdPage />,
+      },
+      {
+        path: "/proyecto",
+        element: <ProyectoPage />,
+      },
+      {
+        path: "/proyecto/:id",
+        element: <ProyectosIdPage />,
       },
     ],
   },

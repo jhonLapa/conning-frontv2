@@ -33,5 +33,7 @@ export * from "./menu-Interface";
 export * from "./sub-menu.interface";
 export * from "./status-tienda.interface";
 export * from "./response-error.interface";
+export * from "./categoria.interface";
+export * from "./proyecto.interface";
 
 

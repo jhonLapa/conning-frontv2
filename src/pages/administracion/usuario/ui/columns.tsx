@@ -5,25 +5,27 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import ActionsUsuario from "./action-usuario";
 import { Usuario } from "@/interfaces/usuario.interface";
-import { formatDateTime } from "@/utils";
 
 export const columnNames: Record<string, string> = {
-  code: "Codigo",
-  ruc: "RUT.",
-  razonSocial: "Razon Social",
-  direccion: "Direccion",
-  fechaCreacion: "Fecha Creacion",
+  firstName: "Nombres", 
+  lastName: "Apellidos", 
+  email: "Correo", 
+  password: "Contraseña", 
   actions: "Acciones",
 };
 
 export const columnFilter: FilterConfig[] = [
   {
-    id: "code",
-    label: "Codigo",
+    id: "firstName",
+    label: "Nombre",
   },
   {
-    id: "razonSocial",
-    label: "Razon Social",
+    id: "lastName",
+    label: "Apellido", 
+  },
+  {
+    id: "email",
+    label: "Correo",
   },
 ];
 
@@ -33,18 +35,20 @@ export const stateFilter: FilterConfig[] = [
     label: "Todos",
   },
   {
-    id: "activo",
+    id: "true", 
     label: "Activos",
   },
   {
-    id: "inactivo",
+    id: "false", 
     label: "Inactivos",
   },
 ];
 
-export const getColumns = (refreshDataTable: () => void): ColumnDef<Usuario>[] => [
+export const getColumns = (
+  refreshDataTable: () => void
+): ColumnDef<Usuario>[] => [
   {
-    id: "name",
+    accessorKey: "firstName",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -52,25 +56,48 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<Usuario>[] =
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Nombre Completo
+          Nombres
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
-    cell: ({ row }) => <span className="ml-4">{`${row.original.firstName} ${row.original.lastName}`}</span>,
+    cell: ({ row }) => <span className="ml-4">{row.original.firstName}</span>,
   },
   {
-    header: "Correo",
-    id: "email",
+    accessorKey: "lastName",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Apellidos
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <span>{row.original.lastName}</span>,
+  },
+  {
+    accessorKey: "email",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Correo
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
     cell: ({ row }) => <span>{row.original.email}</span>,
   },
   {
-    header: "Fecha de Creacion",
-    id: "auditCreateDate",
-    cell: ({ row }) => <span>{formatDateTime(row.original.auditCreateDate)}</span>,
-  },
-  {
-    accessorKey: "status",
+    accessorKey: "state",
+    id: "state",
     header: "Estado",
     cell: ({ row }) => {
       const state: boolean = row.original.state;

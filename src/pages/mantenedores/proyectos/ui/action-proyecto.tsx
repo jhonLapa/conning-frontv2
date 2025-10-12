@@ -18,8 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Usuario } from "@/interfaces/usuario.interface";
-import { activeOrdesactiveUsuario } from "@/services/usuario.service";
+import { Proyecto } from "@/interfaces/proyecto.interface";
+import { activeOrdesactiveProyecto } from "@/services/proyecto.service";
 import {
   BadgeCheck,
   Copy,
@@ -33,28 +33,26 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
-  usuario: Usuario;
+  proyecto: Proyecto;
   onRefresh: () => void;
 }
 
-export default function ActionsUsuario({ usuario, onRefresh }: Props) {
+export default function ActionsProyecto({ proyecto, onRefresh }: Props) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChangeStatus = async (userId: number) => {
+  const handleChangeStatus = async (idProyecto: number) => {
     setIsLoading(true);
 
-    const response = await activeOrdesactiveUsuario(userId);
+    const response = await activeOrdesactiveProyecto(idProyecto);
 
     if (!response.success) {
       setIsLoading(false);
-      setOpen(false);
       toast.warning(response?.message, { position: "top-center" });
       return;
     }
 
     setIsLoading(false);
-    setOpen(false);
     toast.success(response?.message, { position: "top-right" });
     onRefresh();
   };
@@ -71,21 +69,21 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(usuario.userId.toString());
+            navigator.clipboard.writeText(proyecto.idProyecto.toString());
             toast("ID copiado");
           }}
         >
           <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID del usuario</span>
+          <span className="text-sm ml-2">Copiar ID del proyecto</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/usuario/${usuario.userId}`}
+            to={`/proyecto/${proyecto.idProyecto}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
-            <span className="text-sm">Editar usuario</span>
+            <span className="text-sm">Editar proyecto</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -96,12 +94,12 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button className="w-full flex flex-row items-center gap-2 py-1">
-                {usuario.state === true ? (
+                {proyecto.estado === 1 ? (
                   <Trash2 size={18} />
                 ) : (
                   <BadgeCheck size={18} />
                 )}
-                {usuario.state === true ? "Desactivar  usuario" : "Activar  usuario"}
+                {proyecto.estado === 1 ? "Desactivar  proyecto" : "Activar  proyecto"}
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -110,8 +108,8 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
                   ¿Estás absolutamente seguro?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción {usuario.state === true ? "desactivara" : "activara"}{" "}
-                  el usuario de nuestros servidores.
+                  Esta acción {proyecto.estado === 1 ? "desactivara" : "activara"}{" "}
+                  el proyecto de nuestros servidores.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -120,7 +118,7 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(usuario.userId);
+                    handleChangeStatus(proyecto.idProyecto);
                   }}
                   disabled={isLoading}
                   className="gap-2"
