@@ -32,6 +32,8 @@ import CategoriaPage from "./pages/mantenedores/categorias/page";
 import CategoriasIdPage from "./pages/mantenedores/categorias/[id]/page";
 import ProyectoPage from "./pages/mantenedores/proyectos/page";
 import ProyectosIdPage from "./pages/mantenedores/proyectos/[id]/page";
+import RolPage from "./pages/mantenedores/rol/page";
+import RolIdPage from "./pages/mantenedores/rol/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -169,6 +171,14 @@ export const router = createBrowserRouter([
       {
         path: "/proyecto/:id",
         element: <ProyectosIdPage />,
+      },
+      {
+        path: "/rol",
+        element: <RolPage />,
+      },
+      {
+        path: "/rol/:id",
+        element: <RolIdPage />,
       },
     ],
   },
