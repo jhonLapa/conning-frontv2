@@ -8,24 +8,24 @@ import {
   stateFilter,
 } from "./ui/columns";
 
-export default function DocumentoPage() {
+export default function VentasPage() {
   const refreshDataTable = useRef<() => void>(null);
 
   return (
     <>
       <HeaderPage
-        title="Documento"
-        descripcion="Listado de todos los documentos."
+        title="Ventas"
+        descripcion="Listado de todas las ventas."
         linkConfig={{
-          title: "Nuevo Documento",
-          url: "/tipodocumento/nuevo",
+          title: "Nueva venta",
+          url: "/venta/nuevo",
         }}
       />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="tipodocumento/busquedapaginado"
+        url="venta/busquedapaginado"
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

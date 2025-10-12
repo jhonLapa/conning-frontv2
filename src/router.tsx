@@ -17,16 +17,23 @@ import MantenimientoConceptoIdPage from "./pages/administracion/mantenimientos/[
 import MantenimientoConceptoPage from "./pages/administracion/mantenimientos/page";
 import GrupoConceptoPage from "./pages/mantenedores/grupo-afectacion/page";
 import GrupoConceptoIdPage from "./pages/mantenedores/grupo-afectacion/[id]/page";
-import DocumentoPage from "./pages/mantenedores/documents/page";
-import DocumentosIdPage from "./pages/mantenedores/documents/[id]/page";
 import ClientePage from "./pages/administracion/cliente/page";
 import ClientesIdPage from "./pages/administracion/cliente/[id]/page";
-import VentasPage from "./pages/ingresos-egresos/page";
+import VentasPage from "./pages/ingresos-egresos/ventas/page";
 import VentasIdPage from "./pages/ingresos-egresos/ventas/[id]/page";
+import DocumentoPage from "./pages/mantenedores/tipo-documento/page";
+import DocumentosIdPage from "./pages/mantenedores/tipo-documento/[id]/page";
+import ComprobantePage from "./pages/mantenedores/tipo-comprobante/page";
+import ComprobanteIdPage from "./pages/mantenedores/tipo-comprobante/[id]/page";
+import MovimientoEspecialPage from "./pages/ingresos-egresos/movimiento-especial/page";
+import MovimientoEspecialIdPage from "./pages/ingresos-egresos/movimiento-especial/[id]/page";
+import CobranzaPage from "./pages/administracion/cobranza/page";
 import CategoriaPage from "./pages/mantenedores/categorias/page";
 import CategoriasIdPage from "./pages/mantenedores/categorias/[id]/page";
 import ProyectoPage from "./pages/mantenedores/proyectos/page";
 import ProyectosIdPage from "./pages/mantenedores/proyectos/[id]/page";
+import RolPage from "./pages/mantenedores/rol/page";
+import RolIdPage from "./pages/mantenedores/rol/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -128,9 +135,31 @@ export const router = createBrowserRouter([
         element: <VentasIdPage />,
       },
       {
+        path: "/movimientoespecial",
+        element: <MovimientoEspecialPage />,
+      },
+      {
+        path: "/movimientoespecial/:id",
+        element: <MovimientoEspecialIdPage />,
+      },
+      {
+        path: "/tipocomprobante",
+        element: <ComprobantePage />,
+      },
+      {
+        path: "/tipocomprobante/:id",
+        element: <ComprobanteIdPage />,
+      },
+
+      {
+        path: "/cobranza",
+        element: <CobranzaPage />,
+      },
+      {
         path: "/categoria",
         element: <CategoriaPage />,
       },
+
       {
         path: "/categoria/:id",
         element: <CategoriasIdPage />,
@@ -142,6 +171,14 @@ export const router = createBrowserRouter([
       {
         path: "/proyecto/:id",
         element: <ProyectosIdPage />,
+      },
+      {
+        path: "/rol",
+        element: <RolPage />,
+      },
+      {
+        path: "/rol/:id",
+        element: <RolIdPage />,
       },
     ],
   },

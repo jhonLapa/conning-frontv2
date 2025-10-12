@@ -6,26 +6,26 @@ import {
   columnNames,
   getColumns,
   stateFilter,
-} from "./ventas/ui/columns";
+} from "./ui/columns";
 
-export default function VentasPage() {
+export default function MovimientoEspecialPage() {
   const refreshDataTable = useRef<() => void>(null);
 
   return (
     <>
       <HeaderPage
-        title="Ventas"
-        descripcion="Listado de todas las ventas."
+        title="Movimientos"
+        descripcion="Listado de todos los movimientos."
         linkConfig={{
-          title: "Nueva venta",
-          url: "/venta/nuevo",
+          title: "Nuevo movimiento",
+          url: "/movimientoespecial/nuevo",
         }}
       />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="venta/busquedapaginado"
+        url="movimientoespecial/busquedapaginado"
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

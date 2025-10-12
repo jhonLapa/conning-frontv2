@@ -10,49 +10,49 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  TipoDocumento,
-  TipoDocumentoRequest,
-} from "@/interfaces/document.interface";
+  TipoComprobante,
+  TipoComprobanteRequest,
+} from "@/interfaces/tipo-comprobante.interface";
 import {
-  getFetchDocumentById,
-  postDocument,
-  putDocument,
-} from "@/services/document.service";
+  getFetchComprobanteById,
+  postComprobante,
+  putComprobante,
+} from "@/services/tipo-comprobante.service";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-const DocumentosIdPage = () => {
+const ComprobanteIdPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [documento, setDocumento] = useState<TipoDocumento | null>(null);
-  const title = id == "nuevo" ? "Nueva Documento" : "Editar Documento";
+  const [comprobante, setComprobante] = useState<TipoComprobante | null>(null);
+  const title = id == "nuevo" ? "Nuevo Comprobante" : "Editar Comprobante";
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<TipoDocumentoRequest>({
+  } = useForm<TipoComprobanteRequest>({
     defaultValues: {
       codigo: "",
       nombre: "",
     },
   });
 
-  const getDocumento = async () => {
+  const getComprobante = async () => {
     if (id == "nuevo") return;
 
-    const response = await getFetchDocumentById(Number(id));
+    const response = await getFetchComprobanteById(Number(id));
     setValue("codigo", response.codigo);
     setValue("nombre", response.nombre);
-    setDocumento(response);
+    setComprobante(response);
   };
 
-  const onSubmit = async (data: TipoDocumentoRequest) => {
-    const response = documento
-      ? await putDocument(documento.idTipoDocumento, data)
-      : await postDocument(data);
+  const onSubmit = async (data: TipoComprobanteRequest) => {
+    const response = comprobante
+      ? await putComprobante(comprobante.idTipoComprobante, data)
+      : await postComprobante(data);
 
     if (!response.success) {
       toast.warning("Error al Guardar el registro", { position: "top-right" });
@@ -60,20 +60,20 @@ const DocumentosIdPage = () => {
     }
 
     toast.success(response.message, { position: "top-right" });
-    setDocumento(null);
-    navigate("/tipodocumento");
+    setComprobante(null);
+    navigate("/tipocomprobante");
     return;
   };
 
   useEffect(() => {
-    getDocumento();
+    getComprobante();
   }, [id]);
 
   return (
     <>
       <HeaderPage
-        title="Nuevo Documento"
-        descripcion="Informacion detallada del documento"
+        title="Nuevo Comprobante"
+        descripcion="Informacion detallada del comprobante"
       />
       <form
         className="flex  flex-col gap-5 mt-4"
@@ -133,7 +133,7 @@ const DocumentosIdPage = () => {
             <Button
               variant={"default"}
               type="button"
-              onClick={() => navigate("/tipodocumento")}
+              onClick={() => navigate("/tipocomprobante")}
             >
               Cancelar
             </Button>
@@ -144,4 +144,4 @@ const DocumentosIdPage = () => {
   );
 };
 
-export default DocumentosIdPage;
+export default ComprobanteIdPage;
