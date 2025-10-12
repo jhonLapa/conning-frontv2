@@ -185,9 +185,9 @@ const ProyectoIdPage = () => {
                       })}
                     >
                         <option value="">Seleccione Frecuencia</option>
-                        <option value="Semanal">Semanal</option>
-                        <option value="Quincenal">Quincenal</option>
-                        <option value="Mensual">Mensual</option>
+                        <option value="SEMANAL">Semanal</option>
+                        <option value="QUINCENAL">Quincenal</option>
+                        <option value="MENSUAL">Mensual</option>
                         </select>
                       {errors.frecuenciaPago && (
                        <p className="msg-error">{errors.frecuenciaPago.message}</p>
