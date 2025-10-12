@@ -13,6 +13,5 @@ export interface UsuarioRequest {
     firstName: string
     lastName: string
     email: string
-    password: string
-    state: boolean
+    password?: string
 }

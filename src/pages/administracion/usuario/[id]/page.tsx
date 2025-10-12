@@ -44,14 +44,35 @@ const UsuarioIdPage = () => {
     setValue("firstName", response.firstName);
     setValue("lastName", response.lastName);
     setValue("email", response.email);
-    setValue("password", response.password);
     setUsuario(response);
   };
 
   const onSubmit = async (data: UsuarioRequest) => {
-    const response = usuario
-      ? await putUsuario(usuario.userId, data)
-      : await postUsuario(data);
+    let response;
+    const payload: UsuarioRequest = { ...data };
+
+    if (id !== "nuevo" && usuario) { 
+        
+        if (!payload.password || payload.password.trim() === "") {
+            delete payload.password;
+        }
+
+        const payloadCompletoParaUpdate = {
+            ...payload, 
+            state: usuario.state,
+            userId: usuario.userId 
+        };
+
+        response = await putUsuario(Number(id), payloadCompletoParaUpdate as any);
+        
+    } 
+    else {
+        const payloadCompletoParaCreate = {
+            ...payload, 
+            state: true
+        };
+        response = await postUsuario(payloadCompletoParaCreate as any);
+    }
 
     if (!response.success) {
       toast.warning("Error al Guardar el registro", { position: "top-right" });
@@ -61,8 +82,7 @@ const UsuarioIdPage = () => {
     toast.success(response.message, { position: "top-right" });
     setUsuario(null);
     navigate("/usuario");
-    return;
-  };
+};
 
   useEffect(() => {
     getUsuario();
