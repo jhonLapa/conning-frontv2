@@ -30,6 +30,10 @@ import MovimientoEspecialIdPage from "./pages/ingresos-egresos/movimiento-especi
 import CobranzaPage from "./pages/administracion/cobranza/page";
 import RolPage from "./pages/mantenedores/rol/page";
 import RolIdPage from "./pages/mantenedores/rol/[id]/page";
+import ProveedorPage from "./pages/mantenedores/proveedor/page";
+import ProveedorIdPage from "./pages/mantenedores/proveedor/[id]/page";
+import MenuPage from "./pages/mantenedores/menus/page";
+import MenuIdPage from "./pages/mantenedores/menus/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -158,6 +162,22 @@ export const router = createBrowserRouter([
       {
         path: "/rol/:id",
         element: <RolIdPage />,
+      },
+      {
+        path: "/proveedor",
+        element: <ProveedorPage />,
+      },
+      {
+        path: "/proveedor/:id",
+        element: <ProveedorIdPage />,
+      },
+      {
+        path: "/menu",
+        element: <MenuPage />,
+      },
+      {
+        path: "/menu/:id",
+        element: <MenuIdPage />,
       },
     ],
   },

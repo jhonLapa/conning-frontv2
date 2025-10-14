@@ -8,24 +8,24 @@ import {
   stateFilter,
 } from "./ui/columns";
 
-export default function RolPage() {
+export default function ProveedorPage() {
   const refreshDataTable = useRef<() => void>(null);
 
   return (
     <>
       <HeaderPage
-        title="Roles"
-        descripcion="Listado de todos los Roles."
+        title="Proveedor"
+        descripcion="Listado de todos los proveedors."
         linkConfig={{
-          title: "Nuevo Rol",
-          url: "/rol/nuevo",
+          title: "Nuevo Proveedor",
+          url: "/proveedor/nuevo",
         }}
       />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="rol/busquedapaginado"
+        url="proveedor/busquedapaginado"
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

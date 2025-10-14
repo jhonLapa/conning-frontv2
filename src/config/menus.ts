@@ -76,6 +76,12 @@ export const menusConfig = (): MenuConfigProps => {
               href: "/rol",
               rol: "Todos",
             },
+            {
+              title: "Proveedor",
+              icon: UserCogIcon,
+              href: "/proveedor",
+              rol: "Todos",
+            },
             // {
             //   title: "Conceptos",
             //   icon: ClipboardPen,
@@ -180,6 +186,12 @@ export const menusConfig = (): MenuConfigProps => {
               title: "Tipo de Comprobantes",
               icon: ReceiptIcon,
               href: "/tipocomprobante",
+              rol: "Todos",
+            },
+            {
+              title: "Menus",
+              icon: ClipboardListIcon,
+              href: "/menu",
               rol: "Todos",
             },
           ],
