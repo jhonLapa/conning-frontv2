@@ -20,6 +20,8 @@ import {
   Banknote,
   FolderKanban,
   IdCard,
+  UserCogIcon,
+  ClipboardListIcon,
 } from "lucide-react";
 
 export interface MenuConfigProps {
@@ -82,6 +84,24 @@ export const menusConfig = (): MenuConfigProps => {
               href: "/proyecto",
               rol: "Todos",
             },
+            {
+              title: "Proveedor",
+              icon: UserCogIcon,
+              href: "/proveedor",
+              rol: "Todos",
+            },
+            // {
+            //   title: "Conceptos",
+            //   icon: ClipboardPen,
+            //   href: "/concepto",
+            //   rol: "Todos",
+            // },
+            // {
+            //   title: "Mantenimiento",
+            //   icon: Keyboard,
+            //   href: "/mantenimiento",
+            //   rol: "Todos",
+            // },
           ],
         },
 
@@ -182,6 +202,11 @@ export const menusConfig = (): MenuConfigProps => {
               title: "Categorías",
               icon: FolderKanban,
               href: "/categoria",
+            },
+            {
+              title: "Menus",
+              icon: ClipboardListIcon,
+              href: "/menu",
               rol: "Todos",
             },
           ],
