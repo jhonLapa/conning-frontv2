@@ -1,3 +1,10 @@
+import { Button } from "@/components/ui/button";
+import { TipoDocumento } from "@/interfaces/document.interface";
+import { activeOrdesactiveDocument } from "@/services/document.service";
+import { BadgeCheck, Copy, Loader2, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,41 +16,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { TipoDocumento } from "@/interfaces/document.interface";
-import { activeOrdesactiveDocument } from "@/services/document.service";
-import {
-  BadgeCheck,
-  Copy,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
 
-interface Props {
+export default function ActionsDocument({
+  document,
+  onRefresh,
+}: {
   document: TipoDocumento;
   onRefresh: () => void;
-}
-
-export default function ActionsDocument({ document, onRefresh }: Props) {
+}) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChangeStatus = async (idTipoDocumento: number) => {
     setIsLoading(true);
-
     const response = await activeOrdesactiveDocument(idTipoDocumento);
 
     if (!response.success) {
@@ -58,88 +43,92 @@ export default function ActionsDocument({ document, onRefresh }: Props) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+    <div className="flex justify-center gap-2">
+      {/* 🔵 Copiar ID */}
+      <Button
+        size="icon"
+        variant="ghost"
+        className="bg-sky-500 hover:bg-sky-600 text-white rounded-md p-2 transition"
+        title="Copiar ID del documento"
+        onClick={() => {
+          navigator.clipboard.writeText(document.idTipoDocumento.toString());
+          toast("ID copiado al portapapeles", { position: "top-center" });
+        }}
+      >
+        <Copy size={18} />
+      </Button>
+
+      {/* 🟡 Editar */}
+      <Link to={`/tipodocumento/${document.idTipoDocumento}`}>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-md p-2 transition"
+          title="Editar documento"
+        >
+          <Pencil size={18} />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => {
-            navigator.clipboard.writeText(document.idTipoDocumento.toString());
-            toast("ID copiado");
-          }}
-        >
-          <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID del documento</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link
-            to={`/tipodocumento/${document.idTipoDocumento}`}
-            className="flex flex-row items-center gap-2"
+      </Link>
+
+      {/* ⚫ Activar/Desactivar */}
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            className={`rounded-md p-2 transition text-white ${
+              document.estado === 1
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
+            title={
+              document.estado === 1
+                ? "Desactivar documento"
+                : "Activar documento"
+            }
           >
-            <Pencil size={18} />
-            <span className="text-sm">Editar documento</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault();
-          }}
-        >
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger asChild>
-              <button className="w-full flex flex-row items-center gap-2 py-1">
-                {document.estado === 1 ? (
-                  <Trash2 size={18} />
-                ) : (
-                  <BadgeCheck size={18} />
-                )}
-                {document.estado === 1
-                  ? "Desactivar  documento"
-                  : "Activar  documento"}
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  ¿Estás absolutamente seguro?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción
-                  {document.estado === 1 ? "desactivara" : "activara"} el
-                  documento de nuestros servidores.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isLoading}>
-                  Cancelar
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    handleChangeStatus(document.idTipoDocumento);
-                  }}
-                  disabled={isLoading}
-                  className="gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Cargando...
-                    </>
-                  ) : (
-                    "Continuar"
-                  )}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            {document.estado === 1 ? (
+              <Trash2 size={18} />
+            ) : (
+              <BadgeCheck size={18} />
+            )}
+          </Button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {document.estado === 1
+                ? "¿Desactivar documento?"
+                : "¿Activar documento?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción{" "}
+              {document.estado === 1 ? "desactivará" : "activará"} el documento
+              en el sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleChangeStatus(document.idTipoDocumento)}
+              disabled={isLoading}
+              className="gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Procesando...
+                </>
+              ) : (
+                "Confirmar"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
