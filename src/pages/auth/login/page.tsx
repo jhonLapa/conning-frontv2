@@ -30,21 +30,42 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (values: LoginDto) => {
-    const response = await callLogin(values);
-    if (!response?.success) {
-      toast.warning(response?.message, { position: "top-center" });
-      return;
+    // ============================================
+    // TODO: TEMPORAL - Reemplazar con autenticación real
+    // Este código es solo para desarrollo del frontend
+    // Revertir a callLogin(values) cuando el backend esté disponible
+    // ============================================
+
+    // Simulación de login sin backend (TEMPORAL)
+    if (values.email === "admincommig@gmail.com" && values.password === "admin") {
+      const mockUser = {
+        userId: 1,
+        firstName: "Admin",
+        lasName: "User",
+        email: values.email,
+        state: true
+      };
+      const mockToken = "mock-token-123";
+
+      login(mockUser, mockToken);
+      toast.success("Inicio de sesión exitoso", { position: "top-center" });
+      navigate("/cobranza");
+    } else {
+      toast.warning("Credenciales incorrectas", { position: "top-center" });
     }
 
-    if (response.data) {
-      login(response.data?.user, response.data?.accessToken);
-      navigate("/");
-    }
-
-    // if (response.data?.user.rol.name === "Cliente") {
-    //   navigate("/cliente");
-    // } else {
+    // ============================================
+    // Código original comentado (descomentar cuando backend esté listo):
+    // const response = await callLogin(values);
+    // if (!response?.success) {
+    //   toast.warning(response?.message, { position: "top-center" });
+    //   return;
     // }
+    // if (response.data) {
+    //   login(response.data?.user, response.data?.accessToken);
+    //   navigate("/");
+    // }
+    // ============================================
   };
 
   return (

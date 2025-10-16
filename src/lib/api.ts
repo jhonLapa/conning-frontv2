@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://localhost:7109/api/",
+  baseURL: "http://cotos02-002-site3.qtempurl.com/api/",
 });
 
 export default api;

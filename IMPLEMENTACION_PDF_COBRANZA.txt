@@ -1,0 +1,470 @@
+================================================================================
+  DOCUMENTACIÓN: IMPLEMENTACIÓN DE GENERACIÓN DE PDF EN MÓDULO DE COBRANZA
+================================================================================
+
+Fecha: Octubre 2025
+Sistema: Intranet Conning - Frontend React + TypeScript
+Funcionalidad: Generación automática de PDF para facturas de compra
+
+================================================================================
+1. DESCRIPCIÓN GENERAL
+================================================================================
+
+Se implementó un sistema completo de generación de PDF para el módulo de
+cobranza que permite crear facturas de compra en formato PDF de manera
+automática al registrar una nueva compra.
+
+La implementación incluye:
+- Generación de PDF con jsPDF y jspdf-autotable
+- Cálculo automático de totales (SubTotal, IGV 18%, Total)
+- Tabla dinámica de productos/servicios
+- Formato profesional con información del proveedor y documento
+
+================================================================================
+2. TECNOLOGÍAS UTILIZADAS
+================================================================================
+
+- jsPDF v3.0.3: Librería para generación de PDFs
+- jspdf-autotable v5.0.2: Plugin para crear tablas en PDF
+- React Hook Form v7.55.0: Manejo de formularios
+- TypeScript: Tipado estático
+
+================================================================================
+3. ESTRUCTURA DE ARCHIVOS
+================================================================================
+
+conning-frontv2/
+└── src/
+    └── pages/
+        └── administracion/
+            └── cobranza/
+                ├── page.tsx                    # Lista con DataTable
+                ├── [id]/
+                │   └── page.tsx               # Formulario de creación/edición
+                ├── ui/
+                │   ├── columns.tsx            # Definición de columnas
+                │   └── action-compra.tsx      # Acciones de la tabla
+                ├── services/
+                │   └── api.ts                 # Servicios API (a crear)
+                └── components/                # Componentes del módulo antiguo
+                    ├── InvoiceForm.tsx
+                    ├── InvoicesList.tsx
+                    ├── InvoiceDetail.tsx
+                    └── EditarCompraModal.tsx
+
+================================================================================
+4. IMPLEMENTACIÓN DEL FORMULARIO
+================================================================================
+
+Ubicación: src/pages/administracion/cobranza/[id]/page.tsx
+
+4.1 ESTRUCTURA DEL FORMULARIO
+------------------------------
+
+El formulario está dividido en 5 Cards principales:
+
+Card 1: Datos del Documento
+  - Tipo de Comprobante (Factura/Boleta)
+  - Serie y Número
+  - Fecha de Emisión
+  - Forma de Pago (Contado/Crédito)
+  - Tipo de Moneda (SOLES/DÓLARES)
+  - Descuentos
+  - Checkbox: Activo
+
+Card 2: Datos del Proveedor
+  - Nombre completo del proveedor
+  - RUC del proveedor
+
+Card 3: Detalles de Compra (Tabla)
+  - Columnas: Nro, Cantidad, Unidad, Descripción, V. Unitario, V. Total, Acciones
+  - Botón: + Agregar Producto
+  - Cálculo automático del valor total por producto
+
+Card 4: Resumen de Totales
+  - Sub Total
+  - Descuentos
+  - Valor Compra (SubTotal - Descuentos)
+  - IGV (18% sobre Valor Compra)
+  - Importe Total (Valor Compra + IGV)
+
+Card 5: Configuración Adicional
+  - Observaciones (textarea)
+  - Checkbox: Generar PDF Automáticamente
+
+4.2 INTERFACES DE DATOS
+------------------------
+
+interface FormData {
+  idTipoComprobante: string;
+  serie: string;
+  numero: string;
+  fechaEmision: string;
+  proveedor: string;
+  rucProveedor: string;
+  formaPago: string;
+  tipoMoneda: string;
+  observacion: string;
+  descuentos: number;
+  activo: boolean;
+  generarPDFAuto: boolean;
+}
+
+interface Producto {
+  id: number;
+  cantidad: string;
+  unidadMedida: string;
+  descripcion: string;
+  valorUnitario: string;
+  valorTotal: number;
+}
+
+================================================================================
+5. FUNCIÓN DE GENERACIÓN DE PDF
+================================================================================
+
+Ubicación: Función generarPDF() en [id]/page.tsx
+
+5.1 PROCESO DE GENERACIÓN
+--------------------------
+
+1. Crear instancia de jsPDF:
+   const doc = new jsPDF();
+
+2. Obtener totales calculados:
+   const totales = calcularTotales();
+
+3. Agregar título centrado (tamaño 20):
+   doc.text('FACTURA DE COMPRA', 105, 20, { align: 'center' });
+
+4. Agregar información del documento (tamaño 12):
+   - Tipo de comprobante
+   - Serie-Número
+   - Fecha de emisión
+
+5. Agregar información del proveedor:
+   - Nombre completo
+   - RUC
+
+6. Agregar forma de pago y moneda (lado derecho)
+
+7. Generar tabla de productos usando autoTable:
+   (doc as any).autoTable({
+     startY: 95,
+     head: [['#', 'Cantidad', 'Unidad', 'Descripción', 'P. Unitario', 'Total']],
+     body: productosData,
+     theme: 'striped',
+     headStyles: { fillColor: [239, 161, 89] }  // Color naranja corporativo
+   });
+
+8. Agregar totales alineados a la derecha:
+   - Sub Total
+   - Descuentos
+   - Valor Compra
+   - IGV (18%)
+   - TOTAL (tamaño 14, destacado)
+
+9. Agregar observaciones si existen
+
+10. Guardar PDF con nombre único:
+    Factura_{serie}_{numero}_{timestamp}.pdf
+
+5.2 CÓDIGO DE EJEMPLO
+----------------------
+
+const generarPDF = (data: FormData) => {
+  const doc = new jsPDF();
+  const totales = calcularTotales();
+
+  // Título
+  doc.setFontSize(20);
+  doc.text('FACTURA DE COMPRA', 105, 20, { align: 'center' });
+
+  // Información del documento
+  doc.setFontSize(12);
+  doc.text(`Tipo: ${data.idTipoComprobante === '1' ? 'Factura' : 'Boleta'}`, 20, 40);
+  doc.text(`Serie-Número: ${data.serie}-${data.numero}`, 20, 47);
+  doc.text(`Fecha: ${data.fechaEmision}`, 20, 54);
+
+  // ... resto de la implementación
+
+  // Guardar PDF
+  const nombrePDF = `Factura_${data.serie}_${data.numero}_${new Date().getTime()}.pdf`;
+  doc.save(nombrePDF);
+
+  return nombrePDF;
+};
+
+================================================================================
+6. CÁLCULO DE TOTALES
+================================================================================
+
+Ubicación: Función calcularTotales() en [id]/page.tsx
+
+6.1 FÓRMULAS APLICADAS
+-----------------------
+
+1. Sub Total = Suma de (Cantidad × Valor Unitario) de todos los productos
+
+2. Valor Compra = Sub Total - Descuentos
+
+3. IGV = Valor Compra × 0.18
+
+4. Importe Total = Valor Compra + IGV
+
+6.2 CÓDIGO DE IMPLEMENTACIÓN
+-----------------------------
+
+const calcularTotales = () => {
+  const subTotal = productos.reduce((sum, prod) => sum + prod.valorTotal, 0);
+  const descuentos = watch("descuentos") || 0;
+  const valorCompra = subTotal - descuentos;
+  const igv = valorCompra * 0.18;
+  const importeTotal = valorCompra + igv;
+
+  return {
+    subTotal: subTotal.toFixed(2),
+    descuentos: descuentos.toFixed(2),
+    valorCompra: valorCompra.toFixed(2),
+    igv: igv.toFixed(2),
+    importeTotal: importeTotal.toFixed(2)
+  };
+};
+
+================================================================================
+7. GESTIÓN DE PRODUCTOS DINÁMICOS
+================================================================================
+
+7.1 ESTADO INICIAL
+-------------------
+
+const [productos, setProductos] = useState<Producto[]>([
+  {
+    id: 1,
+    cantidad: "",
+    unidadMedida: "UNIDAD",
+    descripcion: "",
+    valorUnitario: "",
+    valorTotal: 0
+  }
+]);
+
+7.2 FUNCIONES DE GESTIÓN
+-------------------------
+
+1. Agregar Producto:
+   - Genera nuevo ID único
+   - Agrega producto vacío al array
+
+2. Eliminar Producto:
+   - Solo permite eliminar si hay más de 1 producto
+   - Filtra el producto por ID
+
+3. Actualizar Producto:
+   - Actualiza campo específico (cantidad, descripción, etc.)
+   - Recalcula valorTotal automáticamente cuando cambia cantidad o valor unitario
+
+7.3 CÁLCULO AUTOMÁTICO DE VALOR TOTAL
+--------------------------------------
+
+const handleProductChange = (id: number, field: keyof Producto, value: string) => {
+  setProductos(prev => prev.map(prod => {
+    if (prod.id === id) {
+      const updated = { ...prod, [field]: value };
+      if (field === 'cantidad' || field === 'valorUnitario') {
+        const cantidad = parseFloat(field === 'cantidad' ? value : prod.cantidad) || 0;
+        const valorUnit = parseFloat(field === 'valorUnitario' ? value : prod.valorUnitario) || 0;
+        updated.valorTotal = cantidad * valorUnit;
+      }
+      return updated;
+    }
+    return prod;
+  }));
+};
+
+================================================================================
+8. VALIDACIONES
+================================================================================
+
+8.1 VALIDACIONES DEL FORMULARIO
+--------------------------------
+
+1. Campos Requeridos (con react-hook-form):
+   - Tipo de Comprobante *
+   - Serie *
+   - Número *
+   - Fecha de Emisión *
+   - Proveedor *
+   - RUC Proveedor *
+
+2. Validaciones de Productos:
+   - Al menos 1 producto
+   - Todos los productos deben tener cantidad, descripción y valor unitario
+   - Se valida antes de enviar el formulario
+
+8.2 CÓDIGO DE VALIDACIÓN
+-------------------------
+
+const onSubmit = async (data: FormData) => {
+  // Validar productos
+  if (productos.some(p => !p.cantidad || !p.valorUnitario || !p.descripcion)) {
+    toast.warning('Complete todos los datos de los productos', { position: "top-right" });
+    return;
+  }
+
+  // ... resto del proceso
+};
+
+================================================================================
+9. FLUJO COMPLETO DE CREACIÓN
+================================================================================
+
+1. Usuario ingresa a /cobranza
+2. Hace clic en "Nueva Compra"
+3. Sistema navega a /cobranza/nuevo
+4. Usuario completa:
+   - Datos del documento
+   - Datos del proveedor
+   - Agrega productos (mínimo 1)
+   - Ve cálculo automático de totales
+   - Opcionalmente agrega observaciones
+5. Usuario hace clic en "Guardar Compra"
+6. Sistema valida datos
+7. Si "Generar PDF Automáticamente" está activo:
+   - Genera PDF automáticamente
+   - Descarga el archivo
+8. Muestra mensaje de éxito con nombre del PDF
+9. Limpia el formulario
+10. Redirige a /cobranza después de 1.5 segundos
+
+================================================================================
+10. CARACTERÍSTICAS ESPECIALES
+================================================================================
+
+10.1 CHECKBOX "GENERAR PDF AUTOMÁTICAMENTE"
+--------------------------------------------
+
+- Permite al usuario decidir si quiere generar el PDF al guardar
+- Por defecto está activado (checked: true)
+- Si está desactivado, solo guarda sin generar PDF
+
+10.2 CHECKBOX "ACTIVO"
+-----------------------
+
+- Permite marcar el registro como activo/inactivo
+- Por defecto está activado (checked: true)
+- Se enviará al backend en el campo "estado"
+
+10.3 TABLA INTERACTIVA DE PRODUCTOS
+------------------------------------
+
+- Controles inline para editar directamente en la tabla
+- Cálculo de valor total en tiempo real
+- Badge para mostrar el total calculado
+- Botón de eliminar solo visible si hay más de 1 producto
+
+================================================================================
+11. DISEÑO Y ESTILOS
+================================================================================
+
+11.1 COMPONENTES UI UTILIZADOS
+-------------------------------
+
+- Card, CardHeader, CardTitle, CardContent, CardFooter
+- Input, Label
+- Button (variants: sidebar, default, destructive)
+- Checkbox
+- Table, TableHeader, TableBody, TableRow, TableCell, TableHead
+- Badge (variants: outline, success, destructive)
+
+11.2 COLORES CORPORATIVOS
+--------------------------
+
+- Naranja principal: #efa159 (RGB: 239, 161, 89)
+- Usado en: header del PDF, resumen de totales (bg-orange-50)
+
+11.3 DISEÑO RESPONSIVE
+----------------------
+
+- Grid responsive: grid-cols-1 md:grid-cols-2
+- Totales responsive: grid-cols-2 md:grid-cols-5
+- Inputs con anchos adaptativos
+
+================================================================================
+12. INTEGRACIÓN CON EL BACKEND (PRÓXIMA FASE)
+================================================================================
+
+12.1 ENDPOINTS A UTILIZAR
+--------------------------
+
+Ver archivo: APIS_COBRANZA.txt
+
+12.2 SERVICIOS A CREAR
+----------------------
+
+Ubicación: src/services/compra.service.ts
+
+Funciones necesarias:
+- getTiposComprobanteActivos()
+- getProveedoresActivos()
+- registrarCompraCompleta(data)
+- getCompraById(id)
+- actualizarCompra(id, data)
+
+================================================================================
+13. NOTAS TÉCNICAS
+================================================================================
+
+13.1 DEPENDENCIAS NECESARIAS
+-----------------------------
+
+{
+  "jspdf": "^3.0.3",
+  "jspdf-autotable": "^5.0.2"
+}
+
+13.2 TIPOS DE AUTOTABLE
+------------------------
+
+Para usar autoTable con TypeScript se usa casting:
+(doc as any).autoTable({ ... })
+
+13.3 FORMATO DE FECHA
+---------------------
+
+Fecha almacenada en formato ISO: YYYY-MM-DD
+Fecha mostrada en PDF: formato completo del input date
+
+================================================================================
+14. MEJORAS FUTURAS
+================================================================================
+
+1. Agregar logo de la empresa en el PDF
+2. Permitir personalizar el formato del PDF
+3. Vista previa del PDF antes de descargar
+4. Envío del PDF por email
+5. Almacenamiento del PDF en servidor
+6. Historial de PDFs generados
+7. Plantillas personalizables de PDF
+8. Exportar a otros formatos (Excel, CSV)
+
+================================================================================
+15. TROUBLESHOOTING
+================================================================================
+
+15.1 PROBLEMA: PDF no se genera
+SOLUCIÓN: Verificar que todos los productos tengan datos completos
+
+15.2 PROBLEMA: Totales incorrectos
+SOLUCIÓN: Verificar que los valores numéricos se conviertan correctamente con parseFloat
+
+15.3 PROBLEMA: Tabla del PDF no se muestra
+SOLUCIÓN: Verificar que jspdf-autotable esté importado correctamente
+
+================================================================================
+FIN DE LA DOCUMENTACIÓN
+================================================================================
+
+Desarrollado por: Claude AI Assistant
+Sistema: Conning Intranet Frontend
+Fecha: Octubre 2025
