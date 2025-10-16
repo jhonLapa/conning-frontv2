@@ -38,6 +38,7 @@ import ProveedorPage from "./pages/mantenedores/proveedor/page";
 import ProveedorIdPage from "./pages/mantenedores/proveedor/[id]/page";
 import MenuPage from "./pages/mantenedores/menus/page";
 import MenuIdPage from "./pages/mantenedores/menus/[id]/page";
+import CobranzaIdPage from "./pages/administracion/cobranza/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -199,6 +200,11 @@ export const router = createBrowserRouter([
       {
         path: "/menu/:id",
         element: <MenuIdPage />,
+      },
+      {
+
+        path: "/cobranza/:id",
+        element: <CobranzaIdPage />,
       },
     ],
   },

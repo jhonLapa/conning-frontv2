@@ -1,0 +1,734 @@
+═══════════════════════════════════════════════════════════════════════════════
+              📄 GUÍA COMPLETA DE USO DE LA LIBRERÍA PDF (jsPDF)
+═══════════════════════════════════════════════════════════════════════════════
+
+ÍNDICE:
+-------
+1. Introducción
+2. Instalación
+3. Conceptos Básicos
+4. Generación de PDF Simple
+5. Uso de Tablas con jspdf-autotable
+6. Casos de Uso Comunes
+7. Funciones Avanzadas
+8. Buenas Prácticas
+9. Ejemplos Prácticos del Proyecto
+
+═══════════════════════════════════════════════════════════════════════════════
+1. INTRODUCCIÓN
+═══════════════════════════════════════════════════════════════════════════════
+
+jsPDF es una librería JavaScript que permite generar archivos PDF directamente
+en el navegador del cliente, sin necesidad de un servidor backend.
+
+Características principales:
+- Generación de PDFs en el navegador
+- Soporte para texto, imágenes, formas y tablas
+- Compatible con TypeScript
+- Extensible mediante plugins (como jspdf-autotable para tablas)
+
+═══════════════════════════════════════════════════════════════════════════════
+2. INSTALACIÓN
+═══════════════════════════════════════════════════════════════════════════════
+
+Instalar las librerías necesarias:
+
+```bash
+npm install jspdf
+npm install jspdf-autotable
+npm install @types/jspdf-autotable --save-dev
+```
+
+En el proyecto ya están instaladas en package.json:
+- "jspdf": "^3.0.3"
+- "jspdf-autotable": "^5.0.2"
+
+═══════════════════════════════════════════════════════════════════════════════
+3. CONCEPTOS BÁSICOS
+═══════════════════════════════════════════════════════════════════════════════
+
+3.1 SISTEMA DE COORDENADAS
+---------------------------
+- El origen (0, 0) está en la esquina SUPERIOR IZQUIERDA
+- La unidad por defecto es en milímetros (mm)
+- El tamaño de página por defecto es A4 (210mm x 297mm)
+
+Ejemplo de coordenadas:
+(0, 0)        →→→→→→→→→  X (horizontal)
+  ↓
+  ↓  (15, 20) es 15mm desde la izquierda
+  ↓             y 20mm desde arriba
+  ↓
+  Y (vertical)
+
+3.2 CREAR UNA INSTANCIA DE PDF
+-------------------------------
+```typescript
+import jsPDF from 'jspdf';
+
+const doc = new jsPDF();
+// Por defecto: orientación 'portrait', formato 'a4', unidad 'mm'
+
+// Con opciones personalizadas:
+const doc = new jsPDF({
+  orientation: 'portrait',  // 'portrait' o 'landscape'
+  unit: 'mm',               // 'mm', 'cm', 'in', 'px'
+  format: 'a4'              // 'a4', 'letter', [width, height]
+});
+```
+
+3.3 POSICIONAMIENTO Y
+-----------------------
+La variable yPosition es crucial para controlar dónde dibujar cada elemento:
+
+```typescript
+let yPosition = 15; // Empezar a 15mm desde arriba
+
+// Dibujar texto
+doc.text('Hola', 15, yPosition);
+yPosition += 10; // Mover 10mm hacia abajo para el siguiente elemento
+
+// Dibujar otro texto
+doc.text('Mundo', 15, yPosition);
+yPosition += 10;
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+4. GENERACIÓN DE PDF SIMPLE
+═══════════════════════════════════════════════════════════════════════════════
+
+4.1 AGREGAR TEXTO
+-----------------
+```typescript
+// Sintaxis básica:
+doc.text(texto: string, x: number, y: number, opciones?: object);
+
+// Ejemplos:
+doc.text('Hola Mundo', 15, 20);
+
+// Texto centrado
+doc.text('Texto Centrado', 105, 20, { align: 'center' });
+// 105 es el centro de una página A4 (210mm / 2)
+
+// Texto alineado a la derecha
+doc.text('Derecha', 195, 20, { align: 'right' });
+```
+
+4.2 CONFIGURAR FUENTES
+----------------------
+```typescript
+// Cambiar tamaño de fuente
+doc.setFontSize(16);
+doc.text('Texto Grande', 15, 20);
+
+doc.setFontSize(10);
+doc.text('Texto Pequeño', 15, 30);
+
+// Cambiar estilo de fuente
+doc.setFont('helvetica', 'normal');  // normal
+doc.setFont('helvetica', 'bold');    // negrita
+doc.setFont('helvetica', 'italic');  // itálica
+doc.setFont('helvetica', 'bolditalic'); // negrita e itálica
+```
+
+4.3 COLORES
+-----------
+```typescript
+// Color de texto (RGB: valores 0-255)
+doc.setTextColor(255, 0, 0); // Rojo
+doc.text('Texto Rojo', 15, 20);
+
+// Color de relleno (para formas)
+doc.setFillColor(0, 255, 0); // Verde
+doc.rect(15, 30, 50, 20, 'F'); // Rectángulo relleno
+
+// Color de borde
+doc.setDrawColor(0, 0, 255); // Azul
+doc.rect(70, 30, 50, 20); // Rectángulo con borde
+```
+
+4.4 FORMAS GEOMÉTRICAS
+----------------------
+```typescript
+// Rectángulo
+// doc.rect(x, y, ancho, alto, estilo?)
+doc.rect(15, 20, 50, 30);          // Solo borde
+doc.rect(15, 20, 50, 30, 'F');     // Relleno (Fill)
+doc.rect(15, 20, 50, 30, 'FD');    // Relleno + borde
+
+// Línea
+doc.line(15, 20, 100, 20); // De (15,20) a (100,20)
+
+// Círculo
+doc.circle(50, 50, 20); // Centro (50,50), radio 20
+```
+
+4.5 TEXTO MULTILÍNEA
+--------------------
+```typescript
+// splitTextToSize divide texto largo en líneas que caben en un ancho
+const texto = 'Este es un texto muy largo que necesita dividirse...';
+const lineas = doc.splitTextToSize(texto, 180); // Ancho máximo 180mm
+doc.text(lineas, 15, 20);
+```
+
+4.6 EXPORTAR/GUARDAR PDF
+------------------------
+```typescript
+// Descargar el PDF
+doc.save('mi-documento.pdf');
+
+// Abrir en nueva pestaña
+const pdfBlob = doc.output('blob');
+const pdfUrl = URL.createObjectURL(pdfBlob);
+window.open(pdfUrl, '_blank');
+
+// Limpiar después de abrir
+setTimeout(() => URL.revokeObjectURL(pdfUrl), 100);
+
+// Obtener como Blob (para enviar al servidor)
+const blob = doc.output('blob');
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+5. USO DE TABLAS CON jspdf-autotable
+═══════════════════════════════════════════════════════════════════════════════
+
+jspdf-autotable es un plugin que facilita la creación de tablas profesionales.
+
+5.1 IMPORTACIÓN
+---------------
+```typescript
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+```
+
+5.2 TABLA BÁSICA
+----------------
+```typescript
+const doc = new jsPDF();
+
+autoTable(doc, {
+  head: [['Nombre', 'Email', 'País']], // Encabezados
+  body: [
+    ['Juan', 'juan@email.com', 'Perú'],
+    ['María', 'maria@email.com', 'Chile'],
+    ['Pedro', 'pedro@email.com', 'Argentina'],
+  ],
+});
+
+doc.save('tabla.pdf');
+```
+
+5.3 CONFIGURACIÓN AVANZADA
+--------------------------
+```typescript
+autoTable(doc, {
+  startY: 30,  // Posición Y donde empieza la tabla
+  head: [['Columna 1', 'Columna 2', 'Columna 3']],
+  body: [
+    ['Dato 1', 'Dato 2', 'Dato 3'],
+    ['Dato 4', 'Dato 5', 'Dato 6'],
+  ],
+
+  // Tema de la tabla
+  theme: 'grid',  // 'striped', 'grid', 'plain'
+
+  // Estilos generales
+  styles: {
+    fontSize: 10,
+    cellPadding: 3,
+    overflow: 'linebreak',
+  },
+
+  // Estilos para encabezados
+  headStyles: {
+    fillColor: [240, 240, 240],  // Color de fondo (gris claro)
+    textColor: [0, 0, 0],         // Color de texto (negro)
+    fontStyle: 'bold',
+    halign: 'center',             // Alineación horizontal
+  },
+
+  // Estilos por columna
+  columnStyles: {
+    0: { halign: 'left', cellWidth: 50 },    // Primera columna
+    1: { halign: 'center', cellWidth: 60 },  // Segunda columna
+    2: { halign: 'right', cellWidth: 40 },   // Tercera columna
+  },
+
+  // Estilos alternos para filas
+  alternateRowStyles: {
+    fillColor: [245, 245, 245],
+  },
+});
+```
+
+5.4 OBTENER POSICIÓN FINAL
+---------------------------
+Después de dibujar una tabla, necesitas saber dónde terminó para continuar
+dibujando otros elementos:
+
+```typescript
+autoTable(doc, {
+  head: [['Col 1', 'Col 2']],
+  body: [['Dato 1', 'Dato 2']],
+});
+
+// Obtener la posición Y final de la tabla
+const finalY = (doc as any).lastAutoTable.finalY;
+let yPosition = finalY + 10; // Continuar 10mm después de la tabla
+
+// Ahora puedes dibujar más contenido
+doc.text('Texto después de la tabla', 15, yPosition);
+```
+
+5.5 TABLA SIN ENCABEZADOS
+--------------------------
+```typescript
+// Para tablas de totales o resúmenes
+autoTable(doc, {
+  body: [
+    ['Subtotal :', 'S/ 1000.00'],
+    ['IGV (18%) :', 'S/ 180.00'],
+    ['Total :', 'S/ 1180.00'],
+  ],
+  theme: 'grid',
+  columnStyles: {
+    0: { halign: 'left', fontStyle: 'bold' },
+    1: { halign: 'right' },
+  },
+});
+```
+
+5.6 FORMATO PERSONALIZADO DE CELDAS
+------------------------------------
+```typescript
+autoTable(doc, {
+  head: [['Producto', 'Precio', 'Cantidad', 'Total']],
+  body: [
+    ['Laptop', '2500.00', '2', '5000.00'],
+    ['Mouse', '25.00', '10', '250.00'],
+  ],
+  columnStyles: {
+    1: { halign: 'right' }, // Precio
+    2: { halign: 'center' }, // Cantidad
+    3: { halign: 'right', fontStyle: 'bold' }, // Total en negrita
+  },
+});
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+6. CASOS DE USO COMUNES
+═══════════════════════════════════════════════════════════════════════════════
+
+6.1 ENCABEZADO CON LOGO Y DATOS DE EMPRESA
+-------------------------------------------
+```typescript
+let yPosition = 15;
+
+// Nombre de empresa
+doc.setFontSize(14);
+doc.setFont('helvetica', 'bold');
+doc.text('MI EMPRESA S.A.C.', 15, yPosition);
+yPosition += 6;
+
+// Dirección
+doc.setFontSize(9);
+doc.setFont('helvetica', 'normal');
+doc.text('Av. Principal 123, Lima, Perú', 15, yPosition);
+yPosition += 5;
+doc.text('RUC: 20123456789', 15, yPosition);
+yPosition += 10;
+```
+
+6.2 CUADRO DE INFORMACIÓN (FACTURA)
+------------------------------------
+```typescript
+// Dibujar un rectángulo
+doc.setFillColor(240, 240, 240);
+doc.rect(145, 10, 50, 25, 'FD'); // Relleno + borde
+
+// Texto dentro del rectángulo
+doc.setFontSize(10);
+doc.setFont('helvetica', 'bold');
+doc.text('FACTURA', 170, 15, { align: 'center' });
+doc.setFontSize(8);
+doc.text('F001-00001234', 170, 20, { align: 'center' });
+```
+
+6.3 SECCIÓN CON MARCO
+---------------------
+```typescript
+let yPosition = 50;
+
+// Dibujar marco
+doc.rect(15, yPosition, 180, 40);
+
+// Agregar contenido dentro
+doc.setFontSize(9);
+doc.setFont('helvetica', 'bold');
+doc.text('Cliente:', 20, yPosition + 6);
+doc.setFont('helvetica', 'normal');
+doc.text('Juan Pérez', 45, yPosition + 6);
+
+doc.setFont('helvetica', 'bold');
+doc.text('RUC:', 20, yPosition + 12);
+doc.setFont('helvetica', 'normal');
+doc.text('20123456789', 45, yPosition + 12);
+
+yPosition += 45; // Continuar después del marco
+```
+
+6.4 FORMATO DE MONEDA
+----------------------
+```typescript
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('es-PE', {
+    style: 'currency',
+    currency: 'PEN',
+    minimumFractionDigits: 2
+  }).format(amount);
+}
+
+// Usar en el PDF
+const total = 1250.50;
+doc.text(`Total: ${formatCurrency(total)}`, 15, 20);
+// Resultado: "Total: S/ 1,250.50"
+```
+
+6.5 FORMATO DE FECHA
+---------------------
+```typescript
+function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('es-PE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+
+// Usar en el PDF
+const fecha = '2025-01-13';
+doc.text(`Fecha: ${formatDate(fecha)}`, 15, 20);
+// Resultado: "Fecha: 13/01/2025"
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+7. FUNCIONES AVANZADAS
+═══════════════════════════════════════════════════════════════════════════════
+
+7.1 AÑADIR NUEVA PÁGINA
+------------------------
+```typescript
+doc.addPage(); // Añade una nueva página
+// Ahora puedes dibujar en la página 2
+```
+
+7.2 INSERTAR IMÁGENES
+----------------------
+```typescript
+// Desde URL o base64
+const imgData = 'data:image/png;base64,...';
+doc.addImage(imgData, 'PNG', x, y, ancho, alto);
+
+// Ejemplo:
+doc.addImage(logoBase64, 'PNG', 15, 10, 30, 20);
+```
+
+7.3 LÍNEAS HORIZONTALES SEPARADORAS
+------------------------------------
+```typescript
+// Línea simple
+doc.line(15, yPosition, 195, yPosition);
+
+// Línea más gruesa
+doc.setLineWidth(0.5);
+doc.line(15, yPosition, 195, yPosition);
+doc.setLineWidth(0.2); // Restaurar grosor
+```
+
+7.4 DETECTAR DESBORDAMIENTO DE PÁGINA
+--------------------------------------
+```typescript
+const altoPagina = doc.internal.pageSize.height;
+
+if (yPosition > altoPagina - 30) {
+  doc.addPage();
+  yPosition = 15; // Reiniciar posición en nueva página
+}
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+8. BUENAS PRÁCTICAS
+═══════════════════════════════════════════════════════════════════════════════
+
+8.1 USAR CONSTANTES PARA MÁRGENES
+----------------------------------
+```typescript
+const MARGIN_LEFT = 15;
+const MARGIN_RIGHT = 15;
+const MARGIN_TOP = 15;
+const MARGIN_BOTTOM = 15;
+const PAGE_WIDTH = 210; // A4
+const PAGE_HEIGHT = 297; // A4
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT;
+
+doc.text('Texto', MARGIN_LEFT, yPosition);
+```
+
+8.2 CREAR FUNCIONES REUTILIZABLES
+----------------------------------
+```typescript
+function drawSection(doc: jsPDF, title: string, content: string, y: number): number {
+  doc.setFont('helvetica', 'bold');
+  doc.text(title, 15, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(content, 50, y);
+  return y + 6; // Retornar nueva posición Y
+}
+
+// Usar:
+let yPos = 20;
+yPos = drawSection(doc, 'Nombre:', 'Juan Pérez', yPos);
+yPos = drawSection(doc, 'Email:', 'juan@email.com', yPos);
+```
+
+8.3 MANEJO DE ERRORES
+----------------------
+```typescript
+try {
+  const doc = new jsPDF();
+  // ... código de generación ...
+  doc.save('documento.pdf');
+  console.log('PDF generado exitosamente');
+} catch (error) {
+  console.error('Error al generar PDF:', error);
+  alert('Hubo un error al generar el PDF');
+}
+```
+
+8.4 OPTIMIZACIÓN DE RENDIMIENTO
+--------------------------------
+- Generar PDFs grandes puede ser lento
+- Mostrar un indicador de carga mientras se genera
+- Evitar generar PDFs muy grandes (más de 50 páginas)
+
+```typescript
+const [loading, setLoading] = useState(false);
+
+const generatePDF = async () => {
+  setLoading(true);
+  try {
+    const doc = new jsPDF();
+    // ... generar PDF ...
+    doc.save('documento.pdf');
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+9. EJEMPLOS PRÁCTICOS DEL PROYECTO (MÓDULO COBRANZA)
+═══════════════════════════════════════════════════════════════════════════════
+
+9.1 ESTRUCTURA DEL GENERADOR DE PDF
+------------------------------------
+En el proyecto, el generador de PDFs está ubicado en:
+📁 src/pages/administracion/cobranza/utils/pdfGenerator.ts
+
+Función principal: generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean)
+
+9.2 FLUJO DE GENERACIÓN
+------------------------
+1. Crear instancia de jsPDF
+2. Dibujar encabezado de empresa
+3. Dibujar cuadro de información del comprobante
+4. Dibujar datos del cliente/proveedor
+5. Agregar observaciones (si existen)
+6. Generar tabla de productos con autoTable
+7. Calcular y mostrar totales
+8. Convertir monto a letras
+9. Agregar pie de página
+10. Exportar (abrir en pestaña nueva o descargar)
+
+9.3 EJEMPLO: ENCABEZADO
+------------------------
+```typescript
+let yPosition = 15;
+
+// Logo o nombre de empresa
+doc.setFontSize(12);
+doc.setFont('helvetica', 'bold');
+doc.text('BELT S.A.C.', 15, yPosition);
+
+// Dirección
+doc.setFontSize(9);
+doc.setFont('helvetica', 'normal');
+doc.text('BEGONIAS FND. OQUENDO MZA. B LOTE. 13', 15, yPosition + 5);
+
+// Cuadro de factura (derecha)
+doc.setFillColor(240, 240, 240);
+doc.rect(145, yPosition - 5, 50, 25, 'F');
+doc.rect(145, yPosition - 5, 50, 25); // Borde
+
+doc.setFont('helvetica', 'bold');
+doc.text('FACTURA ELECTRONICA', 170, yPosition, { align: 'center' });
+doc.text(`${compra.serie}-${compra.numero}`, 170, yPosition + 12, { align: 'center' });
+
+yPosition += 30;
+```
+
+9.4 EJEMPLO: TABLA DE PRODUCTOS
+--------------------------------
+```typescript
+const productosData = (compra.detalles || []).map(detalle => [
+  detalle.cantidad.toFixed(2),
+  detalle.unidadMedida,
+  detalle.descripcion,
+  detalle.valorUnitario.toFixed(2),
+  '0.00' // ICBPER
+]);
+
+autoTable(doc, {
+  startY: yPosition,
+  head: [['Cantidad', 'Unidad Medida', 'Descripción', 'Valor Unitario', 'ICBPER']],
+  body: productosData,
+  theme: 'grid',
+  styles: {
+    fontSize: 8,
+    cellPadding: 3,
+  },
+  headStyles: {
+    fillColor: [240, 240, 240],
+    textColor: [0, 0, 0],
+    fontStyle: 'bold',
+    halign: 'center'
+  },
+  columnStyles: {
+    0: { halign: 'center', cellWidth: 20 },
+    1: { halign: 'center', cellWidth: 25 },
+    2: { halign: 'left', cellWidth: 85 },
+    3: { halign: 'right', cellWidth: 25 },
+    4: { halign: 'right', cellWidth: 25 }
+  }
+});
+
+// Continuar después de la tabla
+const finalY = (doc as any).lastAutoTable.finalY;
+yPosition = finalY + 5;
+```
+
+9.5 EJEMPLO: TABLA DE TOTALES
+------------------------------
+```typescript
+const totalesData = [
+  ['Sub Total Ventas :', `S/ ${compra.subTotal.toFixed(2)}`],
+  ['Descuentos :', `S/ ${compra.descuentos.toFixed(2)}`],
+  ['Valor Venta :', `S/ ${compra.valorCompra.toFixed(2)}`],
+  ['IGV :', `S/ ${compra.igv.toFixed(2)}`],
+  ['Importe Total :', `S/ ${compra.improteTotal.toFixed(2)}`]
+];
+
+autoTable(doc, {
+  startY: yPosition,
+  body: totalesData,
+  margin: { left: 105 }, // Alineado a la derecha
+  theme: 'grid',
+  styles: {
+    fontSize: 8,
+    cellPadding: 2,
+  },
+  columnStyles: {
+    0: { halign: 'left', cellWidth: 45, fontStyle: 'bold' },
+    1: { halign: 'right', cellWidth: 45 }
+  }
+});
+```
+
+9.6 EJEMPLO: CONVERTIR NÚMERO A LETRAS
+---------------------------------------
+Esta es una función auxiliar importante para facturas:
+
+```typescript
+function numeroALetras(numero: number): string {
+  // Implementación completa en pdfGenerator.ts
+  // Convierte números a texto en español
+  // Ejemplo: 1250 -> "MIL DOSCIENTOS CINCUENTA"
+}
+
+// Uso:
+const parteEntera = Math.floor(compra.improteTotal);
+const parteDecimal = Math.round((compra.improteTotal - parteEntera) * 100);
+const montoEnLetras = `${numeroALetras(parteEntera)} Y ${parteDecimal.toString().padStart(2, '0')}/100 SOLES`;
+
+doc.text(`SON: ${montoEnLetras}`, 20, yPosition);
+```
+
+9.7 INTEGRACIÓN CON REACT
+--------------------------
+```typescript
+// En un componente React
+import { generarPDFFactura } from '@/pages/administracion/cobranza/utils/pdfGenerator';
+import { compraService } from '@/services/compra.service';
+
+const handleVerPDF = async (idCompra: number) => {
+  try {
+    // Obtener datos completos de la compra
+    const compraCompleta = await compraService.getById(idCompra);
+
+    // Generar PDF
+    generarPDFFactura(compraCompleta, true); // true = abrir en nueva pestaña
+
+    toast.success('PDF generado exitosamente');
+  } catch (error) {
+    console.error('Error al generar PDF:', error);
+    toast.error('Error al generar el PDF');
+  }
+};
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+RECURSOS ADICIONALES
+═══════════════════════════════════════════════════════════════════════════════
+
+📚 Documentación Oficial:
+- jsPDF: https://github.com/parallax/jsPDF
+- jspdf-autotable: https://github.com/simonbengtsson/jsPDF-AutoTable
+
+🎯 Ejemplos Interactivos:
+- https://raw.githack.com/MrRio/jsPDF/master/docs/index.html
+
+💡 Comunidad:
+- Stack Overflow tag: [jspdf]
+- GitHub Issues de ambos proyectos
+
+═══════════════════════════════════════════════════════════════════════════════
+NOTAS FINALES
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ VENTAJAS de jsPDF:
+- No requiere servidor backend
+- Genera PDFs instantáneamente en el navegador
+- Compatible con todos los navegadores modernos
+- Fácil de integrar en proyectos React/Vue/Angular
+
+⚠️ LIMITACIONES:
+- No soporta fuentes personalizadas fácilmente
+- PDFs muy grandes pueden ser lentos
+- No soporta todas las características de PDF (como formularios interactivos)
+
+🚀 MEJORAS FUTURAS SUGERIDAS:
+- Implementar plantillas reutilizables
+- Agregar marca de agua
+- Soporte para múltiples idiomas
+- Integración con sistema de impresión directa
+
+═══════════════════════════════════════════════════════════════════════════════
+                           FIN DE LA GUÍA
+═══════════════════════════════════════════════════════════════════════════════
+
+Autor: Claude Code Assistant
+Fecha: Enero 2025
+Versión: 1.0
+Proyecto: Sistema de Gestión de Compras - Módulo Cobranza
