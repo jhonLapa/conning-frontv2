@@ -33,3 +33,9 @@ export const activeOrdesactiveVenta = async (
   );
   return response.data;
 };
+
+// Cambiar estado de una venta
+export const patchVentaEstado = async (idVenta: number, estado: number) => {
+  const response = await api.patch(`/venta/${idVenta}/estado`, { estado });
+  return response.data;
+};

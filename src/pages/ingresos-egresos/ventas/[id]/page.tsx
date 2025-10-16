@@ -18,12 +18,24 @@ import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const VentasIdPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [venta, setVenta] = useState<Venta | null>(null);
   const title = id == "nuevo" ? "Nueva Venta" : "Editar Venta";
+  const [openAlert, setOpenAlert] = useState(false);
 
   const [clientes, setClientes] = useState<
     { idCliente: number; nombreCompleto: string }[]
@@ -534,11 +546,53 @@ const VentasIdPage = () => {
             </div>
           </CardContent>
         </Card>
-
         <CardFooter className="flex justify-end gap-5">
-          <Button variant="sidebar" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando..." : "Guardar"}
-          </Button>
+          {/* 🔹 Si es NUEVO: guarda directamente */}
+          {id === "nuevo" ? (
+            <Button variant="sidebar" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Guardando..." : "Guardar"}
+            </Button>
+          ) : (
+            <>
+              {/* 🔸 Si es EDICIÓN: pide confirmación antes de guardar */}
+              <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="sidebar"
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={() => setOpenAlert(true)}
+                  >
+                    {isSubmitting ? "Guardando..." : "Guardar"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      ¿Estás seguro de editar esta venta?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción actualizará los datos de la venta
+                      seleccionada.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isSubmitting}>
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleSubmit(onSubmit)}
+                      disabled={isSubmitting}
+                      className="gap-2"
+                    >
+                      {isSubmitting ? "Guardando..." : "Sí, editar venta"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
+
           <Button
             variant="default"
             type="button"
