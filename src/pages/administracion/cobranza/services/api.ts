@@ -235,3 +235,14 @@ export const eliminarCompra = async (id: number): Promise<void> => {
 
 
 export default api;
+/**
+ * Elimina una compra por su ID
+ */
+export const eliminarCompra = async (id: number): Promise<void> => {
+  try {
+    await api.delete(`/compra/${id}`);
+  } catch (error) {
+    console.error("Error al eliminar compra:", error);
+    throw error;
+  }
+};
