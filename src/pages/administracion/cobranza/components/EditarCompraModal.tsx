@@ -53,6 +53,9 @@ const EditarCompraModal: React.FC<EditarCompraModalProps> = ({ compra, onClose, 
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [searchProveedor, setSearchProveedor] = useState<string>('');
+  const [showProveedorDropdown, setShowProveedorDropdown] = useState(false);
+  const [filteredProveedores, setFilteredProveedores] = useState<Proveedor[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +72,34 @@ const EditarCompraModal: React.FC<EditarCompraModalProps> = ({ compra, onClose, 
     };
 
     fetchData();
+  }, []);
+
+  // Filtrar proveedores en tiempo real
+  useEffect(() => {
+    if (searchProveedor.trim()) {
+      const filtered = proveedores.filter(proveedor =>
+        proveedor.nombreCompleto.toLowerCase().includes(searchProveedor.toLowerCase()) ||
+        (proveedor.numeroDocumento && proveedor.numeroDocumento.includes(searchProveedor))
+      );
+      setFilteredProveedores(filtered);
+      setShowProveedorDropdown(true);
+    } else {
+      setFilteredProveedores([]);
+      setShowProveedorDropdown(false);
+    }
+  }, [searchProveedor, proveedores]);
+
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.proveedor-search-container')) {
+        setShowProveedorDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Cargar datos de la compra cuando se pasa como prop
@@ -412,20 +443,121 @@ const EditarCompraModal: React.FC<EditarCompraModalProps> = ({ compra, onClose, 
             {/* Proveedor */}
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Proveedor</h3>
-              <select
-                name="idProveedor"
-                value={formData.idProveedor}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-                required
-              >
-                <option value={0}>-- Seleccione un proveedor --</option>
-                {proveedores.map((proveedor) => (
-                  <option key={proveedor.idProveedor} value={proveedor.idProveedor}>
-                    {proveedor.nombreCompleto} {proveedor.numeroDocumento && `- ${proveedor.numeroDocumento}`}
-                  </option>
-                ))}
-              </select>
+
+              <div className="relative proveedor-search-container">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Buscar Proveedor *
+                </label>
+
+                {/* Input de búsqueda con autocompletado */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchProveedor}
+                    onChange={(e) => {
+                      setSearchProveedor(e.target.value);
+                      if (!e.target.value) {
+                        setFormData(prev => ({ ...prev, idProveedor: 0 }));
+                      }
+                    }}
+                    onFocus={() => {
+                      if (searchProveedor.trim()) {
+                        setShowProveedorDropdown(true);
+                      }
+                    }}
+                    placeholder="Escriba el nombre del proveedor para buscar..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none pr-10"
+                    autoComplete="off"
+                  />
+                  <svg
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+
+                {/* Lista de resultados filtrados */}
+                {showProveedorDropdown && filteredProveedores.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                    {filteredProveedores.map((proveedor) => (
+                      <div
+                        key={proveedor.idProveedor}
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, idProveedor: proveedor.idProveedor }));
+                          setSearchProveedor(proveedor.nombreCompleto);
+                          setShowProveedorDropdown(false);
+                        }}
+                        className={`px-4 py-3 cursor-pointer hover:bg-orange-50 transition-colors border-b border-gray-100 last:border-b-0 ${
+                          formData.idProveedor === proveedor.idProveedor ? 'bg-orange-50' : ''
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{proveedor.nombreCompleto}</p>
+                            {proveedor.numeroDocumento && (
+                              <p className="text-sm text-gray-500 mt-0.5">RUC/DNI: {proveedor.numeroDocumento}</p>
+                            )}
+                            {proveedor.email && (
+                              <p className="text-xs text-gray-400 mt-0.5">{proveedor.email}</p>
+                            )}
+                          </div>
+                          {formData.idProveedor === proveedor.idProveedor && (
+                            <svg className="h-5 w-5 text-orange-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Mensaje cuando no hay resultados */}
+                {showProveedorDropdown && searchProveedor && filteredProveedores.length === 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                    <div className="px-4 py-8 text-center text-gray-500">
+                      <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <p className="font-medium">No se encontraron proveedores</p>
+                      <p className="text-sm mt-1">Intente con otro término de búsqueda</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Badge del proveedor seleccionado */}
+                {formData.idProveedor && formData.idProveedor !== 0 && !showProveedorDropdown && (
+                  <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start justify-between">
+                    <div className="flex items-start gap-2 flex-1">
+                      <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-green-800">Proveedor seleccionado</p>
+                        <p className="text-sm text-green-700 mt-0.5">
+                          {proveedores.find(p => p.idProveedor === formData.idProveedor)?.nombreCompleto}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, idProveedor: 0 }));
+                        setSearchProveedor('');
+                      }}
+                      className="text-green-600 hover:text-green-800 transition-colors flex-shrink-0 ml-2"
+                      title="Cambiar proveedor"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Productos */}

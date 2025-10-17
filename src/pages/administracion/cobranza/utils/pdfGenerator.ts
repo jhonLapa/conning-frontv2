@@ -50,8 +50,10 @@ function numeroALetras(numero: number): string {
 export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean = true) {
   const doc = new jsPDF();
 
-  // Configuración de fuentes y colores
+  // Configuración de fuentes y colores (Paleta naranja/orange)
   const primaryColor: [number, number, number] = [0, 0, 0];
+  const orangeColor: [number, number, number] = [249, 115, 22]; // orange-500
+  const orangeLightColor: [number, number, number] = [255, 237, 213]; // orange-100
   const grayColor: [number, number, number] = [100, 100, 100];
 
   let yPosition = 15;
@@ -60,40 +62,50 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
   // Lado izquierdo - Información de la empresa
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
+  doc.setTextColor(orangeColor[0], orangeColor[1], orangeColor[2]);
   doc.text('BELT S.A.C.', 15, yPosition);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
   doc.text('BEGONIAS FND. OQUENDO MZA. B LOTE. 13', 15, yPosition + 5);
   doc.text('CALLAO - PROV. CONST. DEL CALLAO - PROV. CONST. DEL CALLAO', 15, yPosition + 10);
 
-  // Lado derecho - Información del comprobante (más a la derecha)
-  doc.setFillColor(240, 240, 240);
+  // Lado derecho - Información del comprobante con fondo naranja
+  doc.setFillColor(orangeColor[0], orangeColor[1], orangeColor[2]);
   doc.rect(145, yPosition - 5, 50, 25, 'F');
-  doc.setDrawColor(0, 0, 0);
+  doc.setDrawColor(orangeColor[0], orangeColor[1], orangeColor[2]);
   doc.rect(145, yPosition - 5, 50, 25);
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255); // Texto blanco
   doc.text('FACTURA ELECTRONICA', 170, yPosition, { align: 'center' });
   doc.setFontSize(8);
   doc.text('RUC: 20606459590', 170, yPosition + 5, { align: 'center' });
   doc.setFontSize(11);
   doc.text(`${compra.serie}-${compra.numero}`, 170, yPosition + 12, { align: 'center' });
 
+  // Resetear color de texto
+  doc.setTextColor(0, 0, 0);
+
   yPosition += 30;
 
   // ===== INFORMACIÓN DEL CLIENTE =====
-  doc.setDrawColor(0, 0, 0);
+  doc.setDrawColor(orangeColor[0], orangeColor[1], orangeColor[2]);
+  doc.setLineWidth(0.5);
   doc.rect(15, yPosition, 180, 35);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
+  doc.setTextColor(orangeColor[0], orangeColor[1], orangeColor[2]);
   doc.text('Fecha de Emisión', 20, yPosition + 6);
   doc.text('Señor(es)', 20, yPosition + 12);
   doc.text('RUC', 20, yPosition + 18);
   doc.text('Dirección del Cliente', 20, yPosition + 24);
   doc.text('Tipo de Moneda', 20, yPosition + 30);
+
+  doc.setTextColor(0, 0, 0);
 
   doc.setFont('helvetica', 'normal');
   const fechaEmision = new Date(compra.fechaEmision).toLocaleDateString('es-PE');
@@ -110,8 +122,10 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
 
   // Forma de pago (lado derecho)
   doc.setFont('helvetica', 'bold');
+  doc.setTextColor(orangeColor[0], orangeColor[1], orangeColor[2]);
   doc.text('Forma de pago :', 135, yPosition + 6);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
   doc.text(compra.formaPago, 165, yPosition + 6);
 
   yPosition += 40;
@@ -119,8 +133,10 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
   // ===== OBSERVACIÓN =====
   if (compra.observacion) {
     doc.setFont('helvetica', 'bold');
+    doc.setTextColor(orangeColor[0], orangeColor[1], orangeColor[2]);
     doc.text('Observación :', 20, yPosition);
     doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
     const obsLines = doc.splitTextToSize(compra.observacion, 150);
     doc.text(obsLines, 50, yPosition);
     yPosition += (obsLines.length * 5) + 5;
@@ -145,8 +161,8 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
       cellPadding: 3,
     },
     headStyles: {
-      fillColor: [240, 240, 240],
-      textColor: [0, 0, 0],
+      fillColor: [249, 115, 22], // orange-500
+      textColor: [255, 255, 255], // texto blanco
       fontStyle: 'bold',
       halign: 'center'
     },
@@ -167,6 +183,7 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
   // Lado izquierdo - Valor de Venta de Operaciones Gratuitas
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
   doc.text('Valor de Venta de', 20, yPosition);
   doc.text('Operaciones Gratuitas : S/ 0.00', 20, yPosition + 5);
 
@@ -195,8 +212,21 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
       cellPadding: 2,
     },
     columnStyles: {
-      0: { halign: 'left', cellWidth: 45, fontStyle: 'bold' },
+      0: {
+        halign: 'left',
+        cellWidth: 45,
+        fontStyle: 'bold',
+        textColor: [249, 115, 22] // orange-500 para etiquetas
+      },
       1: { halign: 'right', cellWidth: 45 }
+    },
+    // Destacar la fila del Importe Total
+    didParseCell: function(data) {
+      if (data.row.index === 10) { // Última fila (Importe Total)
+        data.cell.styles.fillColor = [255, 237, 213]; // orange-100
+        data.cell.styles.fontStyle = 'bold';
+        data.cell.styles.textColor = [249, 115, 22]; // orange-500
+      }
     }
   });
 
@@ -210,6 +240,7 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
+  doc.setTextColor(orangeColor[0], orangeColor[1], orangeColor[2]);
   doc.text(`SON: ${montoEnLetras}`, 20, yPosition);
 
   yPosition += 10;
@@ -217,6 +248,7 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
   // ===== PIE DE PÁGINA =====
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
+  doc.setTextColor(100, 100, 100); // gris
   const pieTexto = 'Esta es una representación impresa de la factura electrónica, generada en el Sistema de SUNAT. Puede verificarla utilizando su clave SOL.';
   const pieLines = doc.splitTextToSize(pieTexto, 175);
   doc.text(pieLines, 105, yPosition, { align: 'center' });
