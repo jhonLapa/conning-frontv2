@@ -40,8 +40,12 @@ export const menusConfig = (): MenuConfigProps => {
         href: "/",
       },
     ],
+
     sidebarNav: {
       modern: [
+        // =====================================================
+        // 🔹 INICIO
+        // =====================================================
         {
           title: "Inicio",
           icon: LayoutDashboard,
@@ -49,6 +53,9 @@ export const menusConfig = (): MenuConfigProps => {
           rol: "Todos",
         },
 
+        // =====================================================
+        // 🧩 ADMINISTRACIÓN
+        // =====================================================
         {
           title: "Administración",
           icon: UserCog,
@@ -90,21 +97,12 @@ export const menusConfig = (): MenuConfigProps => {
               href: "/proveedor",
               rol: "Todos",
             },
-            // {
-            //   title: "Conceptos",
-            //   icon: ClipboardPen,
-            //   href: "/concepto",
-            //   rol: "Todos",
-            // },
-            // {
-            //   title: "Mantenimiento",
-            //   icon: Keyboard,
-            //   href: "/mantenimiento",
-            //   rol: "Todos",
-            // },
           ],
         },
 
+        // =====================================================
+        // 👷‍♂️ TRABAJADORES
+        // =====================================================
         {
           title: "Trabajadores",
           icon: Handshake,
@@ -143,6 +141,9 @@ export const menusConfig = (): MenuConfigProps => {
           ],
         },
 
+        // =====================================================
+        // 💰 INGRESOS Y EGRESOS
+        // =====================================================
         {
           title: "Ingresos y Egresos",
           icon: BarChart3,
@@ -175,6 +176,9 @@ export const menusConfig = (): MenuConfigProps => {
           ],
         },
 
+        // =====================================================
+        // ⚙️ CONFIGURACIÓN
+        // =====================================================
         {
           title: "Configuración",
           icon: Settings,
@@ -202,9 +206,10 @@ export const menusConfig = (): MenuConfigProps => {
               title: "Categorías",
               icon: FolderKanban,
               href: "/categoria",
+              rol: "Todos",
             },
             {
-              title: "Menus",
+              title: "Menús",
               icon: ClipboardListIcon,
               href: "/menu",
               rol: "Todos",
