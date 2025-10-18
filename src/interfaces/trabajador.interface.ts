@@ -23,7 +23,7 @@ export interface TrabajadorRequest {
     idRegimen: number;   
     sexo:string;
     estadoCivil: string;
-    asignacionFamiliar:string;
+    asignacionFamiliar:number;
     hijos: number;
     fechaNacimiento?: string; 
     fechaIngreso: string; 
@@ -56,6 +56,9 @@ export interface Trabajador {
     fechaNacimiento: string;
     fechaIngreso: string;
     sexo: string;
+    estadoCivil :string;
+    asignacionFamiliar : number;
+    hijos : number;
     email: string;
     telefono: string;
     direccion: string;

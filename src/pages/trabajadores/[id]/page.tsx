@@ -70,6 +70,9 @@ const TrabajadorIdPage = () => {
       fechaIngreso: new Date().toISOString().substring(0, 10),
       cuentas: [],
       estado: 1,
+      sexo: "",
+      estadoCivil: "",
+      hijos: 0
     },
   });
 
@@ -164,6 +167,10 @@ const TrabajadorIdPage = () => {
         setValue("email", response.email ?? "");
         setValue("telefono", response.telefono ?? "");
         setValue("direccion", response.direccion ?? "");
+        setValue("sexo", response.sexo ?? "");
+        setValue("estadoCivil", response.estadoCivil.toUpperCase() ?? "");
+        setValue("hijos", response.hijos ?? 0);
+        setValue("asignacionFamiliar", response.asignacionFamiliar);
         setValue("estado", response.estado);
         setValue("cuentas", mapCuentasToRequest(response.cuentasBancarias));
         setTrabajador(response);
@@ -422,13 +429,28 @@ const TrabajadorIdPage = () => {
               {/* Estado Civil */}
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="estadoCivil">Estado Civil</Label>
+                <select
+                  id="estadoCivil"
+                  {...register("estadoCivil")}
+                  className="w-full border rounded p-2"
+                >
+                  <option value="">Selecciona Estado Civil</option>
+                  <option value="SOLTERO">Soltero(a)</option>
+                  <option value="CASADO">Casado(a)</option>
+                  <option value="VIUDO">Viudo(a)</option>
+                  <option value="DIVORCIADO">Divorciado(a)</option>
+                 </select>
+               </div>
+               {/* Asignación Familiar */}
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="asignacionFamiliar">Asignación Familiar</Label>
                 <Input
                   type="text"
-                  placeholder="Estado Civil"
-                  {...register("estadoCivil")}
+                  placeholder="Asignación Familiar"
+                  {...register("asignacionFamiliar")}
                 />
               </div>
-               {/* Hijos */}
+              {/* Hijos */}
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="hijos">Hijos</Label>
                 <Input

@@ -1,13 +1,13 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Trabajador, CuentaBancaria } from "@/interfaces/trabajador.interface"; 
-import { Copy, MoreHorizontal, Eye, Pencil, Loader2, PowerOff, CheckCircle, Banknote } from "lucide-react";
+import { Trabajador, CuentaBancaria } from "@/interfaces/trabajador.interface";
+import {
+  Copy,
+  Eye,
+  Pencil,
+  Loader2,
+  Banknote,
+  RefreshCw, // Agregamos RefreshCw para el estilo de "cambiar estado" como en Venta
+} from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import {
@@ -16,9 +16,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { getFetchTrabajadorById, activeOrDesactiveTrabajador } from "@/services/trabajador.service"; 
+import {
+  getFetchTrabajadorById,
+  activeOrDesactiveTrabajador,
+} from "@/services/trabajador.service";
 import { useNavigate } from "react-router-dom";
-
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -31,6 +33,15 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
+// Eliminamos las importaciones de DropdownMenu ya que no se usarán
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
+// import { MoreHorizontal } from "lucide-react"; // Ya no se necesita el icono de 3 puntos
 
 interface Props {
   trabajador: Trabajador;
@@ -39,7 +50,9 @@ interface Props {
 
 export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [trabajadorDetalle, setTrabajadorDetalle] = useState<Trabajador | null>(null);
+  const [trabajadorDetalle, setTrabajadorDetalle] = useState<Trabajador | null>(
+    null
+  );
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [alertEditOpen, setAlertEditOpen] = useState(false);
   const [alertStatusOpen, setAlertStatusOpen] = useState(false);
@@ -47,13 +60,14 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
   const [isChangingStatus, setIsChangingStatus] = useState(false);
 
   const navigate = useNavigate();
-  
+
   const isActivo = trabajador.estado === 1;
 
+  // ... (funciones handleVerDetalle, handleEditTrabajador, handleToggleStatus, renderCuentasBancarias se mantienen igual)
   const handleVerDetalle = async () => {
     try {
       setLoadingDetail(true);
-      const detalle = await getFetchTrabajadorById(trabajador.idTrabajador); 
+      const detalle = await getFetchTrabajadorById(trabajador.idTrabajador);
       setTrabajadorDetalle(detalle);
       setIsDetailOpen(true);
     } catch (error: unknown) {
@@ -65,190 +79,218 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
   };
 
   const handleEditTrabajador = () => {
-    // El AlertDialogAction llama a esta función SIN argumentos (solo recibe el evento, que ignoramos).
-
-    // 1. Obtener el ID del objeto trabajador disponible en el scope del componente
-    const id = trabajador.idTrabajador; // <--- Debes tener acceso a este objeto
-
+    const id = trabajador.idTrabajador;
     setIsEditing(true);
     try {
-        // ✅ CORRECCIÓN DE RUTA: Navegar directamente al ID, sin el segmento 'editar'
-        navigate(`/trabajador/${id}`);
-        toast.success("Redirigiendo a editar trabajador...");
+      navigate(`/trabajador/${id}`);
+      toast.success("Redirigiendo a editar trabajador...");
     } catch (error: unknown) {
-        toast.error("Error al redirigir.");
+      toast.error("Error al redirigir.");
     } finally {
-        setIsEditing(false);
-        setAlertEditOpen(false);
+      setIsEditing(false);
+      setAlertEditOpen(false);
     }
-};
-  
+  };
+
   const handleToggleStatus = async () => {
     setIsChangingStatus(true);
     const newStatusText = isActivo ? "desactivar" : "activar";
     try {
-      const response = await activeOrDesactiveTrabajador(trabajador.idTrabajador);
-      
+      const response = await activeOrDesactiveTrabajador(
+        trabajador.idTrabajador
+      );
+
       if (response.success) {
         toast.success(`Trabajador ${newStatusText} exitosamente.`);
-        onRefresh(); 
+        onRefresh();
       } else {
-        toast.error(`Error al ${newStatusText} el trabajador: ${response.message}`);
+        toast.error(
+          `Error al ${newStatusText} el trabajador: ${response.message}`
+        );
       }
     } catch (error) {
       console.error(error);
-      toast.error(`Ocurrió un error de conexión al ${newStatusText} el trabajador.`);
+      toast.error(
+        `Ocurrió un error de conexión al ${newStatusText} el trabajador.`
+      );
     } finally {
       setIsChangingStatus(false);
       setAlertStatusOpen(false);
     }
   };
-  
+
   const renderCuentasBancarias = (cuentas: CuentaBancaria[]) => {
-    const principal = cuentas.find(c => c.principal === 1);
-    
+    const principal = cuentas.find((c) => c.principal === 1);
+
     if (!principal) {
-        return <p className="text-gray-500">Sin cuenta bancaria principal registrada.</p>;
+      return (
+        <p className="text-gray-500">Sin cuenta bancaria principal registrada.</p>
+      );
     }
 
     return (
-        <div className="border-t pt-2 mt-2">
-            <h4 className="font-semibold flex items-center gap-1"><Banknote size={16}/> Cuenta Principal:</h4>
-            <ul className="list-disc ml-5 mt-1 text-xs space-y-1">
-                <li>**Banco:** {principal.banco.nombre}</li>
-                <li>**Nro Cuenta:** {principal.numeroCuenta}</li>
-                <li>**Moneda:** {principal.moneda}</li>
-                <li>**Tipo:** {principal.tipoCuenta}</li>
-            </ul>
-        </div>
+      <div className="border-t pt-2 mt-2">
+        <h4 className="font-semibold flex items-center gap-1">
+          <Banknote size={16} /> Cuenta Principal:
+        </h4>
+        <ul className="list-disc ml-5 mt-1 text-xs space-y-1">
+          <li>
+            **Banco:** {principal.banco.nombre}
+          </li>
+          <li>
+            **Nro Cuenta:** {principal.numeroCuenta}
+          </li>
+          <li>
+            **Moneda:** {principal.moneda}
+          </li>
+          <li>
+            **Tipo:** {principal.tipoCuenta}
+          </li>
+        </ul>
+      </div>
     );
   };
 
   const statusText = isActivo ? "Desactivar" : "Activar";
-  const StatusIcon = isActivo ? PowerOff : CheckCircle;
+  // Usamos RefreshCw como en el componente Venta para el cambio de estado.
+  // const StatusIcon = isActivo ? PowerOff : CheckCircle;
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Abrir menú de acciones</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-          
-          {/* Copiar ID */}
-          <DropdownMenuItem
-            onClick={() => {
-              navigator.clipboard.writeText(trabajador.idTrabajador.toString());
-              toast("ID de Trabajador copiado");
-            }}
-          >
-            <Copy size={18} />
-            <span className="text-sm ml-2">Copiar ID</span>
-          </DropdownMenuItem>
+      {/* 🛑 AQUÍ ESTÁ EL CAMBIO PRINCIPAL: Botones de acción directos */}
+      <div className="flex items-center justify-center gap-2">
+        {/* 🔵 Ver detalle */}
+        <Button
+          size="icon"
+          className="rounded-md bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
+          title="Ver detalle"
+          onClick={handleVerDetalle}
+          disabled={loadingDetail}
+        >
+          {loadingDetail ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Eye className="h-4 w-4" />
+          )}
+        </Button>
 
-          {/* Ver Detalle */}
-          <DropdownMenuItem onClick={handleVerDetalle} disabled={loadingDetail}>
-            <Eye size={18} />
-            <span className="text-sm ml-2">
-              {loadingDetail ? "Cargando..." : "Ver detalle"}
-            </span>
-          </DropdownMenuItem>
-          
-          {/* Editar */}
-          <DropdownMenuItem
-            onSelect={(event) => event.preventDefault()}
-          >
-            <AlertDialog open={alertEditOpen} onOpenChange={setAlertEditOpen}>
-              <AlertDialogTrigger asChild>
-                <button className="w-full flex flex-row items-center gap-2 py-1">
-                  <Pencil size={18} />
-                  <span className="text-sm">Editar trabajador</span>
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>¿Estás seguro de editar este trabajador?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción te llevará al formulario de edición.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isEditing}>
-                    Cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleEditTrabajador}
-                    disabled={isEditing}
-                    className="gap-2"
-                  >
-                    {isEditing ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Cargando...
-                      </>
-                    ) : (
-                      "Continuar"
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </DropdownMenuItem>
+        {/* 🟡 Editar trabajador (Abre AlertDialog) */}
+        <AlertDialog open={alertEditOpen} onOpenChange={setAlertEditOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="icon"
+              className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
+              title="Editar trabajador"
+              disabled={isEditing}
+            >
+              {isEditing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Pencil className="h-4 w-4" />
+              )}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                ¿Estás seguro de editar este trabajador?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción te llevará al formulario de edición.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isEditing}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleEditTrabajador}
+                disabled={isEditing}
+                className="gap-2"
+              >
+                {isEditing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Cargando...
+                  </>
+                ) : (
+                  "Continuar"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-          {/* Activar / Desactivar */}
-          <DropdownMenuItem
-            onSelect={(event) => event.preventDefault()}
-          >
-            <AlertDialog open={alertStatusOpen} onOpenChange={setAlertStatusOpen}>
-              <AlertDialogTrigger asChild>
-                <button 
-                  className={`w-full flex flex-row items-center gap-2 py-1 ${isActivo ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}`}
-                >
-                  <StatusIcon size={18} />
-                  <span className="text-sm">{statusText}</span>
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    {`¿Estás seguro de ${statusText.toLowerCase()} a este trabajador?`}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {`El estado del trabajador cambiará a ${isActivo ? 'INACTIVO' : 'ACTIVO'}. Esto afecta su acceso y visibilidad en el sistema.`}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isChangingStatus}>
-                    Cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleToggleStatus}
-                    disabled={isChangingStatus}
-                    className="gap-2 bg-red-600 hover:bg-red-700"
-                  >
-                    {isChangingStatus ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Procesando...
-                      </>
-                    ) : (
-                      statusText
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </DropdownMenuItem>
+        {/* 🧾 Copiar ID */}
+        <Button
+          size="icon"
+          className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
+          title="Copiar ID de trabajador"
+          onClick={() => {
+            navigator.clipboard.writeText(trabajador.idTrabajador.toString());
+            toast.success("ID copiado al portapapeles", {
+              position: "top-right",
+            });
+          }}
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
 
-        </DropdownMenuContent>
-      </DropdownMenu>
+        {/* 🔁 Cambiar estado (Activar/Desactivar) */}
+        <AlertDialog open={alertStatusOpen} onOpenChange={setAlertStatusOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="icon"
+              // Usamos colores según el estado que tendrá DESPUÉS del click
+              className={`rounded-md ${
+                isActivo
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-green-500 hover:bg-green-600"
+              } text-white shadow-sm`}
+              title={`Cambiar estado a ${isActivo ? "Inactivo" : "Activo"}`}
+              disabled={isChangingStatus}
+            >
+              {isChangingStatus ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {`¿Estás seguro de ${statusText.toLowerCase()} a este trabajador?`}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {`El estado del trabajador cambiará a ${
+                  isActivo ? "INACTIVO" : "ACTIVO"
+                }. Esto afecta su acceso y visibilidad en el sistema.`}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isChangingStatus}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleToggleStatus}
+                disabled={isChangingStatus}
+                className="gap-2 bg-red-600 hover:bg-red-700"
+              >
+                {isChangingStatus ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Procesando...
+                  </>
+                ) : (
+                  statusText
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
 
       {/* ---------------------------------------------
-          MODAL DE DETALLE
+          MODAL DE DETALLE (Se mantiene igual)
       --------------------------------------------- */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto rounded-xl p-6 bg-white shadow-lg">
@@ -259,58 +301,75 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
           <DialogDescription className="text-sm text-gray-700 space-y-4">
             {loadingDetail ? (
               <p className="text-center flex items-center justify-center gap-2">
-                 <Loader2 className="h-4 w-4 animate-spin" />
-                 Cargando detalles...
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Cargando detalles...
               </p>
             ) : trabajadorDetalle ? (
               <div className="space-y-3">
                 {/* BLOQUE DE DATOS PERSONALES */}
-                <h3 className="font-bold text-base text-blue-600">Datos Personales</h3>
+                <h3 className="font-bold text-base text-blue-600">
+                  Datos Personales
+                </h3>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                    <p>
-                      <strong>Nombre:</strong> {trabajadorDetalle.apellidosNombres}
-                    </p>
-                    <p>
-                      <strong>F. Nacimiento:</strong> {trabajadorDetalle.fechaNacimiento.substring(0, 10)} 
-                    </p>
-                    <p>
-                      <strong>Documento:</strong> {trabajadorDetalle.tipoDocumento.nombre} - {trabajadorDetalle.numeroDocumento}
-                    </p>
-                    <p>
-                      <strong>F. Ingreso:</strong> {trabajadorDetalle.fechaIngreso.substring(0, 10)}
-                    </p>
-                    <p className="col-span-2">
-                      <strong>Dirección:</strong> {trabajadorDetalle.direccion || 'No especificado'}
-                    </p>
-                    <p>
-                      <strong>Teléfono:</strong> {trabajadorDetalle.telefono || 'N/A'}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {trabajadorDetalle.email || 'N/A'}
-                    </p>
+                  <p>
+                    <strong>Nombre:</strong>{" "}
+                    {trabajadorDetalle.apellidosNombres}
+                  </p>
+                  <p>
+                    <strong>F. Nacimiento:</strong>{" "}
+                    {trabajadorDetalle.fechaNacimiento.substring(0, 10)}
+                  </p>
+                  <p>
+                    <strong>Documento:</strong>{" "}
+                    {trabajadorDetalle.tipoDocumento.nombre} -{" "}
+                    {trabajadorDetalle.numeroDocumento}
+                  </p>
+                  <p>
+                    <strong>F. Ingreso:</strong>{" "}
+                    {trabajadorDetalle.fechaIngreso.substring(0, 10)}
+                  </p>
+                  <p className="col-span-2">
+                    <strong>Dirección:</strong>{" "}
+                    {trabajadorDetalle.direccion || "No especificado"}
+                  </p>
+                  <p>
+                    <strong>Teléfono:</strong>{" "}
+                    {trabajadorDetalle.telefono || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {trabajadorDetalle.email || "N/A"}
+                  </p>
                 </div>
 
                 {/* BLOQUE DE DATOS LABORALES */}
-                <h3 className="font-bold text-base text-blue-600 border-t pt-3 mt-3">Datos Laborales</h3>
+                <h3 className="font-bold text-base text-blue-600 border-t pt-3 mt-3">
+                  Datos Laborales
+                </h3>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                    <p>
-                      <strong>Categoría:</strong> {trabajadorDetalle.categoria.nombre}
-                    </p>
-                    <p>
-                      <strong>Régimen:</strong> {trabajadorDetalle.regimen.nombre}
-                    </p>
-                    <p className="col-span-2">
-                      <strong>Estado:</strong> 
-                      <span className={`font-semibold ml-2 ${isActivo ? 'text-green-600' : 'text-red-600'}`}>
-                        {isActivo ? 'ACTIVO' : 'INACTIVO'}
-                      </span>
-                    </p>
+                  <p>
+                    <strong>Categoría:</strong>{" "}
+                    {trabajadorDetalle.categoria.nombre}
+                  </p>
+                  <p>
+                    <strong>Régimen:</strong> {trabajadorDetalle.regimen.nombre}
+                  </p>
+                  <p className="col-span-2">
+                    <strong>Estado:</strong>
+                    <span
+                      className={`font-semibold ml-2 ${
+                        isActivo ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {isActivo ? "ACTIVO" : "INACTIVO"}
+                    </span>
+                  </p>
                 </div>
 
                 {/* BLOQUE DE CUENTAS BANCARIAS */}
-                <h3 className="font-bold text-base text-blue-600 border-t pt-3 mt-3">Cuentas Bancarias</h3>
+                <h3 className="font-bold text-base text-blue-600 border-t pt-3 mt-3">
+                  Cuentas Bancarias
+                </h3>
                 {renderCuentasBancarias(trabajadorDetalle.cuentasBancarias)}
-                
               </div>
             ) : (
               <p>No hay detalles disponibles</p>
