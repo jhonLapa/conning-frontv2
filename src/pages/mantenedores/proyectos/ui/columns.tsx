@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import ActionsProyecto from "./action-proyecto";
 import { Proyecto } from "@/interfaces/proyecto.interface";
-import { formatDateTime, formatDateForInput } from "@/utils"; 
+import { formatDateTime } from "@/utils"; 
+import { formatDateForInput } from "@/utils/formatDate";
 export const columnNames: Record<string, string> = {
   nombre: "Nombre",
   cliente: "Cliente",

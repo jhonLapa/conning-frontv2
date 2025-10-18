@@ -6,26 +6,26 @@ import {
   columnNames,
   getColumns,
   stateFilter,
-} from "./ui/columns";
+} from "./ui/columns"; 
 
-export default function CobranzaPage() {
+export default function TrabajadoresPage() {
   const refreshDataTable = useRef<() => void>(null);
 
   return (
     <>
       <HeaderPage
-        title="Gestión de Compras"
-        descripcion="Listado de todas las compras y facturas registradas."
+        title="Trabajadores"
+        descripcion="Listado y gestión de los trabajadores de la empresa."
         linkConfig={{
-          title: "Nueva Compra",
-          url: "/cobranza/nuevo",
+          title: "Nuevo Trabajador",
+          url: "/trabajador/nuevo", 
         }}
       />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="compra/busquedapaginado"
+        url="trabajador/busquedapaginado" 
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {
