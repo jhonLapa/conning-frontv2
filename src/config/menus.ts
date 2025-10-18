@@ -15,9 +15,6 @@ import {
   Landmark,
   Settings,
   ArrowLeftRight,
-  TreePalm,
-  HandCoins,
-  Banknote,
   FolderKanban,
   IdCard,
   UserCogIcon,
@@ -74,15 +71,32 @@ export const menusConfig = (): MenuConfigProps => {
               rol: "Todos",
             },
             {
-              title: "Clientes",
-              icon: Users,
-              href: "/cliente",
-              rol: "Todos",
-            },
-            {
               title: "Roles",
               icon: Briefcase,
               href: "/rol",
+              rol: "Todos",
+            },
+            {
+              title: "Menús",
+              icon: ClipboardListIcon,
+              href: "/menu",
+              rol: "Todos",
+            },
+          ],
+        },
+
+        // =====================================================
+        // 🧱 GESTIÓN OPERATIVA
+        // =====================================================
+        {
+          title: "Gestión Operativa",
+          icon: Handshake,
+          rol: "Todos",
+          child: [
+            {
+              title: "Trabajadores",
+              icon: IdCard,
+              href: "/trabajador",
               rol: "Todos",
             },
             {
@@ -92,53 +106,17 @@ export const menusConfig = (): MenuConfigProps => {
               rol: "Todos",
             },
             {
-              title: "Proveedor",
+              title: "Clientes",
+              icon: Users,
+              href: "/cliente",
+              rol: "Todos",
+            },
+            {
+              title: "Proveedores",
               icon: UserCogIcon,
               href: "/proveedor",
               rol: "Todos",
             },
-          ],
-        },
-
-        // =====================================================
-        // 👷‍♂️ TRABAJADORES
-        // =====================================================
-        {
-          title: "Trabajadores",
-          icon: Handshake,
-          rol: "Todos",
-          child: [
-            {
-              title: "Listado",
-              icon: IdCard,
-              href: "/trabajador",
-              rol: "Todos",
-            },
-            {
-              title: "Sueldos",
-              icon: Banknote,
-              href: "/sueldo",
-              rol: "Todos",
-            },
-            {
-              title: "Vacaciones",
-              icon: TreePalm,
-              href: "/vacaciones",
-              rol: "Todos",
-            },
-            {
-              title: "Gratificaciones",
-              icon: HandCoins,
-              href: "/gratificacion",
-              rol: "Todos",
-            },
-            {
-              title: "C.T.S.",
-              icon: Landmark,
-              href: "/cts",
-              rol: "Todos",
-            },
-
           ],
         },
 
@@ -207,12 +185,6 @@ export const menusConfig = (): MenuConfigProps => {
               title: "Categorías",
               icon: FolderKanban,
               href: "/categoria",
-              rol: "Todos",
-            },
-            {
-              title: "Menús",
-              icon: ClipboardListIcon,
-              href: "/menu",
               rol: "Todos",
             },
           ],

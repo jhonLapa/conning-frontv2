@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/interfaces";
-import { AporteSindicato, AporteSindicatoRequest, Proyecto, ProyectoRequest } from "@/interfaces/proyecto.interface";
+import { Proyecto, ProyectoFormData } from "@/interfaces/proyecto.interface";
 import api from "@/lib/api";
 import { type AxiosResponse } from "axios";
 
@@ -10,27 +10,6 @@ export const getProyectoFetch = async (): Promise<Proyecto[]> => {
 
 export const getFechtProyectoById = async (id: number): Promise<Proyecto> => {
   const response: AxiosResponse<Proyecto> = await api.get(`/proyecto/${id}`);
-  return response.data;
-};
-
-export const postProyecto = async (
-  paylod: ProyectoRequest
-): Promise<ApiResponse<Proyecto>> => {
-  const response: AxiosResponse<ApiResponse<Proyecto>> = await api.post(
-    `/proyecto`,
-    paylod
-  );
-  return response.data;
-};
-
-export const putProyecto = async (
-  id: number,
-  paylod: ProyectoRequest
-): Promise<ApiResponse<Proyecto>> => {
-  const response: AxiosResponse<ApiResponse<Proyecto>> = await api.put(
-    `/proyecto/${id}`,
-    paylod
-  );
   return response.data;
 };
 
@@ -54,11 +33,12 @@ export const getProyectosActivos = async (): Promise<
  
 // 🔹 Crear proyecto completo con trabajadores, sindicato y encargado
 export const postProyectoCompleto = async (
-  payload: any
-): Promise<ApiResponse<any>> => {
-  const response: AxiosResponse<ApiResponse<any>> = await api.post(
+  payload: ProyectoFormData
+): Promise<ApiResponse<Proyecto>> => {
+  const response: AxiosResponse<ApiResponse<Proyecto>> = await api.post(
     "/proyecto/registrarcompleto",
     payload
   );
   return response.data;
 };
+
