@@ -138,12 +138,7 @@ export const menusConfig = (): MenuConfigProps => {
               href: "/cts",
               rol: "Todos",
             },
-            {
-              title: "Trabajadoress",
-              icon: Landmark,
-              href: "/trabajador",
-              rol: "Todos",
-            },
+
           ],
         },
 
