@@ -36,7 +36,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-interface FormTrabajador extends TrabajadorRequest {}
+ 
 
 const TrabajadorIdPage = () => {
   const navigate = useNavigate();
@@ -60,7 +60,7 @@ const TrabajadorIdPage = () => {
     control,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<FormTrabajador>({
+  } = useForm<TrabajadorRequest>({
     defaultValues: {
       idTipoDocumento: 0,
       numeroDocumento: "",
@@ -111,6 +111,8 @@ const TrabajadorIdPage = () => {
         setRegimenes(regs);
         setBancos(bks);
       } catch (error) {
+        console.error(error);
+
         toast.error("Error al cargar datos de selectores.", {
           position: "top-right",
         });
@@ -186,7 +188,7 @@ const TrabajadorIdPage = () => {
     getTrabajador();
   }, [id, isEdit, setValue]);
 
-  const onSubmit = async (data: FormTrabajador) => {
+  const onSubmit = async (data: TrabajadorRequest) => {
     const payload: TrabajadorRequest = {
       ...data,
       idTrabajador: trabajador?.idTrabajador ?? 0,
@@ -203,18 +205,16 @@ const TrabajadorIdPage = () => {
 
     try {
       const response = await postTrabajador(payload);
-      if (!response?.message) {
-        toast.warning("Error al Guardar el registro", {
-          position: "top-right",
-        });
+
+      if (!response?.success) {
         return;
       }
-      toast.success(response.message, { position: "top-right" });
+
       setTrabajador(null);
       navigate("/trabajador");
     } catch (error) {
       console.error(error);
-      toast.error("Ocurrió un error al guardar la trabajador", {
+      toast.error("Ocurrió un error al guardar el trabajador", {
         position: "top-right",
       });
     }
