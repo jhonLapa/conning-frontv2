@@ -22,3 +22,30 @@ export interface ProyectoRequest {
   fechaFin: string | null;
   frecuenciaPago: string;
 }
+
+export interface AporteSindicato {
+  idAporteSindicato: number;
+  idProyecto: number;
+  mes: string;
+  anio: string;
+  monto: number;
+  fechaVencimiento: string;
+  fechaPago?: string;
+  estado: string;
+  observacion?: string;
+  fechaCreacion: string;
+  usuarioCreacion: string;
+  trabajadoresIds?: number[];
+}
+
+export interface AporteSindicatoRequest {
+  idProyecto: number;
+  mes: string;
+  anio: string;
+  monto: number;
+  fechaVencimiento: string;
+  fechaPago?: string;
+  estado: string;
+  observacion?: string;
+  trabajadores: number[];
+}

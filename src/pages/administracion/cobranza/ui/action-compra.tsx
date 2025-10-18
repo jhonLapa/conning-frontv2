@@ -13,15 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Compra } from "@/interfaces/compra.interface";
 import { compraService } from "@/services/compra.service";
 import { generarPDFFactura } from "../utils/pdfGenerator";
-import {
-  FileText,
-  Loader2,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import { FileText, Loader2, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import EditarCompraModal from "../components/EditarCompraModal";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   compra: Compra;
@@ -30,49 +25,79 @@ interface Props {
 
 export default function ActionsCompra({ compra, onRefresh }: Props) {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [modalAbierto, setModalAbierto] = useState(false);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
-  const handleGeneratePDF = async () => {
+  const handleGeneratePDF = async (): Promise<void> => {
     setIsGeneratingPDF(true);
     try {
+      if (!compra?.idCompra) {
+        toast.warning("⚠️ No hay una compra seleccionada para generar el PDF", {
+          position: "top-center",
+        });
+        return;
+      }
+
       const compraCompleta = await compraService.getById(compra.idCompra);
-      generarPDFFactura(compraCompleta, true);
-      toast.success("PDF generado exitosamente", { position: "top-right" });
+
+      if (!compraCompleta) {
+        toast.error("❌ No se encontró la compra en el servidor", {
+          position: "top-center",
+        });
+        return;
+      }
+
+      await generarPDFFactura(compraCompleta, true);
+      toast.success("✅ PDF generado exitosamente", { position: "top-right" });
     } catch (error) {
-      toast.error("Error al generar el PDF", { position: "top-center" });
+      console.error("Error al generar PDF:", error);
+      toast.error("❌ Error al generar el PDF", { position: "top-center" });
     } finally {
       setIsGeneratingPDF(false);
     }
   };
 
-  const handleEditar = () => {
-    setModalAbierto(true);
-  };
-
-  const handleCerrarModal = () => {
-    setModalAbierto(false);
-  };
-
-  const handleCompraGuardada = () => {
-    onRefresh();
-  };
-
-  const handleDelete = async (idCompra: number) => {
-    setIsLoading(true);
-
+  const handleEditVenta = () => {
     try {
-      await compraService.delete(idCompra);
-      setIsLoading(false);
-      toast.success("Compra eliminada exitosamente", { position: "top-right" });
-      setOpen(false);
-      onRefresh();
-    } catch (error) {
-      setIsLoading(false);
-      toast.error("Error al eliminar la compra", { position: "top-center" });
+      setIsEditing(true);
+      navigate(`/cobranza/${compra.idCompra}`);
+    } catch (error: unknown) {
+      console.error(error);
+      toast.error("No se pudo editar la venta", { position: "top-center" });
+    } finally {
+      setIsEditing(false);
     }
   };
+
+const handleDelete = async (idCompra: number) => {
+  setIsLoading(true);
+
+  try {
+    if (!idCompra) {
+      toast.warning("⚠️ ID de compra inválido", { position: "top-center" });
+      return;
+    }
+
+    const response = await compraService.delete(idCompra);
+
+    if (response.error) {
+      toast.warning(response.message, { position: "top-center" });
+      return;
+    }
+
+    toast.success(response.message, { position: "top-right" });
+    setOpen(false);
+    onRefresh?.();
+  } catch (error) {
+    console.error("Error al eliminar la compra:", error);
+    toast.error("❌ Error inesperado al eliminar la compra", { position: "top-center" });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <>
@@ -94,12 +119,17 @@ export default function ActionsCompra({ compra, onRefresh }: Props) {
 
         {/* Botón Editar - Fondo Amarillo */}
         <Button
-          onClick={handleEditar}
-          size="sm"
-          className="h-8 w-8 p-0 bg-yellow-500 hover:bg-yellow-600 text-white transition-colors shadow-sm"
-          title="Editar compra"
+          size="icon"
+          className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
+          title="Editar venta"
+          onClick={handleEditVenta}
+          disabled={isEditing}
         >
-          <Pencil className="h-4 w-4" />
+          {isEditing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Pencil className="h-4 w-4" />
+          )}
         </Button>
 
         {/* Botón Eliminar - Fondo Rojo */}
@@ -115,13 +145,13 @@ export default function ActionsCompra({ compra, onRefresh }: Props) {
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>
-                ¿Estás absolutamente seguro?
-              </AlertDialogTitle>
+              <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
               <AlertDialogDescription>
                 Esta acción eliminará permanentemente la compra{" "}
-                <strong>{compra.serie}-{compra.numero}</strong> de nuestros servidores.
-                Esta acción no se puede deshacer.
+                <strong>
+                  {compra.serie}-{compra.numero}
+                </strong>{" "}
+                de nuestros servidores. Esta acción no se puede deshacer.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -148,15 +178,6 @@ export default function ActionsCompra({ compra, onRefresh }: Props) {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-
-      {/* Modal de edición */}
-      {modalAbierto && (
-        <EditarCompraModal
-          compra={compra}
-          onClose={handleCerrarModal}
-          onSaved={handleCompraGuardada}
-        />
-      )}
     </>
   );
 }

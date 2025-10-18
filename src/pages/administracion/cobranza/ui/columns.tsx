@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { Compra } from "@/interfaces/compra.interface";
-import { formatDateTime } from "@/utils";
 import ActionsCompra from "./action-compra";
 
 export const columnNames: Record<string, string> = {

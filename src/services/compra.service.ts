@@ -1,5 +1,7 @@
 import api from "@/lib/api";
 import { Compra, CompraRequest, Proveedor, TipoComprobante } from "@/interfaces/compra.interface";
+import { ApiResponse } from "@/interfaces";
+import { AxiosResponse } from "axios";
 
 export const compraService = {
   /**
@@ -29,28 +31,24 @@ export const compraService = {
   /**
    * Registra o actualiza una compra completa
    */
-  save: async (compraData: CompraRequest): Promise<any> => {
-    console.log('Datos enviados al backend:', JSON.stringify(compraData, null, 2));
-    console.log('URL completa:', api.defaults.baseURL + 'compra/registrarcompleto');
+save: async (compraData: CompraRequest): Promise<ApiResponse<Compra>> => {
+  console.log('Datos enviados al backend:', JSON.stringify(compraData, null, 2));
+  console.log('URL completa:', api.defaults.baseURL + 'compra/registrarcompleto');
 
-    try {
-      const response = await api.post('/compra/registrarcompleto', compraData);
-      return response.data;
-    } catch (error: any) {
-      console.error('Error detallado:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        url: error.config?.url
-      });
-      throw error;
-    }
-  },
+  const response = await api.post('/compra/registrarcompleto', compraData);
+  return response.data; // ahora es ApiResponse<Compra>
+},
 
-  /**
-   * Elimina una compra por su ID
-   */
-  delete: async (id: number): Promise<void> => {
-    await api.delete(`/compra/${id}`);
-  },
+
+ 
+ delete : async (
+  id: number
+): Promise<ApiResponse<Compra>> => {
+  const response: AxiosResponse<ApiResponse<Compra>> = await api.delete(
+    `/compra/${id}`
+  );
+  return response.data;
+},
+
+ 
 };

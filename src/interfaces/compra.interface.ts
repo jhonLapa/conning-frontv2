@@ -1,3 +1,5 @@
+import { TipoDocumento } from "./document.interface";
+
 export interface TipoComprobante {
   idTipoComprobante: number;
   codigo: string;
@@ -20,7 +22,7 @@ export interface Proveedor {
   fechaModificacion?: string;
   usuarioCreacion?: string | null;
   usuarioModificacion?: string | null;
-  tipoDocumento?: any;
+  tipoDocumento?: TipoDocumento;
 }
 
 export interface DetalleCompra {
@@ -107,4 +109,6 @@ export interface CompraRequest {
     fechaVencimiento: string;
     montoCuota: number;
   }>;
+
+  
 }

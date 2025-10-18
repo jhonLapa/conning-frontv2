@@ -51,10 +51,7 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
   const doc = new jsPDF();
 
   // Configuración de fuentes y colores (Paleta naranja/orange)
-  const primaryColor: [number, number, number] = [0, 0, 0];
   const orangeColor: [number, number, number] = [249, 115, 22]; // orange-500
-  const orangeLightColor: [number, number, number] = [255, 237, 213]; // orange-100
-  const grayColor: [number, number, number] = [100, 100, 100];
 
   let yPosition = 15;
 
@@ -272,9 +269,3 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
   return nombreArchivo;
 }
 
-// Función para generar vista previa (retorna el blob)
-export function generarPDFFacturaBlob(compra: Compra): Blob {
-  const doc = new jsPDF();
-  // Código similar al de arriba...
-  return doc.output('blob');
-}
