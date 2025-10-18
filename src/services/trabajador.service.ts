@@ -84,3 +84,13 @@ export const putTrabajadorWithAccounts = async (
     );
     return response.data;
 };
+
+export const getTrabajadoresActivos = async (): Promise<
+  { idTrabajador: number; apellidosNombres: string }[]
+> => {
+  const response: AxiosResponse<
+    { idTrabajador: number; apellidosNombres: string }[]
+  > = await api.get("/trabajador/selectactivos");
+  return response.data;
+};
+ 

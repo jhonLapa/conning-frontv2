@@ -9,18 +9,25 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { postProyectoCompleto } from "@/services/proyecto.service";
+import {
+  postProyectoCompleto,
+  getFechtProyectoById,
+} from "@/services/proyecto.service";
+import { getClientesActivos } from "@/services/cliente.service";
+import { SindicatoDto, TrabajadorProyectoCreate } from "@/interfaces";
+import { getTrabajadoresActivos } from "@/services/trabajador.service";
 
 /* ============================================================
-   Tipos para el formulario completo
+   Tipos del formulario
    ============================================================ */
 interface ProyectoFormData {
   proyecto: {
+    idProyecto?: number;
     idCliente: number;
     nombre: string;
     descripcion: string;
@@ -55,12 +62,20 @@ interface ProyectoFormData {
 }
 
 /* ============================================================
-   Componente principal
+   Página principal
    ============================================================ */
-export default function ProyectoCompletoForm() {
+export default function ProyectoCompletoIdPage() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
 
+  const title = id ? "Editar Proyecto" : "Registrar Proyecto Completo";
+  const [loading, setLoading] = useState(false);
+  const [clientes, setClientes] = useState<
+    { idCliente: number; nombreCompleto: string }[]
+  >([]);
+  const [loadingClientes, setLoadingClientes] = useState(true);
+
+  // 🧩 Formulario
   const { register, handleSubmit, control, reset } = useForm<ProyectoFormData>({
     defaultValues: {
       proyecto: {
@@ -85,60 +100,201 @@ export default function ProyectoCompletoForm() {
     },
   });
 
-  // 🔹 Campos dinámicos
-  const { fields: trabajadores, append: addTrabajador, remove: removeTrabajador } =
-    useFieldArray({ control, name: "trabajador" });
+  const {
+    fields: trabajadores,
+    append: addTrabajador,
+    remove: removeTrabajador,
+  } = useFieldArray({ control, name: "trabajador" });
 
-  const { fields: sindicatos, append: addSindicato, remove: removeSindicato } =
-    useFieldArray({ control, name: "sindicato" });
+  const {
+    fields: sindicatos,
+    append: addSindicato,
+    remove: removeSindicato,
+  } = useFieldArray({ control, name: "sindicato" });
 
-  // 🔹 Enviar formulario
+  const [trabajadoresActivos, setTrabajadoresActivos] = useState<
+    { idTrabajador: number; apellidosNombres: string }[]
+  >([]);
+  const [loadingTrabajadores, setLoadingTrabajadores] = useState(true);
+
+  /* ============================================================
+     🟢 Cargar clientes activos
+     ============================================================ */
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        const data = await getClientesActivos();
+        setClientes(data);
+      } catch (error) {
+        console.error("Error cargando clientes", error);
+      } finally {
+        setLoadingClientes(false);
+      }
+    };
+    fetchClientes();
+  }, []);
+
+  useEffect(() => {
+    const fetchTrabajadores = async () => {
+      try {
+        const data = await getTrabajadoresActivos();
+        setTrabajadoresActivos(data);
+      } catch (error) {
+        console.error("Error al cargar trabajadores", error);
+      } finally {
+        setLoadingTrabajadores(false);
+      }
+    };
+
+    fetchTrabajadores();
+  }, []);
+
+  /* ============================================================
+     🟡 Cargar proyecto si estamos en edición
+     ============================================================ */
+  useEffect(() => {
+    if (!id) return;
+
+    const parseDate = (value?: string | Date | null): string => {
+      if (!value) return "";
+      if (value instanceof Date) {
+        // Convierte el Date a formato YYYY-MM-DD
+        return value.toISOString().split("T")[0];
+      }
+      if (typeof value === "string") {
+        // Si ya es string ISO, recorta solo la fecha
+        return value.split("T")[0];
+      }
+      return "";
+    };
+
+    const fetchProyecto = async () => {
+      setLoading(true);
+      try {
+        const data = await getFechtProyectoById(Number(id));
+
+        reset({
+          proyecto: {
+            idProyecto: data.idProyecto,
+            idCliente: data.idCliente,
+            nombre: data.nombre ?? "",
+            descripcion: data.descripcion ?? "",
+            fechaInicio: parseDate(data.fechaInicio),
+            fechaFin: parseDate(data.fechaFin),
+            frecuenciaPago: data.frecuenciaPago ?? "Mensual",
+            estado: data.estado ?? 1,
+            usuarioCreacion: "jcotos",
+          },
+          trabajador:
+            (data.trabajadores ?? []).map((t: TrabajadorProyectoCreate) => ({
+              idTrabajador: t.idTrabajador ?? 0,
+              fechaInicio: parseDate(t.fechaInicio),
+              fechaFin: parseDate(t.fechaFin),
+              estado: t.estado ?? 1,
+              usuarioCreacion: "jcotos",
+            })) ?? [],
+          sindicato:
+            (data.aportesSindicato ?? []).map((s: SindicatoDto) => ({
+              mes: s.mes ?? 0,
+              anio: s.anio ?? new Date().getFullYear(),
+              monto: s.monto ?? 0,
+              fechaPago: parseDate(s.fechaPago),
+              estado: s.estado ?? 1,
+              usuarioCreacion: "jcotos",
+            })) ?? [],
+          proyectoEncargado: {
+            idTrabajador: data.encargados?.[0]?.idTrabajador ?? 0,
+            rol: data.encargados?.[0]?.rol ?? "",
+            fechaInicio: parseDate(data.encargados?.[0]?.fechaInicio),
+            fechaFin: parseDate(data.encargados?.[0]?.fechaFin),
+            estado: data.encargados?.[0]?.estado ?? 1,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        toast.error("❌ Error al cargar el proyecto");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProyecto();
+  }, [id, reset]);
+
+  /* ============================================================
+     🔹 Guardar proyecto (nuevo o edición)
+     ============================================================ */
   const onSubmit = async (data: ProyectoFormData) => {
     setLoading(true);
     try {
-      const response = await  postProyectoCompleto(data);
+      const response = await postProyectoCompleto(data);
 
-      if (response.error) {
+      if (!response?.message) {
         toast.warning(response.message);
         return;
       }
 
-      toast.success("✅ Proyecto registrado correctamente");
-      reset();
-      navigate("/proyectos");
-    } catch (err) {
-      console.error(err);
-      toast.error("❌ Error al registrar el proyecto");
+      toast.success(
+        id
+          ? "✅ Proyecto actualizado correctamente"
+          : "✅ Proyecto registrado correctamente"
+      );
+      navigate("/proyecto");
+    } catch (error) {
+      console.error(error);
+      toast.error("❌ Error al guardar el proyecto");
     } finally {
       setLoading(false);
     }
   };
 
+  /* ============================================================
+     🧱 Render
+     ============================================================ */
   return (
     <>
       <HeaderPage
-        title="Registrar Proyecto Completo"
+        title={title}
         descripcion="Incluye datos del proyecto, trabajadores, aportes y encargado"
       />
 
+      {loading && (
+        <div className="text-center text-gray-500 my-4">
+          <Loader2 className="inline h-5 w-5 animate-spin mr-2" />
+          Cargando datos del proyecto...
+        </div>
+      )}
+
       <form
-        onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-5 mt-4"
+        onSubmit={handleSubmit(onSubmit)}
       >
-        {/* ================= PROYECTO ================= */}
+        {/* ================= Datos del Proyecto ================= */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-light text-gray-500">
               🧱 Datos del Proyecto
             </CardTitle>
+            <hr />
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label>ID Cliente *</Label>
-              <Input
-                type="number"
-                {...register("proyecto.idCliente", { required: true })}
-              />
+              <Label>Cliente *</Label>
+              <select
+                {...register("proyecto.idCliente", {
+                  valueAsNumber: true,
+                  required: true,
+                })}
+                className="w-full border rounded p-2"
+              >
+                <option value="">Seleccione Cliente</option>
+                {loadingClientes && <option>Cargando...</option>}
+                {clientes.map((c) => (
+                  <option key={c.idCliente} value={c.idCliente}>
+                    {c.nombreCompleto}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label>Nombre *</Label>
@@ -163,12 +319,26 @@ export default function ProyectoCompletoForm() {
           </CardContent>
         </Card>
 
-        {/* ================= TRABAJADORES ================= */}
+        {/* ================= Trabajadores ================= */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex justify-between items-center">
             <CardTitle className="text-lg font-light text-gray-500">
               👷 Trabajadores
             </CardTitle>
+            <Button
+              type="button"
+              onClick={() =>
+                addTrabajador({
+                  idTrabajador: 0,
+                  fechaInicio: "",
+                  fechaFin: "",
+                  estado: 1,
+                  usuarioCreacion: "jcotos",
+                })
+              }
+            >
+              ➕ Agregar Trabajador
+            </Button>
           </CardHeader>
           <CardContent>
             {trabajadores.map((t, i) => (
@@ -178,12 +348,21 @@ export default function ProyectoCompletoForm() {
               >
                 <div>
                   <Label>ID Trabajador</Label>
-                  <Input
-                    type="number"
+                  <select
                     {...register(`trabajador.${i}.idTrabajador` as const, {
+                      valueAsNumber: true,
                       required: true,
                     })}
-                  />
+                    className="w-full border rounded p-2"
+                  >
+                    <option value="">Seleccione un trabajador</option>
+                    {loadingTrabajadores && <option>Cargando...</option>}
+                    {trabajadoresActivos.map((t) => (
+                      <option key={t.idTrabajador} value={t.idTrabajador}>
+                        {t.apellidosNombres}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <Label>Fecha Inicio</Label>
@@ -212,33 +391,34 @@ export default function ProyectoCompletoForm() {
                   type="button"
                   onClick={() => removeTrabajador(i)}
                 >
-                  Eliminar
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        {/* ================= Sindicato ================= */}
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <CardTitle className="text-lg font-light text-gray-500">
+              💰 Aportes Sindicato
+            </CardTitle>
             <Button
               type="button"
               onClick={() =>
-                addTrabajador({
-                  idTrabajador: 0,
-                  fechaInicio: "",
-                  fechaFin: "",
+                addSindicato({
+                  mes: 0,
+                  anio: new Date().getFullYear(),
+                  monto: 0,
+                  fechaPago: "",
                   estado: 1,
                   usuarioCreacion: "jcotos",
                 })
               }
             >
-              ➕ Agregar Trabajador
+              ➕ Agregar Aporte
             </Button>
-          </CardContent>
-        </Card>
-
-        {/* ================= APORTES SINDICATO ================= */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-light text-gray-500">
-              💰 Aportes Sindicato
-            </CardTitle>
           </CardHeader>
           <CardContent>
             {sindicatos.map((s, i) => (
@@ -250,18 +430,14 @@ export default function ProyectoCompletoForm() {
                   <Label>Mes</Label>
                   <Input
                     type="number"
-                    {...register(`sindicato.${i}.mes` as const, {
-                      required: true,
-                    })}
+                    {...register(`sindicato.${i}.mes` as const)}
                   />
                 </div>
                 <div>
                   <Label>Año</Label>
                   <Input
                     type="number"
-                    {...register(`sindicato.${i}.anio` as const, {
-                      required: true,
-                    })}
+                    {...register(`sindicato.${i}.anio` as const)}
                   />
                 </div>
                 <div>
@@ -269,9 +445,7 @@ export default function ProyectoCompletoForm() {
                   <Input
                     type="number"
                     step="0.01"
-                    {...register(`sindicato.${i}.monto` as const, {
-                      required: true,
-                    })}
+                    {...register(`sindicato.${i}.monto` as const)}
                   />
                 </div>
                 <div>
@@ -294,42 +468,38 @@ export default function ProyectoCompletoForm() {
                   type="button"
                   onClick={() => removeSindicato(i)}
                 >
-                  Eliminar
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
-            <Button
-              type="button"
-              onClick={() =>
-                addSindicato({
-                  mes: 0,
-                  anio: new Date().getFullYear(),
-                  monto: 0,
-                  fechaPago: "",
-                  estado: 1,
-                  usuarioCreacion: "jcotos",
-                })
-              }
-            >
-              ➕ Agregar Aporte
-            </Button>
           </CardContent>
         </Card>
 
-        {/* ================= ENCARGADO ================= */}
+        {/* ================= Encargado ================= */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-light text-gray-500">
               🧑‍💼 Encargado del Proyecto
             </CardTitle>
+            <hr />
           </CardHeader>
           <CardContent className="grid grid-cols-3 gap-4">
             <div>
               <Label>ID Trabajador</Label>
-              <Input
-                type="number"
-                {...register("proyectoEncargado.idTrabajador")}
-              />
+              <select
+                {...register("proyectoEncargado.idTrabajador", {
+                  valueAsNumber: true,
+                })}
+                className="w-full border rounded p-2"
+              >
+                <option value="">Seleccione un encargado</option>
+                {loadingTrabajadores && <option>Cargando...</option>}
+                {trabajadoresActivos.map((t) => (
+                  <option key={t.idTrabajador} value={t.idTrabajador}>
+                    {t.apellidosNombres}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label>Rol</Label>
@@ -349,12 +519,15 @@ export default function ProyectoCompletoForm() {
           </CardContent>
         </Card>
 
+        {/* ================= Footer ================= */}
         <CardFooter className="flex justify-end gap-5">
           <Button variant="sidebar" type="submit" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" /> Guardando...
               </>
+            ) : id ? (
+              "💾 Actualizar Proyecto"
             ) : (
               "💾 Guardar Proyecto Completo"
             )}

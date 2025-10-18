@@ -1,51 +1,65 @@
 import { Cliente } from "./cliente.interface";
 
 export interface Proyecto {
-  idProyecto: number;
+  idProyecto?: number; // 👈 hazlo opcional
   idCliente: number;
   nombre: string;
   descripcion: string;
   fechaInicio: Date | null;
   fechaFin: Date | null;
-  frecuenciaPago: string; 
+  frecuenciaPago: string;
   email: string;
   estado: number;
   fechaCreacion: string;
   cliente: Cliente;
+  trabajadores: TrabajadorProyectoCreate[];
+  aportesSindicato: SindicatoDto[];
+  encargados: ProyectoEncargadoDto[];
+}
+// 🧩 DTO principal — agrupa todo lo que enviarás al backend
+export interface ProyectoFormData {
+  proyecto: ProyectoCreate;
+  trabajador: TrabajadorProyectoCreate[];
+  sindicato: SindicatoDto[];
+  proyectoEncargado: ProyectoEncargadoDto;
 }
 
-export interface ProyectoRequest {
-  nombre: string;
+// 🧱 Proyecto principal
+export interface ProyectoCreate {
+  idProyecto?: number; // 👈 hazlo opcional
   idCliente: number;
+  nombre: string;
   descripcion: string;
-  fechaInicio: string | null;
-  fechaFin: string | null;
+  fechaInicio: string; // se maneja como string para enviarlo al backend (formato "YYYY-MM-DD")
+  fechaFin: string;
   frecuenciaPago: string;
-}
-
-export interface AporteSindicato {
-  idAporteSindicato: number;
-  idProyecto: number;
-  mes: string;
-  anio: string;
-  monto: number;
-  fechaVencimiento: string;
-  fechaPago?: string;
-  estado: string;
-  observacion?: string;
-  fechaCreacion: string;
   usuarioCreacion: string;
-  trabajadoresIds?: number[];
 }
 
-export interface AporteSindicatoRequest {
-  idProyecto: number;
-  mes: string;
-  anio: string;
+// 👷 Relación de trabajadores con el proyecto
+export interface TrabajadorProyectoCreate {
+  idTrabajador: number;
+  fechaInicio: string;
+  fechaFin: string;
+  estado: number;
+  usuarioCreacion: string;
+}
+
+// 🏛️ Información de sindicato (aporte sindical)
+export interface SindicatoDto {
+  mes: number;
+  anio: number;
   monto: number;
-  fechaVencimiento: string;
-  fechaPago?: string;
-  estado: string;
-  observacion?: string;
-  trabajadores: number[];
+  fechaPago: string;
+  estado: number;
+  usuarioCreacion: string;
+}
+
+// 👤 Encargado del proyecto
+export interface ProyectoEncargadoDto {
+  idTrabajador: number;
+  rol: string;
+  fechaInicio: string;
+  fechaFin: string;
+  estado: number;
 }
