@@ -54,7 +54,6 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
     null
   );
   const [loadingDetail, setLoadingDetail] = useState(false);
-  const [alertEditOpen, setAlertEditOpen] = useState(false);
   const [alertStatusOpen, setAlertStatusOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingStatus, setIsChangingStatus] = useState(false);
@@ -84,11 +83,11 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
     try {
       navigate(`/trabajador/${id}`);
       toast.success("Redirigiendo a editar trabajador...");
-    } catch (error: unknown) {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al redirigir.");
     } finally {
       setIsEditing(false);
-      setAlertEditOpen(false);
     }
   };
 
@@ -124,7 +123,9 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
 
     if (!principal) {
       return (
-        <p className="text-gray-500">Sin cuenta bancaria principal registrada.</p>
+        <p className="text-gray-500">
+          Sin cuenta bancaria principal registrada.
+        </p>
       );
     }
 
@@ -134,26 +135,16 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
           <Banknote size={16} /> Cuenta Principal:
         </h4>
         <ul className="list-disc ml-5 mt-1 text-xs space-y-1">
-          <li>
-            **Banco:** {principal.banco.nombre}
-          </li>
-          <li>
-            **Nro Cuenta:** {principal.numeroCuenta}
-          </li>
-          <li>
-            **Moneda:** {principal.moneda}
-          </li>
-          <li>
-            **Tipo:** {principal.tipoCuenta}
-          </li>
+          <li>**Banco:** {principal.banco.nombre}</li>
+          <li>**Nro Cuenta:** {principal.numeroCuenta}</li>
+          <li>**Moneda:** {principal.moneda}</li>
+          <li>**Tipo:** {principal.tipoCuenta}</li>
         </ul>
       </div>
     );
   };
 
   const statusText = isActivo ? "Desactivar" : "Activar";
-  // Usamos RefreshCw como en el componente Venta para el cambio de estado.
-  // const StatusIcon = isActivo ? PowerOff : CheckCircle;
 
   return (
     <>
@@ -175,49 +166,19 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
         </Button>
 
         {/* 🟡 Editar trabajador (Abre AlertDialog) */}
-        <AlertDialog open={alertEditOpen} onOpenChange={setAlertEditOpen}>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="icon"
-              className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
-              title="Editar trabajador"
-              disabled={isEditing}
-            >
-              {isEditing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Pencil className="h-4 w-4" />
-              )}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                ¿Estás seguro de editar este trabajador?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acción te llevará al formulario de edición.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isEditing}>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleEditTrabajador}
-                disabled={isEditing}
-                className="gap-2"
-              >
-                {isEditing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Cargando...
-                  </>
-                ) : (
-                  "Continuar"
-                )}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Button
+          size="icon"
+          className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
+          title="Editar trabajador"
+          disabled={isEditing}
+          onClick={handleEditTrabajador} // 👈 acción directa
+        >
+          {isEditing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Pencil className="h-4 w-4" />
+          )}
+        </Button>
 
         {/* 🧾 Copiar ID */}
         <Button

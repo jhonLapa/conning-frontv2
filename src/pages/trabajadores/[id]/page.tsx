@@ -14,6 +14,18 @@ import {
   TrabajadorRequest,
   CuentaBancariaRequest,
 } from "@/interfaces/trabajador.interface";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 import { Bank } from "@/interfaces/bank.interface";
 
 type TipoDocumentoSelect = { idTipoDocumento: number; nombre: string };
@@ -53,6 +65,7 @@ const TrabajadorIdPage = () => {
   const [bancos, setBancos] = useState<Bank[]>([]);
   const [loadingSelectores, setLoadingSelectores] = useState(true);
   const [loadingTrabajador, setLoadingTrabajador] = useState(true);
+  const [openAlert, setOpenAlert] = useState(false);
 
   const {
     register,
@@ -189,6 +202,7 @@ const TrabajadorIdPage = () => {
   }, [id, isEdit, setValue]);
 
   const onSubmit = async (data: TrabajadorRequest) => {
+    
     const payload: TrabajadorRequest = {
       ...data,
       idTrabajador: trabajador?.idTrabajador ?? 0,
@@ -662,22 +676,64 @@ const TrabajadorIdPage = () => {
           </CardContent>
         </Card>
         {/* -------------------- FOOTER -------------------- */}
-        <CardFooter className="flex justify-end gap-3 mt-4">
-          <Button type="submit" disabled={isSubmitting} variant="sidebar">
-            {isSubmitting
-              ? isEdit
-                ? "Actualizando..."
-                : "Creando..."
-              : "Guardar Trabajador"}
-          </Button>
+  
+
+        <CardFooter className="flex justify-end gap-5">
+          {/* 🔹 Si es NUEVO: guarda directamente */}
+          {id === "nuevo" ? (
+            <Button variant="sidebar" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Guardando..." : "Guardar"}
+            </Button>
+          ) : (
+            <>
+              {/* 🔸 Si es EDICIÓN: pide confirmación antes de guardar */}
+              <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="sidebar"
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={() => setOpenAlert(true)}
+                  >
+                    {isSubmitting ? "Guardando..." : "Guardar"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      ¿Estás seguro de editar esta venta?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción actualizará los datos de la venta
+                      seleccionada.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isSubmitting}>
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleSubmit(onSubmit)}
+                      disabled={isSubmitting}
+                      className="gap-2"
+                    >
+                      {isSubmitting ? "Guardando..." : "Sí, editar Trabajador"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
+
           <Button
-            type="button"
             variant="default"
+            type="button"
             onClick={() => navigate("/trabajador")}
           >
             Cancelar
           </Button>
         </CardFooter>
+
       </form>
     </>
   );
