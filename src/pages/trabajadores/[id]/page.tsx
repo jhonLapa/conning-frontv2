@@ -108,6 +108,8 @@ const TrabajadorIdPage = () => {
         setRegimenes(regs);
         setBancos(bks);
       } catch (error) {
+        console.error(error);
+
         toast.error("Error al cargar datos de selectores.", {
           position: "top-right",
         });
@@ -196,18 +198,16 @@ const TrabajadorIdPage = () => {
 
     try {
       const response = await postTrabajador(payload);
-      if (!response?.message) {
-        toast.warning("Error al Guardar el registro", {
-          position: "top-right",
-        });
+
+      if (!response?.success) {
         return;
       }
-      toast.success(response.message, { position: "top-right" });
+
       setTrabajador(null);
       navigate("/trabajador");
     } catch (error) {
       console.error(error);
-      toast.error("Ocurrió un error al guardar la trabajador", {
+      toast.error("Ocurrió un error al guardar el trabajador", {
         position: "top-right",
       });
     }
