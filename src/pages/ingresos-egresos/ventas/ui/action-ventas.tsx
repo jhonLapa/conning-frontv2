@@ -1,13 +1,6 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Venta } from "@/interfaces/venta.interface";
-import { Copy, MoreHorizontal, Eye, Pencil, Loader2 } from "lucide-react";
+import { Copy, Eye, Pencil, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import {
@@ -16,9 +9,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { getFetchVentaByIdData } from "@/services/venta.service";
+import { getFetchVentaByIdData, patchVentaEstado } from "@/services/venta.service";
 import { useNavigate } from "react-router-dom";
-
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -36,15 +28,17 @@ interface Props {
   onRefresh: () => void;
 }
 
-export default function ActionsVenta({ venta }: Props) {
+export default function ActionsVenta({ venta, onRefresh }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [ventaDetalle, setVentaDetalle] = useState<Venta | null>(null);
   const [loading, setLoading] = useState(false);
-  const [alertOpen, setAlertOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isChanging, setIsChanging] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
 
   const navigate = useNavigate();
 
+  // 🔵 Ver detalle
   const handleVerDetalle = async () => {
     try {
       setLoading(true);
@@ -53,24 +47,44 @@ export default function ActionsVenta({ venta }: Props) {
       setIsOpen(true);
     } catch (error: unknown) {
       console.error(error);
-      toast("Error al obtener detalle de la venta");
+      toast.error("Error al obtener detalle de la venta");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditVenta = async () => {
-    setIsEditing(true);
+  // 🟡 Editar venta
+  const handleEditVenta = () => {
     try {
+      setIsEditing(true);
       navigate(`/venta/${venta.idVenta}`);
-      toast.success("Redirigiendo a editar venta...", {
-        position: "top-right",
-      });
     } catch (error: unknown) {
       console.error(error);
       toast.error("No se pudo editar la venta", { position: "top-center" });
     } finally {
       setIsEditing(false);
+    }
+  };
+
+  // 🔁 Cambiar estado (Activo / Inactivo)
+  const handleChangeEstado = async () => {
+    try {
+      setIsChanging(true);
+      const nuevoEstado = venta.estado === 1 ? 0 : 1;
+      await patchVentaEstado(venta.idVenta, nuevoEstado);
+
+      toast.success(
+        `La venta se cambió a ${nuevoEstado === 1 ? "Activa" : "Inactiva"}`,
+        { position: "top-right" }
+      );
+      onRefresh();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al cambiar el estado de la venta", {
+        position: "top-center",
+      });
+    } finally {
+      setIsChanging(false);
       setAlertOpen(false);
     }
   };
@@ -83,78 +97,102 @@ export default function ActionsVenta({ venta }: Props) {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() => {
-              navigator.clipboard.writeText(venta.idVenta.toString());
-              toast("ID copiado");
-            }}
-          >
-            <Copy size={18} />
-            <span className="text-sm ml-2">Copiar ID de la venta</span>
-          </DropdownMenuItem>
+      {/* ✅ Botones redondeados de acción */}
+      <div className="flex items-center justify-center gap-2">
+        {/* 🔵 Ver detalle */}
+        <Button
+          size="icon"
+          className="rounded-md bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
+          title="Ver detalle"
+          onClick={handleVerDetalle}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Eye className="h-4 w-4" />
+          )}
+        </Button>
 
-          <DropdownMenuItem onClick={handleVerDetalle} disabled={loading}>
-            <Eye size={18} />
-            <span className="text-sm ml-2">
-              {loading ? "Cargando..." : "Ver detalle"}
-            </span>
-          </DropdownMenuItem>
+        {/* 🟡 Editar venta */}
+        <Button
+          size="icon"
+          className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
+          title="Editar venta"
+          onClick={handleEditVenta}
+          disabled={isEditing}
+        >
+          {isEditing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Pencil className="h-4 w-4" />
+          )}
+        </Button>
 
-          <DropdownMenuItem
-            onSelect={(event) => {
-              event.preventDefault();
-            }}
-          >
-            <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
-              <AlertDialogTrigger asChild>
-                <button className="w-full flex flex-row items-center gap-2 py-1">
-                  <Pencil size={18} />
-                  <span className="text-sm">Editar venta</span>
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    ¿Estás seguro de editar esta venta?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta acción te llevará al formulario de edición de la venta.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isEditing}>
-                    Cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleEditVenta}
-                    disabled={isEditing}
-                    className="gap-2"
-                  >
-                    {isEditing ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Cargando...
-                      </>
-                    ) : (
-                      "Continuar"
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        {/* 🧾 Copiar ID */}
+        <Button
+          size="icon"
+          className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
+          title="Copiar ID de la venta"
+          onClick={() => {
+            navigator.clipboard.writeText(venta.idVenta.toString());
+            toast.success("ID copiado al portapapeles", {
+              position: "top-right",
+            });
+          }}
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
 
+        {/* 🔁 Cambiar estado */}
+        <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="icon"
+              className="rounded-md bg-red-500 hover:bg-red-600 text-white shadow-sm"
+              title="Cambiar estado"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                ¿Deseas cambiar el estado de esta venta?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Actualmente está{" "}
+                <strong>
+                  {venta.estado === 1 ? "Activa" : "Inactiva"}
+                </strong>. Se cambiará a{" "}
+                <strong>
+                  {venta.estado === 1 ? "Inactiva" : "Activa"}
+                </strong>.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isChanging}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleChangeEstado}
+                disabled={isChanging}
+                className="gap-2"
+              >
+                {isChanging ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Cambiando...
+                  </>
+                ) : (
+                  "Confirmar"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+
+      {/* 🧾 Dialog Detalle de Venta */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto rounded-xl p-6 bg-white shadow-lg">
           <div className="flex justify-between items-center mb-4">
@@ -195,8 +233,7 @@ export default function ActionsVenta({ venta }: Props) {
                   <ul className="list-disc ml-5 mt-1 space-y-1">
                     {ventaDetalle.detalles.map((d) => (
                       <li key={d.idDetalleVenta}>
-                        {d.descripcion} - {d.cantidad} {d.unidadMedida} -
-                        V.unitario:{" "}
+                        {d.descripcion} - {d.cantidad} {d.unidadMedida} - V.unitario:{" "}
                         {formatCurrency(
                           d.valorUnitario,
                           ventaDetalle.tipoMoneda as "PEN" | "USD"

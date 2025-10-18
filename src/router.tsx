@@ -40,6 +40,7 @@ import MenuPage from "./pages/mantenedores/menus/page";
 import MenuIdPage from "./pages/mantenedores/menus/[id]/page";
 import TrabajadorPage from "./pages/trabajadores/page";
 import TrabajadorIdPage from "./pages/trabajadores/[id]/page"
+import CobranzaIdPage from "./pages/administracion/cobranza/[id]/page";
 
 export const router = createBrowserRouter([
   {
@@ -209,6 +210,12 @@ export const router = createBrowserRouter([
       {
         path: "/trabajador/:id",
         element: <TrabajadorIdPage />,
+      },
+
+      {
+
+        path: "/cobranza/:id",
+        element: <CobranzaIdPage />,
       },
     ],
   },

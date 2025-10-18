@@ -27,7 +27,9 @@ const DocumentosIdPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [documento, setDocumento] = useState<TipoDocumento | null>(null);
-  const title = id == "nuevo" ? "Nuevo Documento" : "Editar Documento";
+  const esNuevo = id === "nuevo";
+  const title = esNuevo ? "Nuevo Documento" : "Editar Documento";
+
   const {
     register,
     handleSubmit,
@@ -41,8 +43,7 @@ const DocumentosIdPage = () => {
   });
 
   const getDocumento = async () => {
-    if (id == "nuevo") return;
-
+    if (esNuevo) return;
     const response = await getFetchDocumentById(Number(id));
     setValue("codigo", response.codigo);
     setValue("nombre", response.nombre);
@@ -55,14 +56,13 @@ const DocumentosIdPage = () => {
       : await postDocument(data);
 
     if (!response.success) {
-      toast.warning("Error al Guardar el registro", { position: "top-right" });
+      toast.warning("Error al guardar el registro", { position: "top-right" });
       return;
     }
 
     toast.success(response.message, { position: "top-right" });
     setDocumento(null);
     navigate("/tipodocumento");
-    return;
   };
 
   useEffect(() => {
@@ -72,11 +72,11 @@ const DocumentosIdPage = () => {
   return (
     <>
       <HeaderPage
-        title="Nuevo Documento"
-        descripcion="Informacion detallada del documento"
+        title={title}
+        descripcion="Información detallada del documento"
       />
       <form
-        className="flex  flex-col gap-5 mt-4"
+        className="flex flex-col gap-5 mt-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         <Card>
@@ -86,46 +86,43 @@ const DocumentosIdPage = () => {
             </CardTitle>
             <hr />
           </CardHeader>
+
           <CardContent>
             <div className="flex flex-col space-y-2">
-              <div className="flex flex-col col-span-4 space-y-2 gap-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Solo mostrar campo código si se está editando */}
+                {!esNuevo && (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="codigo">
-                      Codigo
-                      <span className="font-semibold text-red-600">*</span>
-                    </Label>
+                    <Label htmlFor="codigo">Código</Label>
                     <Input
                       type="text"
-                      placeholder="codigo"
-                      {...register("codigo", {
-                        required: "El codigo es requerido",
-                      })}
+                      {...register("codigo")}
+                      readOnly
+                      className="bg-gray-100 cursor-not-allowed"
                     />
-                    {errors.codigo && (
-                      <p className="msg-error">{errors.codigo.message}</p>
-                    )}
                   </div>
-                  <div className="flex flex-col space-y-2">
-                    <Label htmlFor="nombre">
-                      Nombre
-                      <span className="font-semibold text-red-600">*</span>
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="nombre"
-                      {...register("nombre", {
-                        required: "El nombre es requerido",
-                      })}
-                    />
-                    {errors.nombre && (
-                      <p className="msg-error">{errors.nombre.message}</p>
-                    )}
-                  </div>
+                )}
+
+                <div className="flex flex-col space-y-2">
+                  <Label htmlFor="nombre">
+                    Nombre
+                    <span className="font-semibold text-red-600">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="nombre"
+                    {...register("nombre", {
+                      required: "El nombre es requerido",
+                    })}
+                  />
+                  {errors.nombre && (
+                    <p className="msg-error">{errors.nombre.message}</p>
+                  )}
                 </div>
               </div>
             </div>
           </CardContent>
+
           <CardFooter className="flex flex-nowrap justify-end gap-5">
             <Button variant={"sidebar"} type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Guardando..." : "Guardar"}

@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/interfaces";
-import { Proyecto, ProyectoRequest } from "@/interfaces/proyecto.interface";
+import { AporteSindicato, AporteSindicatoRequest, Proyecto, ProyectoRequest } from "@/interfaces/proyecto.interface";
 import api from "@/lib/api";
 import { type AxiosResponse } from "axios";
 
@@ -49,5 +49,16 @@ export const getProyectosActivos = async (): Promise<
   const response: AxiosResponse<
     { idProyecto: number; nombreCompleto: string }[]
   > = await api.get("/proyecto/selectactivos");
+  return response.data;
+};
+ 
+// 🔹 Crear proyecto completo con trabajadores, sindicato y encargado
+export const postProyectoCompleto = async (
+  payload: any
+): Promise<ApiResponse<any>> => {
+  const response: AxiosResponse<ApiResponse<any>> = await api.post(
+    "/proyecto/registrarcompleto",
+    payload
+  );
   return response.data;
 };
