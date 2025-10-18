@@ -404,7 +404,39 @@ const TrabajadorIdPage = () => {
                   {...register("direccion")}
                 />
               </div>
-
+              {/* Sexo */}
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="sexo">Sexo</Label>
+                {
+                <select
+                  id="sexo"
+                  {...register("sexo")}
+                  className="border p-2 rounded"
+                >
+                    <option value="">Selecciona...</option>
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                  </select>
+                }
+            </div>
+              {/* Estado Civil */}
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="estadoCivil">Estado Civil</Label>
+                <Input
+                  type="text"
+                  placeholder="Estado Civil"
+                  {...register("estadoCivil")}
+                />
+              </div>
+               {/* Hijos */}
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="hijos">Hijos</Label>
+                <Input
+                  type="text"
+                  placeholder="Hijos"
+                  {...register("hijos")}
+                />
+              </div>
               {/* Estado (Solo en Edición) */}
               {isEdit && (
                 <div className="flex flex-col space-y-2">
