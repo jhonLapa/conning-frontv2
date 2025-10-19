@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { getFetchVentaByIdData, patchVentaEstado } from "@/services/venta.service";
+import { activeOrdesactiveVenta, getFetchVentaByIdData } from "@/services/venta.service";
 import { useNavigate } from "react-router-dom";
 import {
   AlertDialog,
@@ -71,7 +71,7 @@ export default function ActionsVenta({ venta, onRefresh }: Props) {
     try {
       setIsChanging(true);
       const nuevoEstado = venta.estado === 1 ? 0 : 1;
-      await patchVentaEstado(venta.idVenta, nuevoEstado);
+      await activeOrdesactiveVenta(venta.idVenta);
 
       toast.success(
         `La venta se cambió a ${nuevoEstado === 1 ? "Activa" : "Inactiva"}`,
@@ -147,13 +147,29 @@ export default function ActionsVenta({ venta, onRefresh }: Props) {
         {/* 🔁 Cambiar estado */}
         <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
           <AlertDialogTrigger asChild>
-            <Button
-              size="icon"
-              className="rounded-md bg-red-500 hover:bg-red-600 text-white shadow-sm"
-              title="Cambiar estado"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+           <Button
+            size="icon"
+            //variant="ghost"
+            className={`rounded-md p-2 transition-all text-white ${
+              venta.estado === 1
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            title={
+              venta.estado === 1
+                ? "Desactivar venta"
+                : "Activar venta"
+            }
+          >
+            <RefreshCw
+              size={18}
+              className={`transition-transform duration-300 ease-in-out ${
+                venta.estado === 1
+                  ? "group-hover:rotate-[-90deg]"
+                  : "group-hover:rotate-90"
+              }`}
+            />
+          </Button>
           </AlertDialogTrigger>
 
           <AlertDialogContent>

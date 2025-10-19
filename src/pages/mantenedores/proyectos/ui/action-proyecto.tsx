@@ -69,7 +69,7 @@ export default function ActionsProyecto({ proyecto, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(proyecto.idProyecto.toString());
+            navigator.clipboard.writeText(proyecto.idProyecto?.toString() ??  '');
             toast("ID copiado");
           }}
         >
@@ -118,7 +118,7 @@ export default function ActionsProyecto({ proyecto, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(proyecto.idProyecto);
+                    handleChangeStatus(proyecto.idProyecto ?? 0 );
                   }}
                   disabled={isLoading}
                   className="gap-2"
