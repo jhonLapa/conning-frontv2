@@ -14,7 +14,7 @@ export interface Proyecto {
   cliente: Cliente;
   trabajadores: TrabajadorProyectoCreate[];
   aportesSindicato: SindicatoDto[];
-  encargados: ProyectoEncargadoDto[];
+  proyectoEncargado: ProyectoEncargadoDto[];
 }
 // 🧩 DTO principal — agrupa todo lo que enviarás al backend
 export interface ProyectoFormData {
@@ -40,8 +40,7 @@ export interface ProyectoCreate {
 export interface TrabajadorProyectoCreate {
   idTrabajador: number;
   fechaInicio: string;
-  fechaFin: string;
-  estado: number;
+  fechaFin: string | null; // 👈 permitir null
   usuarioCreacion: string;
 }
 
@@ -51,7 +50,6 @@ export interface SindicatoDto {
   anio: number;
   monto: number;
   fechaPago: string;
-  estado: number;
   usuarioCreacion: string;
 }
 
@@ -60,6 +58,5 @@ export interface ProyectoEncargadoDto {
   idTrabajador: number;
   rol: string;
   fechaInicio: string;
-  fechaFin: string;
-  estado: number;
+  fechaFin: string | null; // 👈 permitir null
 }
