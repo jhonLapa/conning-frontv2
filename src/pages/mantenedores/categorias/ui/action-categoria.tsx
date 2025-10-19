@@ -57,7 +57,7 @@ export default function ActionsCategoria({ categoria, onRefresh }: Props) {
   const handleEditCategoria = () => {
     try {
       setIsEditing(true);
-      navigate(/categoria/${categoria.idCategoria});
+      navigate(`/categoria/${categoria.idCategoria}`);
     } catch (error: unknown) {
       console.error(error);
       toast.error("No se pudo editar la categoria", { position: "top-center" });
