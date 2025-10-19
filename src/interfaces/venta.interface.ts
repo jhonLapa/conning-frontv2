@@ -1,4 +1,5 @@
 import { Cliente } from "./cliente.interface";
+import { Proyecto } from "./proyecto.interface";
 import { TipoComprobante } from "./tipo-comprobante.interface";
 
 export interface Venta {
@@ -29,9 +30,11 @@ export interface Venta {
   estado: number;
   fechaCreacion: string;
   usuarioCreacion: string | null;
+  idProyecto: number;
 
   cliente: Cliente;
   tipoComprobante: TipoComprobante;
+  proyecto: Proyecto;
   detalles: DetalleVenta[];
   pagosCredito: PagoCredito[];
 }
@@ -67,6 +70,7 @@ export interface VentaRequest {
   valorVenta: number;
   igv: number;
   importeTotal: number;
+  idProyecto: number;
 
   detalles: DetalleRequest[];
   pagosCredito: PagoCreditoRequest[];

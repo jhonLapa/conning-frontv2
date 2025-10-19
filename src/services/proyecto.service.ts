@@ -23,10 +23,10 @@ export const activeOrdesactiveProyecto = async (
 };
 
 export const getProyectosActivos = async (): Promise<
-  { idProyecto: number; nombreCompleto: string }[]
+  { idProyecto: number; nombre: string }[]
 > => {
   const response: AxiosResponse<
-    { idProyecto: number; nombreCompleto: string }[]
+    { idProyecto: number; nombre: string }[]
   > = await api.get("/proyecto/selectactivos");
   return response.data;
 };

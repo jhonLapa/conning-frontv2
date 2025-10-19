@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Venta, VentaRequest } from "@/interfaces/venta.interface";
 import { getClientesActivos } from "@/services/cliente.service";
 import { getComprobantesActivos } from "@/services/tipo-comprobante.service";
+import { getProyectosActivos } from "@/services/proyecto.service";
 import { getFetchVentaByIdData, postVenta } from "@/services/venta.service";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -47,6 +48,11 @@ const VentasIdPage = () => {
   >([]);
   const [loadingComprobantes, setLoadingComprobantes] = useState(true);
 
+  const [proyectos, setProyectos] = useState<
+    { idProyecto: number; nombre: string }[]
+  >([]);
+  const [loadingProyectos, setLoadingProyectos] = useState(true);
+
   useEffect(() => {
     const fetchClientes = async () => {
       try {
@@ -77,6 +83,21 @@ const VentasIdPage = () => {
     fetchComprobantes();
   }, []);
 
+  useEffect(() => {
+    const fetchProyectos = async () => {
+      try {
+        const data = await getProyectosActivos();
+        setProyectos(data);
+      } catch (error) {
+        console.error("Error cargando proyectos", error);
+      } finally {
+        setLoadingProyectos(false);
+      }
+    };
+
+    fetchProyectos();
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -88,6 +109,7 @@ const VentasIdPage = () => {
     defaultValues: {
       idCliente: 0,
       idTipoComprobante: 0,
+      idProyecto:0,
       serie: "",
       numero: "",
       fechaEmision: "",
@@ -163,6 +185,7 @@ const VentasIdPage = () => {
     const response = await getFetchVentaByIdData(Number(id));
     setValue("idCliente", response.idCliente);
     setValue("idTipoComprobante", response.idTipoComprobante);
+    setValue("idProyecto", response.idProyecto);
     setValue("serie", response.serie);
     setValue("numero", response.numero);
     setValue(
@@ -265,6 +288,31 @@ const VentasIdPage = () => {
                 </select>
                 {errors.idCliente && (
                   <p className="msg-error">Cliente requerido</p>
+                )}
+              </div>
+
+              <div>
+                <Label>Proyectos</Label>
+                <select
+                  {...register("idProyecto", {
+                    valueAsNumber: true,
+                    required: true,
+                  })}
+                  className="w-full border rounded p-2"
+                >
+                  <option value="">Seleccione proyecto</option>
+                  {loadingProyectos && <option>Cargando...</option>}
+                  {proyectos.map((comp) => (
+                    <option
+                      key={comp.idProyecto}
+                      value={comp.idProyecto}
+                    >
+                      {comp.nombre}
+                    </option>
+                  ))}
+                </select>
+                {errors.idProyecto && (
+                  <p className="msg-error">Tipo requerido</p>
                 )}
               </div>
 
