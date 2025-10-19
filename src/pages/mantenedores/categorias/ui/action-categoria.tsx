@@ -97,7 +97,6 @@ export default function ActionsCategoria({ categoria, onRefresh }: Props) {
         <Copy className="h-4 w-4" />
       </Button>
 
-      {/* 🔁 Cambiar estado */}
       <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
         <AlertDialogTrigger asChild>
           <Button

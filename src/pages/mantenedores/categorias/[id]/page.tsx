@@ -1,3 +1,5 @@
+"use client";
+
 import HeaderPage from "@/components/header-page";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,13 +21,19 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import ConceptosTable from "../ui/conceptos-table";
+import { ConceptoCategoria } from "@/interfaces/concepto-categoria.interface";
+import { ModalConceptoCategoria } from "../ui/modal-concepto-categoria";
 
 const CategoriaIdPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [categoria, setCategoria] = useState<Categoria | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [conceptoSeleccionado, setConceptoSeleccionado] =
+    useState<ConceptoCategoria | null>(null);
 
-  const title = id == "nuevo" ? "Nuevo Categoria" : "Editar Categoria";
+  const title = id == "nuevo" ? "Nueva Categoría" : "Editar Categoría";
 
   const {
     register,
@@ -39,11 +47,16 @@ const CategoriaIdPage = () => {
   });
 
   const getCategoria = async () => {
-    if (id == "nuevo") return;
+    if (id === "nuevo") return;
 
-    const response = await getFechtCategoriaById(Number(id));
-    setValue("nombre", response.nombre);
-    setCategoria(response);
+    try {
+      const response = await getFechtCategoriaById(Number(id));
+      setValue("nombre", response.nombre);
+      setCategoria(response);
+    } catch (error) {
+      toast.error("Error al cargar la categoría");
+      console.error(error);
+    }
   };
 
   const onSubmit = async (data: CategoriaRequest) => {
@@ -52,14 +65,23 @@ const CategoriaIdPage = () => {
       : await postCategoria(data);
 
     if (!response.success) {
-      toast.warning("Error al Guardar el registro", { position: "top-right" });
+      toast.warning("Error al guardar el registro", { position: "top-right" });
       return;
     }
 
     toast.success(response.message, { position: "top-right" });
-    setCategoria(null);
     navigate("/categoria");
-    return;
+  };
+
+  const handleEditConcepto = (concepto: ConceptoCategoria) => {
+    setConceptoSeleccionado(concepto);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setConceptoSeleccionado(null);
+    setIsModalOpen(false);
+    getCategoria();
   };
 
   useEffect(() => {
@@ -69,11 +91,12 @@ const CategoriaIdPage = () => {
   return (
     <>
       <HeaderPage
-        title="Nueva categoria"
-        descripcion="Informacion detallada de la categoria"
+        title={title}
+        descripcion="Información detallada de la categoría"
       />
+
       <form
-        className="flex  flex-col gap-5 mt-4"
+        className="flex flex-col gap-5 mt-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         <Card>
@@ -83,37 +106,36 @@ const CategoriaIdPage = () => {
             </CardTitle>
             <hr />
           </CardHeader>
+
           <CardContent>
             <div className="flex flex-col space-y-2">
-              <div className="flex flex-col col-span-4 space-y-2 gap-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex flex-col space-y-2">
-                    <Label htmlFor="nombre">
-                      Nombre
-                      <span className="font-semibold text-red-600">*</span>
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="nombre"
-                      {...register("nombre", {
-                        required: "El nombre es requerido",
-                      })}
-                    />
-                    {errors.nombre && (
-                      <p className="msg-error">{errors.nombre.message}</p>
-                    )}
-                  </div>
-                  <div className="flex flex-col space-y-2"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-2">
+                  <Label htmlFor="nombre">
+                    Nombre
+                    <span className="font-semibold text-red-600">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="Nombre"
+                    {...register("nombre", {
+                      required: "El nombre es requerido",
+                    })}
+                  />
+                  {errors.nombre && (
+                    <p className="msg-error">{errors.nombre.message}</p>
+                  )}
                 </div>
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-nowrap justify-end gap-5">
-            <Button variant={"sidebar"} type="submit" disabled={isSubmitting}>
+
+          <CardFooter className="flex justify-end gap-5">
+            <Button variant="sidebar" type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Guardando..." : "Guardar"}
             </Button>
             <Button
-              variant={"default"}
+              variant="default"
               type="button"
               onClick={() => navigate("/categoria")}
             >
@@ -122,6 +144,38 @@ const CategoriaIdPage = () => {
           </CardFooter>
         </Card>
       </form>
+
+      {/* Solo mostrar conceptos si la categoría ya existe */}
+      {categoria && (
+        <div className="mt-6">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold">
+              Conceptos asociados a la categoría
+            </h2>
+            <Button onClick={() => setIsModalOpen(true)}>
+              + Agregar concepto
+            </Button>
+          </div>
+
+          <ConceptosTable
+            conceptos={categoria.conceptosCategoria || []}
+            onEdit={handleEditConcepto}
+            onReload={getCategoria}
+          />
+
+          <ModalConceptoCategoria
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            idCategoria={categoria.idCategoria}
+            conceptoSeleccionado={conceptoSeleccionado}
+            onSuccess={async () => {
+              await getCategoria();
+              setIsModalOpen(false);
+              setConceptoSeleccionado(null);
+            }}
+          />
+        </div>
+      )}
     </>
   );
 };

@@ -16,10 +16,10 @@ export default function CategoriasPage() {
       <HeaderPage
         title="Categoria"
         descripcion="Listado de todos las categorias."
-        linkConfig={{
-          title: "Nuevo Categoria",
-          url: "/categoria/nuevo",
-        }}
+        // linkConfig={{
+        //   title: "Nueva Categoria",
+        //   url: "/categoria/nuevo",
+        // }}
       />
 
       <DataTable
