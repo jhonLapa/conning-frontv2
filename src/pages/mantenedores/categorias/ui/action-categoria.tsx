@@ -27,6 +27,7 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
+  RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -58,85 +59,95 @@ export default function ActionsCategoria({ categoria, onRefresh }: Props) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+    <div className="flex justify-center gap-2">
+      {/* 🔵 Copiar ID */}
+      <Button
+        size="icon"
+        variant="ghost"
+        className="bg-gray-500 hover:bg-sky-600 text-white rounded-md p-2 transition"
+        title="Copiar ID del categoria"
+        onClick={() => {
+          navigator.clipboard.writeText(categoria.idCategoria.toString());
+          toast("ID copiado al portapapeles", { position: "top-center" });
+        }}
+      >
+        <Copy size={18} />
+      </Button>
+
+      {/* 🟡 Editar */}
+      <Link to={`/categoria/${categoria.idCategoria}`}>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="bg-yellow-500 hover:bg-yellow-500 text-white rounded-md p-2 transition"
+          title="Editar categoria"
+        >
+          <Pencil size={18} />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => {
-            navigator.clipboard.writeText(categoria.idCategoria.toString());
-            toast("ID copiado");
-          }}
-        >
-          <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID de la categoria</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link
-            to={`/categoria/${categoria.idCategoria}`}
-            className="flex flex-row items-center gap-2"
+      </Link>
+
+      {/* ⚫ Activar/Desactivar */}
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            className={`rounded-md p-2 transition-all text-white ${
+              categoria.estado === 1
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-red-600 hover:bg-red-700"
+            }`}
+            title={
+              categoria.estado === 1
+                ? "Desactivar categoría"
+                : "Activar categoría"
+            }
           >
-            <Pencil size={18} />
-            <span className="text-sm">Editar categoria</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault();
-          }}
-        >
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger asChild>
-              <button className="w-full flex flex-row items-center gap-2 py-1">
-                {categoria.estado === 1 ? (
-                  <Trash2 size={18} />
-                ) : (
-                  <BadgeCheck size={18} />
-                )}
-                {categoria.estado === 1 ? "Desactivar  categoria" : "Activar  categoria"}
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  ¿Estás absolutamente seguro?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción {categoria.estado === 1 ? "desactivara" : "activara"}{" "}
-                  el categoria de nuestros servidores.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isLoading}>
-                  Cancelar
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    handleChangeStatus(categoria.idCategoria);
-                  }}
-                  disabled={isLoading}
-                  className="gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Cargando...
-                    </>
-                  ) : (
-                    "Continuar"
-                  )}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <RefreshCw
+              size={18}
+              className={`transition-transform duration-300 ease-in-out ${
+                categoria.estado === 1
+                  ? "group-hover:rotate-[-90deg]"
+                  : "group-hover:rotate-90"
+              }`}
+            />
+          </Button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {categoria.estado === 1
+                ? "¿Desactivar categoria?"
+                : "¿Activar categoria?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción{" "}
+              {categoria.estado === 1 ? "desactivará" : "activará"} el documento
+              en el sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleChangeStatus(categoria.idCategoria)}
+              disabled={isLoading}
+              className="gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Procesando...
+                </>
+              ) : (
+                "Confirmar"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }

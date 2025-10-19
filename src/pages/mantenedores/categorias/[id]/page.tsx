@@ -65,8 +65,8 @@ const CategoriaIdPage = () => {
   return (
     <>
       <HeaderPage
-        title="Nueva afectacion"
-        descripcion="Informacion detallada del afecto"
+        title={title}
+        descripcion="Informacion detallada de categoría"
       />
       <form
         className="flex  flex-col gap-5 mt-4"

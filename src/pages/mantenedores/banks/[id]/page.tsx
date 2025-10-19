@@ -71,8 +71,8 @@ const BankIdPage = () => {
   return (
     <>
       <HeaderPage
-        title="Nueva afectacion"
-        descripcion="Informacion detallada del afecto"
+        title={title}
+        descripcion="Informacion detallada del banco"
       />
       <form
         className="flex  flex-col gap-5 mt-4"

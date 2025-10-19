@@ -72,7 +72,7 @@ const ComprobanteIdPage = () => {
   return (
     <>
       <HeaderPage
-        title="Nuevo Comprobante"
+        title={title}
         descripcion="Informacion detallada del comprobante"
       />
       <form
