@@ -23,14 +23,13 @@ export const activeOrdesactiveProyecto = async (
 };
 
 export const getProyectosActivos = async (): Promise<
-  { idProyecto: number; nombreCompleto: string }[]
+  { idProyecto: number; nombre: string }[]
 > => {
-  const response: AxiosResponse<
-    { idProyecto: number; nombreCompleto: string }[]
-  > = await api.get("/proyecto/selectactivos");
+  const response: AxiosResponse<{ idProyecto: number; nombre: string }[]> =
+    await api.get("/proyecto/selectactivos");
   return response.data;
 };
- 
+
 // 🔹 Crear proyecto completo con trabajadores, sindicato y encargado
 export const postProyectoCompleto = async (
   payload: ProyectoFormData
@@ -41,4 +40,3 @@ export const postProyectoCompleto = async (
   );
   return response.data;
 };
-
