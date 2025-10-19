@@ -10,26 +10,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Categoria } from "@/interfaces/categoria.interface";
 import { activeOrdesactiveCategoria } from "@/services/categoria.service";
-import {
-  BadgeCheck,
-  Copy,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import { Copy, Loader2, Pencil, RefreshCw } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
@@ -38,105 +23,125 @@ interface Props {
 }
 
 export default function ActionsCategoria({ categoria, onRefresh }: Props) {
-  const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isChanging, setIsChanging] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
 
-  const handleChangeStatus = async (idCategoria: number) => {
-    setIsLoading(true);
+  const navigate = useNavigate();
 
-    const response = await activeOrdesactiveCategoria(idCategoria);
+  // 🔁 Cambiar estado (Activo / Inactivo)
+  const handleChangeEstado = async () => {
+    try {
+      setIsChanging(true);
 
-    if (!response.success) {
-      setIsLoading(false);
-      toast.warning(response?.message, { position: "top-center" });
-      return;
+      const response = await activeOrdesactiveCategoria(categoria.idCategoria);
+
+      if (!response.success) {
+        toast.warning(response.message, { position: "top-center" });
+        return;
+      }
+
+      toast.success(response.message, { position: "top-right" });
+      onRefresh();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al cambiar el estado de la categoria", {
+        position: "top-center",
+      });
+    } finally {
+      setIsChanging(false);
+      setAlertOpen(false);
     }
-
-    setIsLoading(false);
-    toast.success(response?.message, { position: "top-right" });
-    onRefresh();
   };
 
+  const handleEditCategoria = () => {
+    try {
+      setIsEditing(true);
+      navigate(`/categoria/${categoria.idCategoria}`);
+    } catch (error: unknown) {
+      console.error(error);
+      toast.error("No se pudo editar la categoria", { position: "top-center" });
+    } finally {
+      setIsEditing(false);
+    }
+  };
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => {
-            navigator.clipboard.writeText(categoria.idCategoria.toString());
-            toast("ID copiado");
-          }}
-        >
-          <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID de la categoria</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link
-            to={`/categoria/${categoria.idCategoria}`}
-            className="flex flex-row items-center gap-2"
+    <div className="flex items-center justify-center gap-2">
+      {/* 🟡 Editar categoria */}
+      <Button
+        size="icon"
+        className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
+        title="Editar categoria"
+        onClick={handleEditCategoria}
+        disabled={isEditing}
+      >
+        {isEditing ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Pencil className="h-4 w-4" />
+        )}
+      </Button>
+
+      {/* 🧾 Copiar ID */}
+      <Button
+        size="icon"
+        className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
+        title="Copiar ID de la categoria"
+        onClick={() => {
+          navigator.clipboard.writeText(categoria.idCategoria.toString());
+          toast.success("ID copiado al portapapeles", {
+            position: "top-right",
+          });
+        }}
+      >
+        <Copy className="h-4 w-4" />
+      </Button>
+
+      {/* 🔁 Cambiar estado */}
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogTrigger asChild>
+          <Button
+            size="icon"
+            className="rounded-md bg-red-500 hover:bg-red-600 text-white shadow-sm"
+            title="Cambiar estado"
           >
-            <Pencil size={18} />
-            <span className="text-sm">Editar categoria</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault();
-          }}
-        >
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger asChild>
-              <button className="w-full flex flex-row items-center gap-2 py-1">
-                {categoria.estado === 1 ? (
-                  <Trash2 size={18} />
-                ) : (
-                  <BadgeCheck size={18} />
-                )}
-                {categoria.estado === 1 ? "Desactivar  categoria" : "Activar  categoria"}
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  ¿Estás absolutamente seguro?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción {categoria.estado === 1 ? "desactivara" : "activara"}{" "}
-                  el categoria de nuestros servidores.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isLoading}>
-                  Cancelar
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    handleChangeStatus(categoria.idCategoria);
-                  }}
-                  disabled={isLoading}
-                  className="gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Cargando...
-                    </>
-                  ) : (
-                    "Continuar"
-                  )}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              ¿Deseas cambiar el estado de esta categoria?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Actualmente está{" "}
+              <strong>{categoria.estado === 1 ? "Activa" : "Inactiva"}</strong>.
+              Se cambiará a{" "}
+              <strong>{categoria.estado === 1 ? "Inactiva" : "Activa"}</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isChanging}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleChangeEstado}
+              disabled={isChanging}
+              className="gap-2"
+            >
+              {isChanging ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Cambiando...
+                </>
+              ) : (
+                "Confirmar"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }

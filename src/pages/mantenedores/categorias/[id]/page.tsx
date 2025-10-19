@@ -10,7 +10,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Categoria, CategoriaRequest } from "@/interfaces/categoria.interface";
-import { getFechtCategoriaById, postCategoria, putCategoria } from "@/services/categoria.service";
+import {
+  getFechtCategoriaById,
+  postCategoria,
+  putCategoria,
+} from "@/services/categoria.service";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
@@ -65,8 +69,8 @@ const CategoriaIdPage = () => {
   return (
     <>
       <HeaderPage
-        title="Nueva afectacion"
-        descripcion="Informacion detallada del afecto"
+        title="Nueva categoria"
+        descripcion="Informacion detallada de la categoria"
       />
       <form
         className="flex  flex-col gap-5 mt-4"
@@ -99,8 +103,7 @@ const CategoriaIdPage = () => {
                       <p className="msg-error">{errors.nombre.message}</p>
                     )}
                   </div>
-                  <div className="flex flex-col space-y-2">                   
-                  </div>
+                  <div className="flex flex-col space-y-2"></div>
                 </div>
               </div>
             </div>

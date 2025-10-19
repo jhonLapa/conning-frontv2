@@ -44,10 +44,9 @@ export const activeOrdesactiveCategoria = async (
 };
 
 export const getCategoriasActivas = async (): Promise<
-	{ idCategoria: number; nombre: string }[]
+  { idCategoria: number; nombre: string }[]
 > => {
-	const response: AxiosResponse<
-		{ idCategoria: number; nombre: string }[]
-	> = await api.get("/categoria/selectactivos");
-	return response.data;
+  const response: AxiosResponse<{ idCategoria: number; nombre: string }[]> =
+    await api.get("/categoria/selectactivos");
+  return response.data;
 };
