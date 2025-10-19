@@ -92,7 +92,7 @@ const CategoriaIdPage = () => {
     <>
       <HeaderPage
         title={title}
-        descripcion="Información detallada de la categoría"
+        descripcion="Informacion detallada de categoría"
       />
 
       <form

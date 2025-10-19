@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { TipoDocumento } from "@/interfaces/document.interface";
 import { activeOrdesactiveDocument } from "@/services/document.service";
-import { BadgeCheck, Copy, Loader2, Pencil, Trash2 } from "lucide-react";
+import { BadgeCheck, Copy, Loader2, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -47,23 +47,21 @@ export default function ActionsDocument({
       {/* 🔵 Copiar ID */}
       <Button
         size="icon"
-        variant="ghost"
-        className="bg-sky-500 hover:bg-sky-600 text-white rounded-md p-2 transition"
+        className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
         title="Copiar ID del documento"
         onClick={() => {
           navigator.clipboard.writeText(document.idTipoDocumento.toString());
           toast("ID copiado al portapapeles", { position: "top-center" });
         }}
       >
-        <Copy size={18} />
+        <Copy className="h-4 w-4" />
       </Button>
 
       {/* 🟡 Editar */}
       <Link to={`/tipodocumento/${document.idTipoDocumento}`}>
         <Button
           size="icon"
-          variant="ghost"
-          className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-md p-2 transition"
+          className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
           title="Editar documento"
         >
           <Pencil size={18} />
@@ -75,11 +73,10 @@ export default function ActionsDocument({
         <AlertDialogTrigger asChild>
           <Button
             size="icon"
-            variant="ghost"
             className={`rounded-md p-2 transition text-white ${
               document.estado === 1
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-green-600 hover:bg-green-700"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
             }`}
             title={
               document.estado === 1
@@ -87,11 +84,14 @@ export default function ActionsDocument({
                 : "Activar documento"
             }
           >
-            {document.estado === 1 ? (
-              <Trash2 size={18} />
-            ) : (
-              <BadgeCheck size={18} />
-            )}
+            <RefreshCw
+              size={18}
+              className={`transition-transform duration-300 ease-in-out ${
+                document.estado === 1
+                  ? "group-hover:rotate-[-90deg]"
+                  : "group-hover:rotate-90"
+              }`}
+            />
           </Button>
         </AlertDialogTrigger>
 

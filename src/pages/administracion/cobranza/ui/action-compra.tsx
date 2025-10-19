@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Compra } from "@/interfaces/compra.interface";
 import { compraService } from "@/services/compra.service";
 import { generarPDFFactura } from "../utils/pdfGenerator";
-import { FileText, Loader2, Pencil, Trash2 } from "lucide-react";
+import { FileText, Loader2, Pencil, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -25,10 +25,10 @@ interface Props {
 
 export default function ActionsCompra({ compra, onRefresh }: Props) {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
+  const [isChanging, setIsChanging] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
 
   const handleGeneratePDF = async (): Promise<void> => {
     setIsGeneratingPDF(true);
@@ -65,39 +65,33 @@ export default function ActionsCompra({ compra, onRefresh }: Props) {
       navigate(`/cobranza/${compra.idCompra}`);
     } catch (error: unknown) {
       console.error(error);
-      toast.error("No se pudo editar la venta", { position: "top-center" });
+      toast.error("No se pudo editar la compra", { position: "top-center" });
     } finally {
       setIsEditing(false);
     }
   };
 
-const handleDelete = async (idCompra: number) => {
-  setIsLoading(true);
+  const handleChangeEstado = async () => {
+    try {
+      setIsChanging(true);
+      const nuevoEstado = compra.estado === 1 ? 0 : 1;
+      await compraService.activeOrdesactiveCompra(compra.idCompra);
 
-  try {
-    if (!idCompra) {
-      toast.warning("⚠️ ID de compra inválido", { position: "top-center" });
-      return;
+      toast.success(
+        `La compra se cambió a ${nuevoEstado === 1 ? "Activa" : "Inactiva"}`,
+        { position: "top-right" }
+      );
+      onRefresh();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al cambiar el estado de la compra", {
+        position: "top-center",
+      });
+    } finally {
+      setIsChanging(false);
+      setAlertOpen(false);
     }
-
-    const response = await compraService.delete(idCompra);
-
-    if (response.error) {
-      toast.warning(response.message, { position: "top-center" });
-      return;
-    }
-
-    toast.success(response.message, { position: "top-right" });
-    setOpen(false);
-    onRefresh?.();
-  } catch (error) {
-    console.error("Error al eliminar la compra:", error);
-    toast.error("❌ Error inesperado al eliminar la compra", { position: "top-center" });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <>
@@ -121,7 +115,7 @@ const handleDelete = async (idCompra: number) => {
         <Button
           size="icon"
           className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
-          title="Editar venta"
+          title="Editar compra"
           onClick={handleEditVenta}
           disabled={isEditing}
         >
@@ -132,46 +126,63 @@ const handleDelete = async (idCompra: number) => {
           )}
         </Button>
 
-        {/* Botón Eliminar - Fondo Rojo */}
-        <AlertDialog open={open} onOpenChange={setOpen}>
+           {/* 🔁 Cambiar estado */}
+        <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
           <AlertDialogTrigger asChild>
-            <Button
-              size="sm"
-              className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white transition-colors shadow-sm"
-              title="Eliminar compra"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+           <Button
+            size="icon"
+            //variant="ghost"
+            className={`rounded-md p-2 transition-all text-white ${
+              compra.estado === 1
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            title={
+              compra.estado === 1
+                ? "Desactivar compra"
+                : "Activar compra"
+            }
+          >
+            <RefreshCw
+              size={18}
+              className={`transition-transform duration-300 ease-in-out ${
+                compra.estado === 1
+                  ? "group-hover:rotate-[-90deg]"
+                  : "group-hover:rotate-90"
+              }`}
+            />
+          </Button>
           </AlertDialogTrigger>
+
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+              <AlertDialogTitle>
+                ¿Deseas cambiar el estado de esta compra?
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                Esta acción eliminará permanentemente la compra{" "}
+                Actualmente está{" "}
                 <strong>
-                  {compra.serie}-{compra.numero}
-                </strong>{" "}
-                de nuestros servidores. Esta acción no se puede deshacer.
+                  {compra.estado === 1 ? "Activa" : "Inactiva"}
+                </strong>. Se cambiará a{" "}
+                <strong>
+                  {compra.estado === 1 ? "Inactiva" : "Activa"}
+                </strong>.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isLoading}>
-                Cancelar
-              </AlertDialogCancel>
+              <AlertDialogCancel disabled={isChanging}>Cancelar</AlertDialogCancel>
               <AlertDialogAction
-                onClick={() => {
-                  handleDelete(compra.idCompra);
-                }}
-                disabled={isLoading}
+                onClick={handleChangeEstado}
+                disabled={isChanging}
                 className="gap-2"
               >
-                {isLoading ? (
+                {isChanging ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Eliminando...
+                    Cambiando...
                   </>
                 ) : (
-                  "Continuar"
+                  "Confirmar"
                 )}
               </AlertDialogAction>
             </AlertDialogFooter>

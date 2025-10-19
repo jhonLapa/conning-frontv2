@@ -27,6 +27,7 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
+  RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -60,85 +61,93 @@ export default function ActionsUsuario({ usuario, onRefresh }: Props) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+    <div className="flex justify-center gap-2">
+      {/* 🔵 Copiar ID */}
+      <Button
+        size="icon"
+        className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
+        title="Copiar ID del usuario"
+        onClick={() => {
+          navigator.clipboard.writeText(usuario.userId.toString());
+          toast("ID copiado al portapapeles", { position: "top-center" });
+        }}
+      >
+        <Copy className="h-4 w-4" />
+      </Button>
+
+      {/* 🟡 Editar */}
+      <Link to={`/usuario/${usuario.userId}`}>
+        <Button
+          size="icon"
+          className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
+          title="Editar usuario"
+        >
+          <Pencil size={18} />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => {
-            navigator.clipboard.writeText(usuario.userId.toString());
-            toast("ID copiado");
-          }}
-        >
-          <Copy size={18} />
-          <span className="text-sm ml-2">Copiar ID del usuario</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link
-            to={`/usuario/${usuario.userId}`}
-            className="flex flex-row items-center gap-2"
+      </Link>
+
+      {/* ⚫ Activar/Desactivar */}
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogTrigger asChild>
+          <Button
+            size="icon"
+            //variant="ghost"
+            className={`rounded-md p-2 transition-all text-white ${
+              usuario.state === true
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            title={
+              usuario.state === true
+                ? "Desactivar usuario"
+                : "Activar usuario"
+            }
           >
-            <Pencil size={18} />
-            <span className="text-sm">Editar usuario</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault();
-          }}
-        >
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger asChild>
-              <button className="w-full flex flex-row items-center gap-2 py-1">
-                {usuario.state === true ? (
-                  <Trash2 size={18} />
-                ) : (
-                  <BadgeCheck size={18} />
-                )}
-                {usuario.state === true ? "Desactivar  usuario" : "Activar  usuario"}
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  ¿Estás absolutamente seguro?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción {usuario.state === true ? "desactivara" : "activara"}{" "}
-                  el usuario de nuestros servidores.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isLoading}>
-                  Cancelar
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    handleChangeStatus(usuario.userId);
-                  }}
-                  disabled={isLoading}
-                  className="gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Cargando...
-                    </>
-                  ) : (
-                    "Continuar"
-                  )}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <RefreshCw
+              size={18}
+              className={`transition-transform duration-300 ease-in-out ${
+                usuario.state === true
+                  ? "group-hover:rotate-[-90deg]"
+                  : "group-hover:rotate-90"
+              }`}
+            />
+          </Button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {usuario.state === true
+                ? "¿Desactivar usuario?"
+                : "¿Activar usuario?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción{" "}
+              {usuario.state === true ? "desactivará" : "activará"} el documento
+              en el sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleChangeStatus(usuario.userId)}
+              disabled={isLoading}
+              className="gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Procesando...
+                </>
+              ) : (
+                "Confirmar"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }

@@ -21,6 +21,7 @@ import {
 import { getClientesActivos } from "@/services/cliente.service";
 import { SindicatoDto, TrabajadorProyectoCreate } from "@/interfaces";
 import { getTrabajadoresActivos } from "@/services/trabajador.service";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 /* ============================================================
    Tipos del formulario
@@ -34,14 +35,12 @@ interface ProyectoFormData {
     fechaInicio: string;
     fechaFin: string;
     frecuenciaPago: string;
-    estado: number;
     usuarioCreacion: string;
   };
   trabajador: {
     idTrabajador: number;
     fechaInicio: string;
-    fechaFin: string;
-    estado: number;
+    fechaFin: string | null; // 👈 permitir null
     usuarioCreacion: string;
   }[];
   sindicato: {
@@ -49,15 +48,13 @@ interface ProyectoFormData {
     anio: number;
     monto: number;
     fechaPago: string;
-    estado: number;
     usuarioCreacion: string;
   }[];
   proyectoEncargado: {
     idTrabajador: number;
     rol: string;
     fechaInicio: string;
-    fechaFin: string;
-    estado: number;
+    fechaFin: string | null; // 👈 permitir null
   };
 }
 
@@ -85,7 +82,6 @@ export default function ProyectoCompletoIdPage() {
         fechaInicio: "",
         fechaFin: "",
         frecuenciaPago: "Mensual",
-        estado: 1,
         usuarioCreacion: "jcotos",
       },
       trabajador: [],
@@ -95,7 +91,6 @@ export default function ProyectoCompletoIdPage() {
         rol: "",
         fechaInicio: "",
         fechaFin: "",
-        estado: 1,
       },
     },
   });
@@ -182,7 +177,6 @@ export default function ProyectoCompletoIdPage() {
             fechaInicio: parseDate(data.fechaInicio),
             fechaFin: parseDate(data.fechaFin),
             frecuenciaPago: data.frecuenciaPago ?? "Mensual",
-            estado: data.estado ?? 1,
             usuarioCreacion: "jcotos",
           },
           trabajador:
@@ -190,7 +184,6 @@ export default function ProyectoCompletoIdPage() {
               idTrabajador: t.idTrabajador ?? 0,
               fechaInicio: parseDate(t.fechaInicio),
               fechaFin: parseDate(t.fechaFin),
-              estado: t.estado ?? 1,
               usuarioCreacion: "jcotos",
             })) ?? [],
           sindicato:
@@ -199,15 +192,13 @@ export default function ProyectoCompletoIdPage() {
               anio: s.anio ?? new Date().getFullYear(),
               monto: s.monto ?? 0,
               fechaPago: parseDate(s.fechaPago),
-              estado: s.estado ?? 1,
               usuarioCreacion: "jcotos",
             })) ?? [],
           proyectoEncargado: {
-            idTrabajador: data.encargados?.[0]?.idTrabajador ?? 0,
-            rol: data.encargados?.[0]?.rol ?? "",
-            fechaInicio: parseDate(data.encargados?.[0]?.fechaInicio),
-            fechaFin: parseDate(data.encargados?.[0]?.fechaFin),
-            estado: data.encargados?.[0]?.estado ?? 1,
+            idTrabajador: data.proyectoEncargado?.[0]?.idTrabajador ?? 0,
+            rol: data.proyectoEncargado?.[0]?.rol ?? "",
+            fechaInicio: parseDate(data.proyectoEncargado?.[0]?.fechaInicio),
+            fechaFin: parseDate(data.proyectoEncargado?.[0]?.fechaFin),
           },
         });
       } catch (error) {
@@ -221,33 +212,59 @@ export default function ProyectoCompletoIdPage() {
     fetchProyecto();
   }, [id, reset]);
 
-  /* ============================================================
-     🔹 Guardar proyecto (nuevo o edición)
-     ============================================================ */
-  const onSubmit = async (data: ProyectoFormData) => {
-    setLoading(true);
-    try {
-      const response = await postProyectoCompleto(data);
+ const onSubmit = async (data: ProyectoFormData) => {
+  setLoading(true);
 
-      if (!response?.message) {
-        toast.warning(response.message);
-        return;
-      }
+  try {
+   const payload: ProyectoFormData = {
+      ...data,
+      proyecto: {
+        ...data.proyecto,
+        idProyecto: id ? Number(id) : 0,
+       },
+      trabajador: (data.trabajador || []).map((t) => ({
+        ...t,
+        fechaFin: t.fechaFin || null, // 👈 también aquí si deseas
+      })),
+      sindicato: data.sindicato || [],
+      proyectoEncargado: {
+        ...data.proyectoEncargado,
+        fechaFin: data.proyectoEncargado.fechaFin || null, // 👈 convierte "" → null
+      },
+    };
+    const response = await postProyectoCompleto(payload);
 
-      toast.success(
-        id
-          ? "✅ Proyecto actualizado correctamente"
-          : "✅ Proyecto registrado correctamente"
-      );
-      navigate("/proyecto");
-    } catch (error) {
-      console.error(error);
-      toast.error("❌ Error al guardar el proyecto");
-    } finally {
-      setLoading(false);
+    // ⚠️ Validar respuesta
+    if (!response?.success) {
+      return; // ❌ No redirigir si hubo error
     }
-  };
 
+    // ✅ Éxito
+    toast.success(
+      <div className="flex items-center gap-2">
+        <CheckCircle2 className="h-5 w-5 text-green-500" />
+        <span>{response.message}</span>
+      </div>,
+      { position: "top-right" }
+    );
+
+    // 🕒 Pequeña pausa antes de redirigir (para que se vea el toast)
+    setTimeout(() => {
+      navigate("/proyecto");
+    }, 1200);
+  } catch (error) {
+    console.error(error);
+    toast.error(
+      <div className="flex items-center gap-2">
+        <XCircle className="h-5 w-5 text-red-500" />
+        <span>❌ Error inesperado al guardar el proyecto</span>
+      </div>,
+      { position: "top-right" }
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   /* ============================================================
      🧱 Render
      ============================================================ */
@@ -332,7 +349,6 @@ export default function ProyectoCompletoIdPage() {
                   idTrabajador: 0,
                   fechaInicio: "",
                   fechaFin: "",
-                  estado: 1,
                   usuarioCreacion: "jcotos",
                 })
               }
@@ -378,14 +394,7 @@ export default function ProyectoCompletoIdPage() {
                     {...register(`trabajador.${i}.fechaFin` as const)}
                   />
                 </div>
-                <div>
-                  <Label>Estado</Label>
-                  <Input
-                    type="number"
-                    {...register(`trabajador.${i}.estado` as const)}
-                    defaultValue={1}
-                  />
-                </div>
+       
                 <Button
                   variant="destructive"
                   type="button"
@@ -412,7 +421,6 @@ export default function ProyectoCompletoIdPage() {
                   anio: new Date().getFullYear(),
                   monto: 0,
                   fechaPago: "",
-                  estado: 1,
                   usuarioCreacion: "jcotos",
                 })
               }
@@ -455,14 +463,7 @@ export default function ProyectoCompletoIdPage() {
                     {...register(`sindicato.${i}.fechaPago` as const)}
                   />
                 </div>
-                <div>
-                  <Label>Estado</Label>
-                  <Input
-                    type="number"
-                    {...register(`sindicato.${i}.estado` as const)}
-                    defaultValue={1}
-                  />
-                </div>
+            
                 <Button
                   variant="destructive"
                   type="button"

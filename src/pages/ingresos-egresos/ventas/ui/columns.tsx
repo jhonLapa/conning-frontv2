@@ -9,6 +9,7 @@ import ActionsVenta from "./action-ventas";
 export const columnNames: Record<string, string> = {
   idCliente: "Cliente",
   idTipoComprobante: "Tipo de comprobante",
+  idProyecto: "Proyecto",
   serie: "Serie",
   numero: "Numero",
   importeTotal: "Importe total",
@@ -61,6 +62,24 @@ export const getColumns = (
     },
     cell: ({ row }) => (
       <span className="ml-4">{row.original.cliente.nombreCompleto}</span>
+    ),
+  },
+  {
+    id: "idProyecto",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Proyecto
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="ml-4">{row.original.proyecto.nombre}</span>
     ),
   },
   {
