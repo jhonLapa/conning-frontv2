@@ -91,7 +91,7 @@ const UsuarioIdPage = () => {
   return (
     <>
       <HeaderPage
-        title="Nuevo Usuario"
+        title={title}
         descripcion="Informacion detallada del usuario"
       />
       <form

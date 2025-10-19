@@ -63,8 +63,7 @@ export default function ActionsBank({ bank, onRefresh }: Props) {
       {/* 🔵 Copiar ID */}
       <Button
         size="icon"
-        variant="ghost"
-        className="bg-gray-500 hover:bg-sky-600 text-white rounded-md p-2 transition"
+        className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
         title="Copiar ID del banco"
         onClick={() => {
           navigator.clipboard.writeText(bank.idBanco.toString());
@@ -78,8 +77,7 @@ export default function ActionsBank({ bank, onRefresh }: Props) {
       <Link to={`/banco/${bank.idBanco}`}>
         <Button
           size="icon"
-          variant="ghost"
-          className="bg-yellow-500 hover:bg-yellow-500 text-white rounded-md p-2 transition"
+          className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
           title="Editar banco"
         >
           <Pencil size={18} />
@@ -91,11 +89,10 @@ export default function ActionsBank({ bank, onRefresh }: Props) {
         <AlertDialogTrigger asChild>
           <Button
             size="icon"
-            variant="ghost"
             className={`rounded-md p-2 transition-all text-white ${
               bank.estado === 1
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-red-600 hover:bg-red-700"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
             }`}
             title={
               bank.estado === 1

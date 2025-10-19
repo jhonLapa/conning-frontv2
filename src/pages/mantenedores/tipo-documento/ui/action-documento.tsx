@@ -47,23 +47,21 @@ export default function ActionsDocument({
       {/* 🔵 Copiar ID */}
       <Button
         size="icon"
-        variant="ghost"
-        className="bg-gray-500 hover:bg-sky-600 text-white rounded-md p-2 transition"
+        className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
         title="Copiar ID del documento"
         onClick={() => {
           navigator.clipboard.writeText(document.idTipoDocumento.toString());
           toast("ID copiado al portapapeles", { position: "top-center" });
         }}
       >
-        <Copy size={18} />
+        <Copy className="h-4 w-4" />
       </Button>
 
       {/* 🟡 Editar */}
       <Link to={`/tipodocumento/${document.idTipoDocumento}`}>
         <Button
           size="icon"
-          variant="ghost"
-          className="bg-yellow-500 hover:bg-yellow-500 text-white rounded-md p-2 transition"
+          className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
           title="Editar documento"
         >
           <Pencil size={18} />
@@ -75,11 +73,10 @@ export default function ActionsDocument({
         <AlertDialogTrigger asChild>
           <Button
             size="icon"
-            variant="ghost"
             className={`rounded-md p-2 transition text-white ${
               document.estado === 1
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-red-600 hover:bg-red-700"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
             }`}
             title={
               document.estado === 1

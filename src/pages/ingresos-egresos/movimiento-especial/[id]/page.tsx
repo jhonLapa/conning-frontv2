@@ -88,7 +88,7 @@ const MovimientoEspecialIdPage = () => {
   return (
     <>
       <HeaderPage
-        title="Datos del movimiento"
+        title={title}
         descripcion="Informacion detallada del movimiento"
       />
       <form
