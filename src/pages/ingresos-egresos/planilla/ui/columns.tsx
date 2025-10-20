@@ -3,14 +3,15 @@ import { SortedIcon } from "@/components/sorted-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-//import { formatDateTime } from "@/utils";
 import { Planilla } from "@/interfaces/planilla";
 import ActionsPlanilla from "./action-planillas";
 
 export const columnNames: Record<string, string> = {
   proyecto: "Proyecto",
-  periodoInicio: "Periodo inicio",
+  periodoTexto: "Periodo Texto",
   frecuenciaPago: "Frecuencia pago",
+  totalHoras: "Total Horas",
+  totalGeneral: "Total General",
   estado: "Estado",
   actions: "Acciones",
 };
@@ -41,9 +42,7 @@ export const stateFilter: FilterConfig[] = [
   },
 ];
 
-export const getColumns = (
-  refreshDataTable: () => void
-): ColumnDef<Planilla>[] => [
+export const getColumns = (): ColumnDef<Planilla>[] => [
   {
     id: "proyecto",
     header: ({ column }) => {
@@ -63,7 +62,7 @@ export const getColumns = (
     ),
   },
   {
-    id: "periodoInicio",
+    id: "periodoTexto",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -71,13 +70,13 @@ export const getColumns = (
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Periodo
+          Periodos
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <span className="ml-4">{row.original.periodoInicio}</span>
+      <span className="ml-4">{row.original.periodoTexto}</span>
     ),
   },
   {
@@ -98,47 +97,41 @@ export const getColumns = (
       <span className="ml-4">{row.original.frecuenciaPago}</span>
     ),
   },
-  // {
-  //   id: "cuentaBancaria",
-  //   header: ({ column }) => {
-  //     const isSorted = column.getIsSorted();
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(isSorted === "asc")}
-  //       >
-  //         Cta.Bancaria
-  //         <SortedIcon isSorted={isSorted} />
-  //       </Button>
-  //     );
-  //   },
-  //   cell: ({ row }) => (
-  //     <span className="ml-4">{row.original.cuentaBancaria}</span>
-  //   ),
-  // },
-  // {
-  //   id: "observacion",
-  //   header: ({ column }) => {
-  //     const isSorted = column.getIsSorted();
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(isSorted === "asc")}
-  //       >
-  //         Observacion
-  //         <SortedIcon isSorted={isSorted} />
-  //       </Button>
-  //     );
-  //   },
-  //   cell: ({ row }) => <span className="ml-4">{row.original.observacion}</span>,
-  // },
-  // {
-  //   header: "Fecha operacion",
-  //   id: "fecha",
-  //   cell: ({ row }) => (
-  //     <span>{new Date(row.original.fecha).toLocaleDateString("es-PE")}</span>
-  //   ),
-  // },
+  {
+    id: "totalHoras",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Total Horas
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <span className="ml-4">{row.original.totalHoras}</span>,
+  },
+  {
+    id: "totalGeneral",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Frecuencia
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="ml-4">{row.original.totalGeneral}</span>
+    ),
+  },
+
   {
     accessorKey: "estado",
     id: "status",
@@ -154,8 +147,6 @@ export const getColumns = (
   },
   {
     id: "actions",
-    cell: ({ row }) => (
-      <ActionsPlanilla planilla={row.original} onRefresh={refreshDataTable} />
-    ),
+    cell: ({ row }) => <ActionsPlanilla planilla={row.original} />,
   },
 ];
