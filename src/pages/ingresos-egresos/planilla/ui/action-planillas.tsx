@@ -123,7 +123,7 @@ export default function ActionsPlanilla({ planilla }: Props) {
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto rounded-xl p-6 bg-white shadow-lg">
           <div className="flex justify-between items-center mb-4">
             <DialogTitle className="text-lg font-semibold text-gray-800">
-              Detalle de la venta #{planilla.idPlanilla}
+              Detalle de la planilla #{planilla.idPlanilla}
             </DialogTitle>
           </div>
 

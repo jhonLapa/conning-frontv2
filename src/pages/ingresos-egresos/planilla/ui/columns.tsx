@@ -9,8 +9,10 @@ import ActionsPlanilla from "./action-planillas";
 
 export const columnNames: Record<string, string> = {
   proyecto: "Proyecto",
-  periodoInicio: "Periodo inicio",
+  periodoTexto: "Periodo Texto",
   frecuenciaPago: "Frecuencia pago",
+  totalHoras: "Total Horas",
+  totalGeneral: "Total General",
   estado: "Estado",
   actions: "Acciones",
 };
@@ -61,7 +63,7 @@ export const getColumns = (): ColumnDef<Planilla>[] => [
     ),
   },
   {
-    id: "periodoInicio",
+    id: "periodoTexto",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -69,13 +71,13 @@ export const getColumns = (): ColumnDef<Planilla>[] => [
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Periodo
+          Periodos
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <span className="ml-4">{row.original.periodoInicio}</span>
+      <span className="ml-4">{row.original.periodoTexto}</span>
     ),
   },
   {
@@ -96,47 +98,41 @@ export const getColumns = (): ColumnDef<Planilla>[] => [
       <span className="ml-4">{row.original.frecuenciaPago}</span>
     ),
   },
-  // {
-  //   id: "cuentaBancaria",
-  //   header: ({ column }) => {
-  //     const isSorted = column.getIsSorted();
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(isSorted === "asc")}
-  //       >
-  //         Cta.Bancaria
-  //         <SortedIcon isSorted={isSorted} />
-  //       </Button>
-  //     );
-  //   },
-  //   cell: ({ row }) => (
-  //     <span className="ml-4">{row.original.cuentaBancaria}</span>
-  //   ),
-  // },
-  // {
-  //   id: "observacion",
-  //   header: ({ column }) => {
-  //     const isSorted = column.getIsSorted();
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(isSorted === "asc")}
-  //       >
-  //         Observacion
-  //         <SortedIcon isSorted={isSorted} />
-  //       </Button>
-  //     );
-  //   },
-  //   cell: ({ row }) => <span className="ml-4">{row.original.observacion}</span>,
-  // },
-  // {
-  //   header: "Fecha operacion",
-  //   id: "fecha",
-  //   cell: ({ row }) => (
-  //     <span>{new Date(row.original.fecha).toLocaleDateString("es-PE")}</span>
-  //   ),
-  // },
+  {
+    id: "totalHoras",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Total Horas
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <span className="ml-4">{row.original.totalHoras}</span>,
+  },
+  {
+    id: "totalGeneral",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Frecuencia
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="ml-4">{row.original.totalGeneral}</span>
+    ),
+  },
+
   {
     accessorKey: "estado",
     id: "status",
