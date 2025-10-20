@@ -16,14 +16,16 @@ import {
   putPlanilla,
 } from "@/services/planilla.service";
 import { getProyectosActivos } from "@/services/proyecto.service";
+import { getRegimenesActivos } from "@/services/regimen.service";
+import { getTrabajadoresActivos } from "@/services/trabajador.service";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-// 🧩 Nuevos tipos auxiliares para tablas internas
 interface DetalleTrabajador {
   id: number;
+  idTrabajador?: number;
   nombre: string;
   dias: number;
   montoTotal: number;
@@ -43,41 +45,55 @@ export default function PlanillaIdPage() {
   const [proyectos, setProyectos] = useState<
     { idProyecto: number; nombre: string }[]
   >([]);
+  const [trabajadores, setTrabajadores] = useState<
+    { idTrabajador: number; apellidosNombres: string }[]
+  >([]);
+  const [regimenes, setRegimenes] = useState<
+    { idRegimen: number; nombre: string }[]
+  >([]);
+
   const [loadingProyectos, setLoadingProyectos] = useState(true);
+  const [loadingTrabajadores, setLoadingTrabajadores] = useState(true);
+  const [loadingRegimenes, setLoadingRegimenes] = useState(true);
 
   const title = id == "nuevo" ? "Nueva Planilla" : "Editar Planilla";
 
-  // Datos internos de detalle/aportes
+  // Datos internos
   const [detalles, setDetalles] = useState<DetalleTrabajador[]>([]);
   const [aportes, setAportes] = useState<Aporte[]>([]);
 
-  // Simula carga de aportes desde API RegimenPrevisional
+  // Cargar datos desde los servicios reales
   useEffect(() => {
-    const fetchAportes = async () => {
-      // Aquí luego reemplazas por getRegimenPrevisional()
-      setAportes([
-        { id: 1, tipo: "AFP", monto: 64.01 },
-        { id: 2, tipo: "ONP", monto: 64.0 },
-      ]);
-    };
-    fetchAportes();
-  }, []);
-
-  // Cargar proyectos activos
-  useEffect(() => {
-    const fetchProyectos = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getProyectosActivos();
-        setProyectos(data);
+        const [proyData, trabData, regData] = await Promise.all([
+          getProyectosActivos(),
+          getTrabajadoresActivos(),
+          getRegimenesActivos(),
+        ]);
+        setProyectos(proyData);
+        setTrabajadores(trabData);
+        setRegimenes(regData);
+
+        const aportesIniciales = regData.map((r) => ({
+          id: r.idRegimen,
+          tipo: r.nombre,
+          monto: 0,
+        }));
+        setAportes(aportesIniciales);
       } catch (error) {
-        console.error("Error cargando proyectos", error);
+        console.error("Error al cargar datos iniciales", error);
+        toast.warning("Error al cargar datos iniciales");
       } finally {
         setLoadingProyectos(false);
+        setLoadingTrabajadores(false);
+        setLoadingRegimenes(false);
       }
     };
-    fetchProyectos();
+    fetchData();
   }, []);
 
+  // 🔹 Formulario principal
   const {
     register,
     handleSubmit,
@@ -124,7 +140,7 @@ export default function PlanillaIdPage() {
     navigate("/planilla");
   };
 
-  // 🧮 Helpers
+  // Helpers
   const agregarTrabajador = () => {
     setDetalles([
       ...detalles,
@@ -223,7 +239,7 @@ export default function PlanillaIdPage() {
           </CardContent>
         </Card>
 
-        {/* 👷‍♂️ Detalle de Trabajadores */}
+        {/* Detalle de Trabajadores */}
         <Card>
           <CardHeader>
             <CardTitle>Detalle de Trabajadores</CardTitle>
@@ -242,17 +258,38 @@ export default function PlanillaIdPage() {
                 {detalles.map((item) => (
                   <tr key={item.id} className="border-t">
                     <td className="p-2">
-                      <Input
-                        value={item.nombre}
+                      <select
+                        value={item.idTrabajador ?? ""}
                         onChange={(e) => {
-                          const val = e.target.value;
+                          const val = Number(e.target.value);
+                          const nombreSeleccionado =
+                            trabajadores.find((t) => t.idTrabajador === val)
+                              ?.apellidosNombres || "";
                           setDetalles(
                             detalles.map((d) =>
-                              d.id === item.id ? { ...d, nombre: val } : d
+                              d.id === item.id
+                                ? {
+                                    ...d,
+                                    idTrabajador: val,
+                                    nombre: nombreSeleccionado,
+                                  }
+                                : d
                             )
                           );
                         }}
-                      />
+                        className="w-full border rounded p-2"
+                      >
+                        <option value="">Seleccione</option>
+                        {loadingTrabajadores ? (
+                          <option>Cargando...</option>
+                        ) : (
+                          trabajadores.map((t) => (
+                            <option key={t.idTrabajador} value={t.idTrabajador}>
+                              {t.apellidosNombres}
+                            </option>
+                          ))
+                        )}
+                      </select>
                     </td>
                     <td className="p-2">
                       <Input
@@ -309,53 +346,61 @@ export default function PlanillaIdPage() {
           </CardContent>
         </Card>
 
-        {/* 💰 Aportes */}
+        {/*Aportes */}
         <Card>
           <CardHeader>
             <CardTitle>Aportes</CardTitle>
           </CardHeader>
           <CardContent>
-            <table className="w-full text-sm border rounded-lg">
-              <thead className="bg-gray-100 text-left">
-                <tr>
-                  <th className="p-2">Tipo</th>
-                  <th className="p-2 w-32">Monto (S/)</th>
-                  <th className="p-2 w-16 text-center">Eliminar</th>
-                </tr>
-              </thead>
-              <tbody>
-                {aportes.map((a) => (
-                  <tr key={a.id} className="border-t">
-                    <td className="p-2">{a.tipo}</td>
-                    <td className="p-2">
-                      <Input
-                        type="number"
-                        value={a.monto}
-                        onChange={(e) =>
-                          setAportes(
-                            aportes.map((x) =>
-                              x.id === a.id
-                                ? { ...x, monto: Number(e.target.value) }
-                                : x
-                            )
-                          )
-                        }
-                      />
-                    </td>
-                    <td className="text-center">
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => eliminarAporte(a.id)}
-                      >
-                        🗑️
-                      </Button>
-                    </td>
+            {loadingRegimenes ? (
+              <p className="p-3 text-sm text-center">Cargando aportes...</p>
+            ) : regimenes.length === 0 ? (
+              <p className="p-3 text-sm text-center">
+                No hay regímenes activos
+              </p>
+            ) : (
+              <table className="w-full text-sm border rounded-lg">
+                <thead className="bg-gray-100 text-left">
+                  <tr>
+                    <th className="p-2">Tipo</th>
+                    <th className="p-2 w-32">Monto (S/)</th>
+                    <th className="p-2 w-16 text-center">Eliminar</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {aportes.map((a) => (
+                    <tr key={a.id} className="border-t">
+                      <td className="p-2">{a.tipo}</td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          value={a.monto}
+                          onChange={(e) =>
+                            setAportes(
+                              aportes.map((x) =>
+                                x.id === a.id
+                                  ? { ...x, monto: Number(e.target.value) }
+                                  : x
+                              )
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="text-center">
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => eliminarAporte(a.id)}
+                        >
+                          🗑️
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </CardContent>
           <CardFooter className="flex justify-end gap-4">
             <Button type="submit" disabled={isSubmitting}>

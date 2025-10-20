@@ -3,7 +3,6 @@ import { SortedIcon } from "@/components/sorted-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-//import { formatDateTime } from "@/utils";
 import { Planilla } from "@/interfaces/planilla";
 import ActionsPlanilla from "./action-planillas";
 

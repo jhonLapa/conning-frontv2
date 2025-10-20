@@ -47,6 +47,7 @@ export default function ActionsPlanilla({ planilla }: Props) {
       setIsLoading(true);
       const detalle = await getFetchPlanillaById(planilla.idPlanilla);
       setPlanillaDetalle(detalle);
+
       setOpen(true);
     } catch (error: unknown) {
       console.error(error);
