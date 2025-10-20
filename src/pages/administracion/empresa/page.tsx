@@ -1,5 +1,4 @@
 import { DataTable } from "@/components/datatable";
-import HeaderPage from "@/components/header-page";
 import { useRef } from "react";
 import {
   columnFilter,
@@ -14,14 +13,6 @@ export default function EmpresaPage() {
 
   return (
     <>
-      <HeaderPage
-        title="Empresas"
-        descripcion="Listado de todas las empresa."
-        linkConfig={{
-          title: "Nueva empresa",
-          url: "/empresa/nuevo",
-        }}
-      />
 
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}

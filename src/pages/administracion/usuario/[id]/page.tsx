@@ -63,7 +63,7 @@ const UsuarioIdPage = () => {
             userId: usuario.userId 
         };
 
-        response = await putUsuario(Number(id), payloadCompletoParaUpdate as any);
+        response = await putUsuario(Number(id), payloadCompletoParaUpdate as Usuario);
         
     } 
     else {
@@ -71,7 +71,7 @@ const UsuarioIdPage = () => {
             ...payload, 
             state: true
         };
-        response = await postUsuario(payloadCompletoParaCreate as any);
+        response = await postUsuario(payloadCompletoParaCreate as Usuario);
     }
 
     if (!response.success) {

@@ -69,7 +69,7 @@ export interface Compra {
   otrosCargos?: number;
   otrosTributos?: number;
   montoRedondeo?: number;
-  improteTotal: number;
+  importeTotal: number;
   estado?: number;
   fechaCreacion?: string;
   usuarioCreacion?: string | null;

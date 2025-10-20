@@ -13,8 +13,6 @@ import AfectacionesPage from "./pages/mantenedores/afectaciones/page";
 import AfectactioneIdPage from "./pages/mantenedores/afectaciones/[id]/page";
 import BanksPage from "./pages/mantenedores/banks/page";
 import BankIdPage from "./pages/mantenedores/banks/[id]/page";
-import MantenimientoConceptoIdPage from "./pages/administracion/mantenimientos/[id]/page";
-import MantenimientoConceptoPage from "./pages/administracion/mantenimientos/page";
 import GrupoConceptoPage from "./pages/mantenedores/grupo-afectacion/page";
 import GrupoConceptoIdPage from "./pages/mantenedores/grupo-afectacion/[id]/page";
 import ClientePage from "./pages/administracion/cliente/page";
@@ -102,14 +100,6 @@ export const router = createBrowserRouter([
       {
         path: "/banco/:id",
         element: <BankIdPage />,
-      },
-      {
-        path: "/mantenimiento",
-        element: <MantenimientoConceptoPage />,
-      },
-      {
-        path: "/mantenimiento/:id",
-        element: <MantenimientoConceptoIdPage />,
       },
       {
         path: "/grupo-concepto",

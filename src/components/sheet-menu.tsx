@@ -8,12 +8,8 @@ import {
   SheetTitle,
 } from "./ui/sheet";
 import { Link } from "react-router-dom";
-import { Menu } from "./menu";
-import { useAuthStore } from "@/stores/auth.store";
-import MarcaSwitcher from "./marca-switcher";
 
 export function SheetMenu() {
-  const { user } = useAuthStore((state) => state);
 
   return (
     <Sheet>
@@ -39,12 +35,7 @@ export function SheetMenu() {
             </Link>
           </Button>
         </SheetHeader>
-        {user?.rol?.name === "Cliente" && (
-          <div className="mx-auto">
-            <MarcaSwitcher />
-          </div>
-        )}
-        <Menu isOpen />
+
       </SheetContent>
     </Sheet>
   );

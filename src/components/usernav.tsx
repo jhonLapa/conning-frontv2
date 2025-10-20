@@ -51,13 +51,8 @@ export function UserNav() {
                 </Button>
                 <div className="flex flex-col text-sm">
                   <h6 className="font-semibold text-pretty">
-                    {user?.person.name} {user?.person.lastname}
+                    {user?.lasName}
                   </h6>
-                  <span className="text-gray-600">
-                    {user?.rol.name === "Cliente"
-                      ? user?.person.documentNumber
-                      : user?.rol.name}
-                  </span>
                 </div>
               </div>
             </DropdownMenuTrigger>

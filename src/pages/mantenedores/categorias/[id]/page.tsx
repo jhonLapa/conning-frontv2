@@ -158,7 +158,18 @@ const CategoriaIdPage = () => {
           </div>
 
           <ConceptosTable
-            conceptos={categoria.conceptosCategoria || []}
+            conceptos={(categoria.conceptosCategoria || []).map((c) => ({
+              ...c,
+              categoria: {
+                idCategoria: categoria.idCategoria,
+                nombre: categoria.nombre,
+                estado: categoria.estado,
+                fechaCreacion: categoria.fechaCreacion,
+                usuarioCreacion: "", // o puedes llenar con valor real si lo tienes
+                fechaModificacion: null,
+                usuarioModificacion: null,
+              },
+            }))}
             onEdit={handleEditConcepto}
             onReload={getCategoria}
           />

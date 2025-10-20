@@ -166,7 +166,7 @@ export const getColumns = (
     cell: ({ row }) => (
       <div className="ml-4 flex flex-col text-right">
         <span className="font-semibold text-green-600">
-          {formatCurrency(row.original.improteTotal || 0)}
+          {formatCurrency(row.original.importeTotal || 0)}
         </span>
         <span className="text-xs text-gray-500">
           IGV: {formatCurrency(row.original.igv || 0)}

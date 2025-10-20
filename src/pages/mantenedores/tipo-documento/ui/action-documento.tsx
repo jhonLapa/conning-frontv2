@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { TipoDocumento } from "@/interfaces/document.interface";
 import { activeOrdesactiveDocument } from "@/services/document.service";
-import { BadgeCheck, Copy, Loader2, Pencil, Trash2, RefreshCw } from "lucide-react";
+import {  Copy, Loader2, Pencil,  RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";

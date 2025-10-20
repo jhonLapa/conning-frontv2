@@ -45,7 +45,7 @@ export const getColumns = (refreshDataTable: () => void): ColumnDef<EmpresaList>
   {
     header: "Codigo",
     id: "code",
-    cell: ({ row }) => <span>{row.original.code}</span>,
+    cell: ({ row }) => <span>{row.original.codigo}</span>,
   },
   {
     header: "RUC.",

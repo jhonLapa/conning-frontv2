@@ -196,7 +196,7 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
     ['Otros Cargos :', 'S/ 0.00'],
     ['Otros Tributos :', 'S/ 0.00'],
     ['Monto de redondeo :', 'S/ 0.00'],
-    ['Importe Total :', `S/ ${compra.improteTotal.toFixed(2)}`]
+    ['Importe Total :', `S/ ${compra.importeTotal.toFixed(2)}`]
   ];
 
   autoTable(doc, {
@@ -231,8 +231,8 @@ export function generarPDFFactura(compra: Compra, abrirEnNuevaPestaña: boolean 
   yPosition = finalYTotales + 10;
 
   // ===== MONTO EN LETRAS =====
-  const parteEntera = Math.floor(compra.improteTotal);
-  const parteDecimal = Math.round((compra.improteTotal - parteEntera) * 100);
+  const parteEntera = Math.floor(compra.importeTotal);
+  const parteDecimal = Math.round((compra.importeTotal - parteEntera) * 100);
   const montoEnLetras = `${numeroALetras(parteEntera)} Y ${parteDecimal.toString().padStart(2, '0')}/100 SOLES`;
 
   doc.setFont('helvetica', 'bold');

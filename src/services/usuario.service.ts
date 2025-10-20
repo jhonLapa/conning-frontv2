@@ -9,8 +9,8 @@ export const getUsuarioFecth = async (): Promise<Usuario[]> => {
 };
 
 export const getFechtUsuarioById = async (id: number): Promise<Usuario> => {
-  const response: AxiosResponse<Usuario> = await api.get(`/usuario/${id}`);
-  return response.data;
+  const response: AxiosResponse<{ data: Usuario }> = await api.get(`/usuario/${id}`);
+  return response.data.data; // ✅ devuelve directamente el usuario
 };
 
 export const postUsuario = async (

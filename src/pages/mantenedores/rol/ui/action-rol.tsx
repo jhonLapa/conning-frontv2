@@ -13,12 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Rol } from "@/interfaces/rol.interface";
 import { activeOrdesactiveRol } from "@/services/rol.service";
 import {
-  BadgeCheck,
   Copy,
   Loader2,
-  MoreHorizontal,
   Pencil,
-  Trash2,
   RefreshCw,
 } from "lucide-react";
 import { useState } from "react";

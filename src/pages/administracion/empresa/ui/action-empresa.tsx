@@ -70,7 +70,7 @@ export default function ActionsEmpresa({ empresa, onRefresh }: Props) {
         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            navigator.clipboard.writeText(empresa.id.toString());
+            navigator.clipboard.writeText(empresa.idEmpresa.toString());
             toast("ID copiado");
           }}
         >
@@ -80,7 +80,7 @@ export default function ActionsEmpresa({ empresa, onRefresh }: Props) {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
-            to={`/empresa/${empresa.id}`}
+            to={`/empresa/${empresa.idEmpresa}`}
             className="flex flex-row items-center gap-2"
           >
             <Pencil size={18} />
@@ -115,7 +115,7 @@ export default function ActionsEmpresa({ empresa, onRefresh }: Props) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
-                    handleChangeStatus(empresa.id);
+                    handleChangeStatus(empresa.idEmpresa);
                   }}
                   disabled={isLoading}
                   className="gap-2"

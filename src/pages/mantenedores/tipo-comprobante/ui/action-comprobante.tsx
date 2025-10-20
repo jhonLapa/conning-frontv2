@@ -10,25 +10,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { TipoComprobante } from "@/interfaces/tipo-comprobante.interface";
 import { activeOrdesactiveComprobante } from "@/services/tipo-comprobante.service";
-import {
-  BadgeCheck,
-  Copy,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  RefreshCw,
-} from "lucide-react";
+import { Copy, Loader2, Pencil, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -67,7 +52,9 @@ export default function ActionsComprobante({ comprobante, onRefresh }: Props) {
         className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
         title="Copiar ID del comprobante"
         onClick={() => {
-          navigator.clipboard.writeText(comprobante.idTipoComprobante.toString());
+          navigator.clipboard.writeText(
+            comprobante.idTipoComprobante.toString()
+          );
           toast("ID copiado al portapapeles", { position: "top-center" });
         }}
       >
@@ -122,14 +109,12 @@ export default function ActionsComprobante({ comprobante, onRefresh }: Props) {
             </AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción{" "}
-              {comprobante.estado === 1 ? "desactivará" : "activará"} el documento
-              en el sistema.
+              {comprobante.estado === 1 ? "desactivará" : "activará"} el
+              documento en el sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>
-              Cancelar
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isLoading}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => handleChangeStatus(comprobante.idTipoComprobante)}
               disabled={isLoading}

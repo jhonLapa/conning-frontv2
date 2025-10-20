@@ -21,7 +21,7 @@ const SingleIconMenu = ({ index, activeIndex, item, locationName }: {
 
   const { user } = useAuthStore()
   
-  const type_usuario:string  = user?.name ?? 'Administrador'
+  const type_usuario:string  = user?.lasName ?? 'Administrador'
 
 
 

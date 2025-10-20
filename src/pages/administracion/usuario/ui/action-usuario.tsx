@@ -10,23 +10,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { Usuario } from "@/interfaces/usuario.interface";
 import { activeOrdesactiveUsuario } from "@/services/usuario.service";
 import {
-  BadgeCheck,
   Copy,
   Loader2,
-  MoreHorizontal,
   Pencil,
-  Trash2,
   RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
