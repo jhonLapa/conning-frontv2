@@ -231,9 +231,9 @@ const PlanillaIdPage = () => {
                       {...register("frecuenciaPago", { required: true })}
                       className="w-full border rounded p-2"
                     >
-                      <option value="SEMANAL">Ingreso</option>
-                      <option value="QUINCENAL">Egreso</option>
-                      <option value="MENSUAL">Ingreso</option>
+                      <option value="SEMANAL">Semanal</option>
+                      <option value="QUINCENAL">Quincenal</option>
+                      <option value="MENSUAL">Mensual</option>
                     </select>
                   </div>
                 </div>

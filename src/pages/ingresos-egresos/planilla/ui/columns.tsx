@@ -41,9 +41,7 @@ export const stateFilter: FilterConfig[] = [
   },
 ];
 
-export const getColumns = (
-  refreshDataTable: () => void
-): ColumnDef<Planilla>[] => [
+export const getColumns = (): ColumnDef<Planilla>[] => [
   {
     id: "proyecto",
     header: ({ column }) => {
@@ -154,8 +152,6 @@ export const getColumns = (
   },
   {
     id: "actions",
-    cell: ({ row }) => (
-      <ActionsPlanilla planilla={row.original} onRefresh={refreshDataTable} />
-    ),
+    cell: ({ row }) => <ActionsPlanilla planilla={row.original} />,
   },
 ];
