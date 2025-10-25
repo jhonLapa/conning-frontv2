@@ -278,7 +278,9 @@ export default function ActionsTrabajador({ trabajador, onRefresh }: Props) {
                   </p>
                   <p>
                     <strong>F. Nacimiento:</strong>{" "}
-                    {trabajadorDetalle.fechaNacimiento.substring(0, 10)}
+                    {trabajadorDetalle.fechaNacimiento
+                      ? trabajadorDetalle.fechaNacimiento.substring(0, 10)
+                      : "Sin fecha"}{" "}
                   </p>
                   <p>
                     <strong>Documento:</strong>{" "}
