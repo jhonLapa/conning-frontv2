@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   TipoComprobante,
+  TipoComprobanteForm,
   TipoComprobanteRequest,
 } from "@/interfaces/tipo-comprobante.interface";
 import {
@@ -27,7 +28,8 @@ const ComprobanteIdPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [comprobante, setComprobante] = useState<TipoComprobante | null>(null);
-  const title = id == "nuevo" ? "Nuevo Comprobante" : "Editar Comprobante";
+  const title = id === "nuevo" ? "Nuevo Comprobante" : "Editar Comprobante";
+
   const {
     register,
     handleSubmit,
@@ -41,7 +43,7 @@ const ComprobanteIdPage = () => {
   });
 
   const getComprobante = async () => {
-    if (id == "nuevo") return;
+    if (id === "nuevo") return;
 
     const response = await getFetchComprobanteById(Number(id));
     setValue("codigo", response.codigo);
@@ -50,19 +52,26 @@ const ComprobanteIdPage = () => {
   };
 
   const onSubmit = async (data: TipoComprobanteRequest) => {
+    let payload: TipoComprobanteForm = {
+      nombre: data.nombre,
+    };
+
+    // Si es edición, no enviar el código
+    if (!comprobante) {
+      payload = { nombre: data.nombre};
+    }
+
     const response = comprobante
-      ? await putComprobante(comprobante.idTipoComprobante, data)
-      : await postComprobante(data);
+      ? await putComprobante(comprobante.idTipoComprobante, payload)
+      : await postComprobante(payload);
 
     if (!response.success) {
-      toast.warning("Error al Guardar el registro", { position: "top-right" });
+      toast.warning("Error al guardar el registro", { position: "top-right" });
       return;
     }
 
     toast.success(response.message, { position: "top-right" });
-    setComprobante(null);
     navigate("/tipocomprobante");
-    return;
   };
 
   useEffect(() => {
@@ -73,12 +82,9 @@ const ComprobanteIdPage = () => {
     <>
       <HeaderPage
         title={title}
-        descripcion="Informacion detallada del comprobante"
+        descripcion="Información detallada del comprobante"
       />
-      <form
-        className="flex  flex-col gap-5 mt-4"
-        onSubmit={handleSubmit(onSubmit)}
-      >
+      <form className="flex flex-col gap-5 mt-4" onSubmit={handleSubmit(onSubmit)}>
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-light text-gray-500">
@@ -87,51 +93,44 @@ const ComprobanteIdPage = () => {
             <hr />
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col space-y-2">
-              <div className="flex flex-col col-span-4 space-y-2 gap-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex flex-col space-y-2">
-                    <Label htmlFor="codigo">
-                      Codigo
-                      <span className="font-semibold text-red-600">*</span>
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="codigo"
-                      {...register("codigo", {
-                        required: "El codigo es requerido",
-                      })}
-                    />
-                    {errors.codigo && (
-                      <p className="msg-error">{errors.codigo.message}</p>
-                    )}
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <Label htmlFor="nombre">
-                      Nombre
-                      <span className="font-semibold text-red-600">*</span>
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="nombre"
-                      {...register("nombre", {
-                        required: "El nombre es requerido",
-                      })}
-                    />
-                    {errors.nombre && (
-                      <p className="msg-error">{errors.nombre.message}</p>
-                    )}
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* ✅ Solo mostrar el código si es edición */}
+              {id !== "nuevo" && (
+                <div className="flex flex-col space-y-2">
+                  <Label htmlFor="codigo">Código</Label>
+                  <Input
+                    type="text"
+                    placeholder="Código"
+                    disabled
+                    {...register("codigo")}
+                  />
                 </div>
+              )}
+
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="nombre">
+                  Nombre <span className="font-semibold text-red-600">*</span>
+                </Label>
+                <Input
+                  type="text"
+                  placeholder="Nombre"
+                  {...register("nombre", {
+                    required: "El nombre es requerido",
+                  })}
+                />
+                {errors.nombre && (
+                  <p className="msg-error">{errors.nombre.message}</p>
+                )}
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-nowrap justify-end gap-5">
-            <Button variant={"sidebar"} type="submit" disabled={isSubmitting}>
+
+          <CardFooter className="flex justify-end gap-5">
+            <Button variant="sidebar" type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Guardando..." : "Guardar"}
             </Button>
             <Button
-              variant={"default"}
+              variant="default"
               type="button"
               onClick={() => navigate("/tipocomprobante")}
             >

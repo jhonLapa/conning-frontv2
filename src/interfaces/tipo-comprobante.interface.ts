@@ -10,3 +10,6 @@ export interface TipoComprobanteRequest {
   codigo: string;
   nombre: string;
 }
+export interface TipoComprobanteForm {
+  nombre: string;
+}

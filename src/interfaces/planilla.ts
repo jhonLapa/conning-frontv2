@@ -3,34 +3,54 @@ import { Proyecto } from "./proyecto.interface";
 export interface Planilla {
   idPlanilla: number;
   idProyecto: number;
-  mes: number;
-  anio: number;
+  mes: string;
   periodoInicio: string;
   periodoFin: string;
   fechaPago: string;
   estado: number;
   fechaCreacion: string;
   usuarioCreacion: string | null;
-  frecuenciaPago: string | null;
+  frecuenciaPago: string;
   periodoTexto: string;
-  totalHoras: number;
   totalGeneral: number;
   proyecto: Proyecto;
   aportesPlanilla?: AportePlanilla[];
   detalles?: DetallePlanilla[];
 }
 
+// interfaces/planilla.ts
 export interface PlanillaRequest {
-  idProyecto: number;
-  mes: number;
-  anio: number;
-  periodoInicio: string;
-  periodoFin: string;
-  fechaPago: string;
-  frecuenciaPago: string;
-  periodoTexto: string;
-  totalHoras?: number;
-  totalGeneral?: number;
+  planilla: {
+    idPlanilla: number;
+    idProyecto: number;
+    mes: string;
+    periodoInicio: string;
+    periodoFin: string;
+    fechaPago: string;
+    usuarioCreacion: string;
+    frecuenciaPago: string;
+    totalGeneral: number;
+  };
+  detalle: {
+    idPlanilla: number;
+    idTrabajadorProyecto: number;
+    diasTrabajados: number;
+    horasTrabajadas: number;
+    totalMonto: number;
+    totalHoras: number;
+    totalDescuentos: number;
+    usuarioCreacion: string;
+    horas60: number;
+    horas100: number;
+    indemnizacion: number;
+  }[];
+  aportes: {
+    idPlanilla: number;
+    tipoAporte: string;
+    monto: number;
+    fechaVencimiento: string;
+    fechaPago: string;
+  }[];
 }
 
 export interface DetallePlanilla {
@@ -44,6 +64,9 @@ export interface DetallePlanilla {
   totalHoras: number;
   fechaCreacion: string;
   usuarioCreacion: string;
+  horas60: number;
+  horas100: number;
+  indemnizacion: number;
 }
 
 export interface AportePlanilla {

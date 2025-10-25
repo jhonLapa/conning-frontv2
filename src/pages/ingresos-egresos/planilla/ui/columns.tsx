@@ -8,13 +8,13 @@ import ActionsPlanilla from "./action-planillas";
 
 export const columnNames: Record<string, string> = {
   proyecto: "Proyecto",
-  periodoTexto: "Periodo Texto",
+  mes: "Periodo Texto",
   frecuenciaPago: "Frecuencia pago",
-  totalHoras: "Total Horas",
   totalGeneral: "Total General",
   estado: "Estado",
   actions: "Acciones",
 };
+
 
 export const columnFilter: FilterConfig[] = [
   {
@@ -22,10 +22,11 @@ export const columnFilter: FilterConfig[] = [
     label: "Proyecto",
   },
   {
-    id: "periodoPago",
-    label: "Periodo",
+    id: "status",
+    label: "Estado",
   },
 ];
+
 
 export const stateFilter: FilterConfig[] = [
   {
@@ -42,7 +43,9 @@ export const stateFilter: FilterConfig[] = [
   },
 ];
 
-export const getColumns = (): ColumnDef<Planilla>[] => [
+export const getColumns = (
+    refreshDataTable: () => void
+): ColumnDef<Planilla>[] => [
   {
     id: "proyecto",
     header: ({ column }) => {
@@ -62,7 +65,7 @@ export const getColumns = (): ColumnDef<Planilla>[] => [
     ),
   },
   {
-    id: "periodoTexto",
+    id: "mes",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -76,7 +79,7 @@ export const getColumns = (): ColumnDef<Planilla>[] => [
       );
     },
     cell: ({ row }) => (
-      <span className="ml-4">{row.original.periodoTexto}</span>
+      <span className="ml-4">{row.original.mes}</span>
     ),
   },
   {
@@ -97,22 +100,7 @@ export const getColumns = (): ColumnDef<Planilla>[] => [
       <span className="ml-4">{row.original.frecuenciaPago}</span>
     ),
   },
-  {
-    id: "totalHoras",
-    header: ({ column }) => {
-      const isSorted = column.getIsSorted();
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(isSorted === "asc")}
-        >
-          Total Horas
-          <SortedIcon isSorted={isSorted} />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <span className="ml-4">{row.original.totalHoras}</span>,
-  },
+ 
   {
     id: "totalGeneral",
     header: ({ column }) => {
@@ -122,7 +110,7 @@ export const getColumns = (): ColumnDef<Planilla>[] => [
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Frecuencia
+          Total General
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
@@ -147,6 +135,12 @@ export const getColumns = (): ColumnDef<Planilla>[] => [
   },
   {
     id: "actions",
-    cell: ({ row }) => <ActionsPlanilla planilla={row.original} />,
+    cell: ({ row }) => (
+          <ActionsPlanilla
+            planilla={row.original}
+            onRefresh={refreshDataTable}
+          />
+        ),
+
   },
 ];

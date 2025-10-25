@@ -1,155 +1,143 @@
-import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Planilla } from "@/interfaces/planilla";
-import { getFetchPlanillaById } from "@/services/planilla.service";
-import { ClipboardList, Eye, Loader2 } from "lucide-react";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Planilla } from "@/interfaces";
+
+import { activeOrdesactivePlanilla } from "@/services/planilla.service";
+import {
+  Copy,
+  Loader2,
+  Pencil,
+  RefreshCw,
+} from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
   planilla: Planilla;
-  //onRefresh: () => void;
+  onRefresh: () => void;
 }
 
-export default function ActionsPlanilla({ planilla }: Props) {
+export default function ActionsPlanilla({ planilla, onRefresh }: Props) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [planillaDetalle, setPlanillaDetalle] = useState<Planilla | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
 
-  const navigate = useNavigate();
+  const handleChangeStatus = async (idPlanilla: number) => {
+    setIsLoading(true);
 
-  // const handleChangeStatus = async (idPlanilla: number) => {
-  //   setIsLoading(true);
+    const response = await activeOrdesactivePlanilla(
+      idPlanilla
+    );
 
-  //   const response = await activeOrdesactivePlanilla(idPlanilla);
-
-  //   if (!response.success) {
-  //     setIsLoading(false);
-  //     toast.warning(response?.message, { position: "top-center" });
-  //     return;
-  //   }
-
-  //   setIsLoading(false);
-  //   toast.success(response?.message, { position: "top-right" });
-  //   onRefresh();
-  // };
-
-  // 🔵 Ver detalle
-  const handleVerDetalle = async () => {
-    try {
-      setIsLoading(true);
-      const detalle = await getFetchPlanillaById(planilla.idPlanilla);
-      setPlanillaDetalle(detalle);
-
-      setOpen(true);
-    } catch (error: unknown) {
-      console.error(error);
-      toast.error("Error al obtener detalle de la venta");
-    } finally {
+    if (!response.success) {
       setIsLoading(false);
+      toast.warning(response?.message, { position: "top-center" });
+      return;
     }
-  };
 
-  // 🟡 Editar venta
-  const handleEditVenta = () => {
-    try {
-      setIsEditing(true);
-      navigate(`/planilla/${planilla.idPlanilla}`);
-    } catch (error: unknown) {
-      console.error(error);
-      toast.error("No se pudo editar la planilla", { position: "top-center" });
-    } finally {
-      setIsEditing(false);
-    }
+    setIsLoading(false);
+    toast.success(response?.message, { position: "top-right" });
+    onRefresh();
   };
 
   return (
-    <>
-      {/* ✅ Botones redondeados de acción */}
-      <div className="flex items-center justify-center gap-2">
-        {/* 🔵 Ver detalle */}
-        <Button
-          size="icon"
-          className="rounded-md bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
-          title="Ver detalle"
-          onClick={handleVerDetalle}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Eye className="h-4 w-4" />
-          )}
-        </Button>
+    <div className="flex justify-center gap-2">
+      {/* 🔵 Copiar ID */}
+      <Button
+        size="icon"
+        className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
+        title="Copiar ID del planilla"
+        onClick={() => {
+          navigator.clipboard.writeText(planilla.idPlanilla.toString());
+          toast("ID copiado al portapapeles", { position: "top-center" });
+        }}
+      >
+        <Copy className="h-4 w-4" />
+      </Button>
 
-        {/* 🟡 Editar venta */}
+      {/* 🟡 Editar */}
+      <Link to={`/planilla/${planilla.idPlanilla}`}>
         <Button
           size="icon"
           className="rounded-md bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
           title="Editar planilla"
-          onClick={handleEditVenta}
-          disabled={isEditing}
         >
-          {isEditing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ClipboardList className="h-4 w-4" />
-          )}
+          <Pencil size={18} />
         </Button>
+      </Link>
 
-        {/* 🧾 Copiar ID */}
-        {/* <Button
-          size="icon"
-          className="rounded-md bg-gray-500 hover:bg-gray-600 text-white shadow-sm"
-          title="Copiar ID de la planilla"
-          onClick={() => {
-            navigator.clipboard.writeText(planilla.idPlanilla.toString());
-            toast.success("ID copiado al portapapeles", {
-              position: "top-right",
-            });
-          }}
-        >
-          <Copy className="h-4 w-4" />
-        </Button> */}
-      </div>
-      {/* 🧾 Dialog Detalle de Venta */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto rounded-xl p-6 bg-white shadow-lg">
-          <div className="flex justify-between items-center mb-4">
-            <DialogTitle className="text-lg font-semibold text-gray-800">
-              Detalle de la planilla #{planilla.idPlanilla}
-            </DialogTitle>
-          </div>
+      {/* ⚫ Activar/Desactivar */}
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogTrigger asChild>
+          <Button
+            size="icon"
+            //variant="ghost"
+            className={`rounded-md p-2 transition-all text-white ${
+              planilla.estado === 1
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+            title={
+              planilla.estado === 1
+                ? "Desactivar planilla"
+                : "Activar planilla"
+            }
+          >
+            <RefreshCw
+              size={18}
+              className={`transition-transform duration-300 ease-in-out ${
+                planilla.estado === 1
+                  ? "group-hover:rotate-[-90deg]"
+                  : "group-hover:rotate-90"
+              }`}
+            />
+          </Button>
+        </AlertDialogTrigger>
 
-          <DialogDescription className="text-sm text-gray-700 space-y-4">
-            {isLoading ? (
-              <p className="text-center">Cargando...</p>
-            ) : planillaDetalle ? (
-              <div className="space-y-2">
-                <p>
-                  <strong>Mes:</strong> {planillaDetalle.mes}
-                </p>
-                <p>
-                  <strong>Año:</strong> {planillaDetalle.anio}
-                </p>
-                <p>
-                  <strong>Fecha de creacion:</strong>{" "}
-                  {new Date(planillaDetalle.fechaCreacion).toLocaleDateString()}
-                </p>
-              </div>
-            ) : (
-              <p>No hay detalles disponibles</p>
-            )}
-          </DialogDescription>
-        </DialogContent>
-      </Dialog>
-    </>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {planilla.estado === 1
+                ? "¿Desactivar planilla?"
+                : "¿Activar planilla?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción{" "}
+              {planilla.estado === 1 ? "desactivará" : "activará"} el documento
+              en el sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleChangeStatus(planilla.idPlanilla)}
+              disabled={isLoading}
+              className="gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Procesando...
+                </>
+              ) : (
+                "Confirmar"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }

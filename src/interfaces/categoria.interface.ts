@@ -4,6 +4,7 @@ export interface Categoria {
   nombre: string;
   estado: number;
   fechaCreacion: string;
+  tipoConcepto: string;
   conceptosCategoria: ConceptosCategoria[];
   conceptosCategoriaRequest: ConceptosCategoriaRequest[];
 }
@@ -21,6 +22,7 @@ export interface ConceptosCategoria {
   estado: number;
   fechaCreacion: string;          // o Date si luego la manejas como objeto de fecha
   usuarioCreacion: string;
+  tipoConcepto: string;
   fechaCambioEstado: string | null;  // null si aún no hay fecha
   usuarioCambioEstado: string | null;
 }
@@ -29,4 +31,6 @@ export interface ConceptosCategoriaRequest {
   idCategoria: number;
   nombreConcepto: string;
   estado: number;
+  tipoConcepto: string;
+
 }

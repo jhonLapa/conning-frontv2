@@ -9,15 +9,15 @@ export const getPlanillaFetch = async (): Promise<Planilla[]> => {
 };
 
 export const getFetchPlanillaById = async (id: number): Promise<Planilla> => {
-  const response: AxiosResponse<Planilla> = await api.get(`/planilla/${id}`);
-  return response.data;
+  const response = await api.get<{ data: Planilla }>(`/planilla/${id}`);
+  return response.data.data; // ✅ TypeScript ahora lo entiende perfectamente
 };
 
 export const postPlanilla = async (
   paylod: PlanillaRequest
 ): Promise<ApiResponse<Planilla>> => {
   const response: AxiosResponse<ApiResponse<Planilla>> = await api.post(
-    `/planilla`,
+    `planilla/registrocompleto`,
     paylod
   );
   return response.data;

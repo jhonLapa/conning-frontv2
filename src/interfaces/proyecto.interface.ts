@@ -21,7 +21,7 @@ export interface ProyectoFormData {
   proyecto: ProyectoCreate;
   trabajador: TrabajadorProyectoCreate[];
   sindicato: SindicatoDto[];
-  proyectoEncargado: ProyectoEncargadoDto;
+  proyectoEncargado?: ProyectoEncargadoDto | null; // ✅ opcional o null
 }
 
 // 🧱 Proyecto principal
@@ -31,7 +31,7 @@ export interface ProyectoCreate {
   nombre: string;
   descripcion: string;
   fechaInicio: string; // se maneja como string para enviarlo al backend (formato "YYYY-MM-DD")
-  fechaFin: string;
+  fechaFin: string | null; // 👈 permitir null
   frecuenciaPago: string;
   usuarioCreacion: string;
 }
@@ -46,8 +46,7 @@ export interface TrabajadorProyectoCreate {
 
 // 🏛️ Información de sindicato (aporte sindical)
 export interface SindicatoDto {
-  mes: number;
-  anio: number;
+  mes: string;
   monto: number;
   fechaPago: string;
   usuarioCreacion: string;

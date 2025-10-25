@@ -7,11 +7,12 @@ import { Venta } from "@/interfaces/venta.interface";
 import ActionsVenta from "./action-ventas";
 
 export const columnNames: Record<string, string> = {
+  serie: "Serie",
+  numero: "Numero",
   idCliente: "Cliente",
   idTipoComprobante: "Tipo de comprobante",
   idProyecto: "Proyecto",
-  serie: "Serie",
-  numero: "Numero",
+
   importeTotal: "Importe total",
   estado: "Estado",
   actions: "Acciones",
@@ -19,12 +20,24 @@ export const columnNames: Record<string, string> = {
 
 export const columnFilter: FilterConfig[] = [
   {
-    id: "name",
-    label: "Serie",
+    id: "numerocomprobante",
+    label: "N° Comprobante", // ahora busca F001-001, F001, 001, etc.
   },
   {
     id: "cliente",
     label: "Cliente",
+  },
+  {
+    id: "proyecto",
+    label: "Proyecto",
+  },
+  {
+    id: "tipocomprobante",
+    label: "Tipo Comprobante",
+  },
+  {
+    id: "status",
+    label: "Estado",
   },
 ];
 
@@ -47,7 +60,27 @@ export const getColumns = (
   refreshDataTable: () => void
 ): ColumnDef<Venta>[] => [
   {
-    id: "name",
+    id: "numerocomprobante",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Serie - Número
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="ml-4">
+        {row.original.serie}-{row.original.numero}
+      </span>
+    ),
+  },
+  {
+    id: "cliente",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -65,7 +98,7 @@ export const getColumns = (
     ),
   },
   {
-    id: "idProyecto",
+    id: "proyecto",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -83,7 +116,7 @@ export const getColumns = (
     ),
   },
   {
-    id: "idTipoComprobante",
+    id: "tipocomprobante",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -98,26 +131,6 @@ export const getColumns = (
     },
     cell: ({ row }) => (
       <span className="ml-4">{row.original.tipoComprobante.nombre}</span>
-    ),
-  },
-  {
-    id: "comprobante",
-    header: ({ column }) => {
-      const isSorted = column.getIsSorted();
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(isSorted === "asc")}
-        >
-          Serie - Número
-          <SortedIcon isSorted={isSorted} />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <span className="ml-4">
-        {row.original.serie}-{row.original.numero}
-      </span>
     ),
   },
 

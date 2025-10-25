@@ -33,29 +33,29 @@ interface ProyectoFormData {
     nombre: string;
     descripcion: string;
     fechaInicio: string;
-    fechaFin: string;
+    fechaFin: string | null;
     frecuenciaPago: string;
     usuarioCreacion: string;
   };
   trabajador: {
     idTrabajador: number;
     fechaInicio: string;
-    fechaFin: string | null; // 👈 permitir null
+    fechaFin: string | null;
     usuarioCreacion: string;
   }[];
   sindicato: {
-    mes: number;
-    anio: number;
+    mes: string;
     monto: number;
     fechaPago: string;
     usuarioCreacion: string;
   }[];
-  proyectoEncargado: {
+  // 👇 antes era obligatorio, ahora lo hacemos opcional
+  proyectoEncargado?: {
     idTrabajador: number;
     rol: string;
     fechaInicio: string;
-    fechaFin: string | null; // 👈 permitir null
-  };
+    fechaFin: string | null;
+  } | null;
 }
 
 /* ============================================================
@@ -73,7 +73,13 @@ export default function ProyectoCompletoIdPage() {
   const [loadingClientes, setLoadingClientes] = useState(true);
 
   // 🧩 Formulario
-  const { register, handleSubmit, control, reset } = useForm<ProyectoFormData>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<ProyectoFormData>({
     defaultValues: {
       proyecto: {
         idCliente: 0,
@@ -81,17 +87,12 @@ export default function ProyectoCompletoIdPage() {
         descripcion: "",
         fechaInicio: "",
         fechaFin: "",
-        frecuenciaPago: "Mensual",
-        usuarioCreacion: "jcotos",
+        frecuenciaPago: "MENSUAL",
+        usuarioCreacion: "ADMIN",
       },
       trabajador: [],
       sindicato: [],
-      proyectoEncargado: {
-        idTrabajador: 0,
-        rol: "",
-        fechaInicio: "",
-        fechaFin: "",
-      },
+      proyectoEncargado: null, // 👈 ahora puede ser null
     },
   });
 
@@ -111,6 +112,7 @@ export default function ProyectoCompletoIdPage() {
     { idTrabajador: number; apellidosNombres: string }[]
   >([]);
   const [loadingTrabajadores, setLoadingTrabajadores] = useState(true);
+  const [hasEncargado, setHasEncargado] = useState(false);
 
   /* ============================================================
      🟢 Cargar clientes activos
@@ -148,18 +150,12 @@ export default function ProyectoCompletoIdPage() {
      🟡 Cargar proyecto si estamos en edición
      ============================================================ */
   useEffect(() => {
-    if (!id) return;
+    if (!id || id === "nuevo") return;
 
     const parseDate = (value?: string | Date | null): string => {
       if (!value) return "";
-      if (value instanceof Date) {
-        // Convierte el Date a formato YYYY-MM-DD
-        return value.toISOString().split("T")[0];
-      }
-      if (typeof value === "string") {
-        // Si ya es string ISO, recorta solo la fecha
-        return value.split("T")[0];
-      }
+      if (value instanceof Date) return value.toISOString().split("T")[0];
+      if (typeof value === "string") return value.split("T")[0];
       return "";
     };
 
@@ -167,40 +163,51 @@ export default function ProyectoCompletoIdPage() {
       setLoading(true);
       try {
         const data = await getFechtProyectoById(Number(id));
+        data.idCliente = Number(data.idCliente ?? 0);
 
+        const encargado = data.proyectoEncargado?.[0];
+        const tieneEncargado = !!(
+          encargado &&
+          encargado.idTrabajador > 0 &&
+          encargado.fechaInicio
+        );
         reset({
           proyecto: {
-            idProyecto: data.idProyecto,
-            idCliente: data.idCliente,
+            idProyecto: data.idProyecto ?? 0,
+            idCliente: Number(data.idCliente ?? 0),
             nombre: data.nombre ?? "",
             descripcion: data.descripcion ?? "",
             fechaInicio: parseDate(data.fechaInicio),
             fechaFin: parseDate(data.fechaFin),
-            frecuenciaPago: data.frecuenciaPago ?? "Mensual",
-            usuarioCreacion: "jcotos",
+            frecuenciaPago: data.frecuenciaPago ?? "MENSUAL",
+            usuarioCreacion: "ADMIN",
           },
           trabajador:
             (data.trabajadores ?? []).map((t: TrabajadorProyectoCreate) => ({
               idTrabajador: t.idTrabajador ?? 0,
               fechaInicio: parseDate(t.fechaInicio),
               fechaFin: parseDate(t.fechaFin),
-              usuarioCreacion: "jcotos",
+              usuarioCreacion: "ADMIN",
             })) ?? [],
           sindicato:
             (data.aportesSindicato ?? []).map((s: SindicatoDto) => ({
-              mes: s.mes ?? 0,
-              anio: s.anio ?? new Date().getFullYear(),
+              mes: s.mes ?? "",
               monto: s.monto ?? 0,
               fechaPago: parseDate(s.fechaPago),
-              usuarioCreacion: "jcotos",
+              usuarioCreacion: "ADMIN",
             })) ?? [],
-          proyectoEncargado: {
-            idTrabajador: data.proyectoEncargado?.[0]?.idTrabajador ?? 0,
-            rol: data.proyectoEncargado?.[0]?.rol ?? "",
-            fechaInicio: parseDate(data.proyectoEncargado?.[0]?.fechaInicio),
-            fechaFin: parseDate(data.proyectoEncargado?.[0]?.fechaFin),
-          },
+          proyectoEncargado: encargado
+            ? {
+                idTrabajador: encargado.idTrabajador ?? 0,
+                rol: encargado.rol ?? "",
+                fechaInicio: parseDate(encargado.fechaInicio),
+                fechaFin: parseDate(encargado.fechaFin),
+              }
+            : null,
         });
+
+        // ✅ si hay encargado, activar el bloque visual
+        setHasEncargado(tieneEncargado);
       } catch (error) {
         console.error(error);
         toast.error("❌ Error al cargar el proyecto");
@@ -212,59 +219,75 @@ export default function ProyectoCompletoIdPage() {
     fetchProyecto();
   }, [id, reset]);
 
- const onSubmit = async (data: ProyectoFormData) => {
-  setLoading(true);
+  const onSubmit = async (data: ProyectoFormData) => {
+    setLoading(true);
+    try {
+      // 👇 solo incluir encargado si tiene datos válidos
+      const hasEncargado =
+        data.proyectoEncargado &&
+        data.proyectoEncargado.idTrabajador > 0 &&
+        data.proyectoEncargado.fechaInicio;
 
-  try {
-   const payload: ProyectoFormData = {
-      ...data,
-      proyecto: {
-        ...data.proyecto,
-        idProyecto: id ? Number(id) : 0,
-       },
-      trabajador: (data.trabajador || []).map((t) => ({
-        ...t,
-        fechaFin: t.fechaFin || null, // 👈 también aquí si deseas
-      })),
-      sindicato: data.sindicato || [],
-      proyectoEncargado: {
-        ...data.proyectoEncargado,
-        fechaFin: data.proyectoEncargado.fechaFin || null, // 👈 convierte "" → null
-      },
-    };
-    const response = await postProyectoCompleto(payload);
+      const payload: ProyectoFormData = {
+        ...data,
+        proyecto: {
+          ...data.proyecto,
+          idProyecto:
+            data.proyecto.idProyecto && data.proyecto.idProyecto > 0
+              ? data.proyecto.idProyecto
+              : id
+              ? Number(id)
+              : 0,
+          fechaFin: data.proyecto.fechaFin || null,
+        },
+        trabajador: (data.trabajador || []).map((t) => ({
+          ...t,
+          fechaFin: t.fechaFin || null,
+        })),
+        sindicato: data.sindicato || [],
+        // 👇 solo agregamos si tiene datos válidos
+        ...(hasEncargado
+          ? {
+              proyectoEncargado: {
+                ...data.proyectoEncargado!,
+                fechaFin: data.proyectoEncargado?.fechaFin || null,
+              },
+            }
+          : {}),
+      };
+      const response = await postProyectoCompleto(payload);
 
-    // ⚠️ Validar respuesta
-    if (!response?.success) {
-      return; // ❌ No redirigir si hubo error
+      // ⚠️ Validar respuesta
+      if (!response?.success) {
+        return; // ❌ No redirigir si hubo error
+      }
+
+      // ✅ Éxito
+      toast.success(
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-5 w-5 text-green-500" />
+          <span>{response.message}</span>
+        </div>,
+        { position: "top-right" }
+      );
+
+      // 🕒 Pequeña pausa antes de redirigir (para que se vea el toast)
+      setTimeout(() => {
+        navigate("/proyecto");
+      }, 1200);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        <div className="flex items-center gap-2">
+          <XCircle className="h-5 w-5 text-red-500" />
+          <span>❌ Error inesperado al guardar el proyecto</span>
+        </div>,
+        { position: "top-right" }
+      );
+    } finally {
+      setLoading(false);
     }
-
-    // ✅ Éxito
-    toast.success(
-      <div className="flex items-center gap-2">
-        <CheckCircle2 className="h-5 w-5 text-green-500" />
-        <span>{response.message}</span>
-      </div>,
-      { position: "top-right" }
-    );
-
-    // 🕒 Pequeña pausa antes de redirigir (para que se vea el toast)
-    setTimeout(() => {
-      navigate("/proyecto");
-    }, 1200);
-  } catch (error) {
-    console.error(error);
-    toast.error(
-      <div className="flex items-center gap-2">
-        <XCircle className="h-5 w-5 text-red-500" />
-        <span>❌ Error inesperado al guardar el proyecto</span>
-      </div>,
-      { position: "top-right" }
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   /* ============================================================
      🧱 Render
      ============================================================ */
@@ -295,16 +318,18 @@ export default function ProyectoCompletoIdPage() {
             <hr />
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Cliente */}
             <div>
               <Label>Cliente *</Label>
               <select
                 {...register("proyecto.idCliente", {
                   valueAsNumber: true,
-                  required: true,
+                  required: "El cliente es obligatorio",
+                  min: { value: 1, message: "Debe seleccionar un cliente" },
                 })}
                 className="w-full border rounded p-2"
               >
-                <option value="">Seleccione Cliente</option>
+                <option value={0}>Seleccione Cliente</option>
                 {loadingClientes && <option>Cargando...</option>}
                 {clientes.map((c) => (
                   <option key={c.idCliente} value={c.idCliente}>
@@ -312,26 +337,48 @@ export default function ProyectoCompletoIdPage() {
                   </option>
                 ))}
               </select>
+              {errors?.proyecto?.idCliente && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.proyecto.idCliente.message}
+                </p>
+              )}
             </div>
+
+            {/* Nombre */}
             <div>
               <Label>Nombre *</Label>
-              <Input {...register("proyecto.nombre", { required: true })} />
+              <Input
+                {...register("proyecto.nombre", {
+                  required: "El nombre es obligatorio",
+                })}
+              />
+              {errors?.proyecto?.nombre && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.proyecto.nombre.message}
+                </p>
+              )}
             </div>
-            <div>
-              <Label>Descripción</Label>
-              <Input {...register("proyecto.descripcion")} />
-            </div>
+
+            {/* Fecha Inicio */}
             <div>
               <Label>Fecha Inicio *</Label>
-              <Input type="date" {...register("proyecto.fechaInicio")} />
+              <Input
+                type="date"
+                {...register("proyecto.fechaInicio", {
+                  required: "La fecha de inicio es obligatoria",
+                })}
+              />
+              {errors?.proyecto?.fechaInicio && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.proyecto.fechaInicio.message}
+                </p>
+              )}
             </div>
+
+            {/* Fecha Fin (opcional) */}
             <div>
-              <Label>Fecha Fin *</Label>
+              <Label>Fecha Fin</Label>
               <Input type="date" {...register("proyecto.fechaFin")} />
-            </div>
-            <div>
-              <Label>Frecuencia Pago</Label>
-              <Input {...register("proyecto.frecuenciaPago")} />
             </div>
           </CardContent>
         </Card>
@@ -349,7 +396,7 @@ export default function ProyectoCompletoIdPage() {
                   idTrabajador: 0,
                   fechaInicio: "",
                   fechaFin: "",
-                  usuarioCreacion: "jcotos",
+                  usuarioCreacion: "ADMIN",
                 })
               }
             >
@@ -394,7 +441,7 @@ export default function ProyectoCompletoIdPage() {
                     {...register(`trabajador.${i}.fechaFin` as const)}
                   />
                 </div>
-       
+
                 <Button
                   variant="destructive"
                   type="button"
@@ -417,11 +464,10 @@ export default function ProyectoCompletoIdPage() {
               type="button"
               onClick={() =>
                 addSindicato({
-                  mes: 0,
-                  anio: new Date().getFullYear(),
+                  mes: "",
                   monto: 0,
                   fechaPago: "",
-                  usuarioCreacion: "jcotos",
+                  usuarioCreacion: "ADMIN",
                 })
               }
             >
@@ -437,17 +483,11 @@ export default function ProyectoCompletoIdPage() {
                 <div>
                   <Label>Mes</Label>
                   <Input
-                    type="number"
+                    type="month"
                     {...register(`sindicato.${i}.mes` as const)}
                   />
                 </div>
-                <div>
-                  <Label>Año</Label>
-                  <Input
-                    type="number"
-                    {...register(`sindicato.${i}.anio` as const)}
-                  />
-                </div>
+
                 <div>
                   <Label>Monto</Label>
                   <Input
@@ -463,7 +503,7 @@ export default function ProyectoCompletoIdPage() {
                     {...register(`sindicato.${i}.fechaPago` as const)}
                   />
                 </div>
-            
+
                 <Button
                   variant="destructive"
                   type="button"
@@ -477,47 +517,61 @@ export default function ProyectoCompletoIdPage() {
         </Card>
 
         {/* ================= Encargado ================= */}
+
         <Card>
-          <CardHeader>
+          <CardHeader className="flex justify-between items-center">
             <CardTitle className="text-lg font-light text-gray-500">
               🧑‍💼 Encargado del Proyecto
             </CardTitle>
-            <hr />
-          </CardHeader>
-          <CardContent className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>ID Trabajador</Label>
-              <select
-                {...register("proyectoEncargado.idTrabajador", {
-                  valueAsNumber: true,
-                })}
-                className="w-full border rounded p-2"
-              >
-                <option value="">Seleccione un encargado</option>
-                {loadingTrabajadores && <option>Cargando...</option>}
-                {trabajadoresActivos.map((t) => (
-                  <option key={t.idTrabajador} value={t.idTrabajador}>
-                    {t.apellidosNombres}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label>Rol</Label>
-              <Input {...register("proyectoEncargado.rol")} />
-            </div>
-            <div>
-              <Label>Fecha Inicio</Label>
-              <Input
-                type="date"
-                {...register("proyectoEncargado.fechaInicio")}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={hasEncargado}
+                onChange={(e) => setHasEncargado(e.target.checked)}
               />
-            </div>
-            <div>
-              <Label>Fecha Fin</Label>
-              <Input type="date" {...register("proyectoEncargado.fechaFin")} />
-            </div>
-          </CardContent>
+              <span>Agregar encargado</span>
+            </label>
+          </CardHeader>
+
+          {hasEncargado && (
+            <CardContent className="grid grid-cols-3 gap-4">
+              <div>
+                <Label>ID Trabajador</Label>
+                <select
+                  {...register("proyectoEncargado.idTrabajador", {
+                    valueAsNumber: true,
+                  })}
+                  className="w-full border rounded p-2"
+                >
+                  <option value="">Seleccione un encargado</option>
+                  {loadingTrabajadores && <option>Cargando...</option>}
+                  {trabajadoresActivos.map((t) => (
+                    <option key={t.idTrabajador} value={t.idTrabajador}>
+                      {t.apellidosNombres}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label>Rol</Label>
+                <Input {...register("proyectoEncargado.rol")} />
+              </div>
+              <div>
+                <Label>Fecha Inicio</Label>
+                <Input
+                  type="date"
+                  {...register("proyectoEncargado.fechaInicio")}
+                />
+              </div>
+              <div>
+                <Label>Fecha Fin</Label>
+                <Input
+                  type="date"
+                  {...register("proyectoEncargado.fechaFin")}
+                />
+              </div>
+            </CardContent>
+          )}
         </Card>
 
         {/* ================= Footer ================= */}

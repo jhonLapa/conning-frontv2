@@ -1,7 +1,7 @@
 import { ApiResponse } from "@/interfaces";
 import {
   TipoComprobante,
-  TipoComprobanteRequest,
+  TipoComprobanteForm,
 } from "@/interfaces/tipo-comprobante.interface";
 import api from "@/lib/api";
 import { type AxiosResponse } from "axios";
@@ -23,7 +23,8 @@ export const getFetchComprobanteById = async (
 };
 
 export const postComprobante = async (
-  paylod: TipoComprobanteRequest
+  paylod: TipoComprobanteForm
+
 ): Promise<ApiResponse<TipoComprobante>> => {
   const response: AxiosResponse<ApiResponse<TipoComprobante>> = await api.post(
     `/tipocomprobante`,
@@ -34,7 +35,7 @@ export const postComprobante = async (
 
 export const putComprobante = async (
   id: number,
-  paylod: TipoComprobanteRequest
+  paylod: TipoComprobanteForm
 ): Promise<ApiResponse<TipoComprobante>> => {
   const response: AxiosResponse<ApiResponse<TipoComprobante>> = await api.put(
     `/tipocomprobante/${id}`,

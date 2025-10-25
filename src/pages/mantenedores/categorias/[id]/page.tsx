@@ -165,6 +165,7 @@ const CategoriaIdPage = () => {
                 nombre: categoria.nombre,
                 estado: categoria.estado,
                 fechaCreacion: categoria.fechaCreacion,
+                TipoConcepto: categoria.tipoConcepto,
                 usuarioCreacion: "", // o puedes llenar con valor real si lo tienes
                 fechaModificacion: null,
                 usuarioModificacion: null,

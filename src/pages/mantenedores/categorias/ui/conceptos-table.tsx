@@ -64,6 +64,7 @@ export default function ConceptosTable({
               <TableRow>
                 <TableHead>Nombre</TableHead>
                 <TableHead>Valor</TableHead>
+                <TableHead>Tipo</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Fecha creación</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
@@ -74,6 +75,7 @@ export default function ConceptosTable({
                 <TableRow key={concepto.idConcepto}>
                   <TableCell>{concepto.nombreConcepto}</TableCell>
                   <TableCell>S/. {concepto.valor.toFixed(2)}</TableCell>
+                  <TableCell>{concepto.tipoConcepto}</TableCell>
                   <TableCell>
                     <Badge
                       variant={concepto.estado === 1 ? "success" : "secondary"}

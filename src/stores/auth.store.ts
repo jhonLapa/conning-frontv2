@@ -5,7 +5,7 @@ import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
 
 export interface User {
   userId: number,
-  firstName:string,
+  lastName: string; // ✅ corregido
   lasName:string,
   email:string,
   state: boolean

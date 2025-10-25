@@ -48,8 +48,6 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
- 
-
 const TrabajadorIdPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -85,7 +83,7 @@ const TrabajadorIdPage = () => {
       estado: 1,
       sexo: "",
       estadoCivil: "",
-      hijos: 0
+      hijos: 0,
     },
   });
 
@@ -104,7 +102,7 @@ const TrabajadorIdPage = () => {
       cci: cuenta.cci || undefined,
       tipoCuenta: cuenta.tipoCuenta,
       moneda: cuenta.moneda,
-      principal: cuenta.principal,
+      principal: cuenta.principal === 1 ? 1 : 0, // 👈 número, no string
       fechaInicio: cuenta.fechaInicio.substring(0, 10),
       fechaFin: cuenta.fechaFin ? cuenta.fechaFin.substring(0, 10) : undefined,
     }));
@@ -183,7 +181,10 @@ const TrabajadorIdPage = () => {
         setValue("telefono", response.telefono ?? "");
         setValue("direccion", response.direccion ?? "");
         setValue("sexo", response.sexo ?? "");
-        setValue("estadoCivil", response.estadoCivil.toUpperCase() ?? "");
+        setValue(
+          "estadoCivil",
+          response.estadoCivil ? response.estadoCivil.toUpperCase() : ""
+        );
         setValue("hijos", response.hijos ?? 0);
         setValue("asignacionFamiliar", response.asignacionFamiliar);
         setValue("estado", response.estado);
@@ -202,33 +203,77 @@ const TrabajadorIdPage = () => {
   }, [id, isEdit, setValue]);
 
   const onSubmit = async (data: TrabajadorRequest) => {
-    
-    const payload: TrabajadorRequest = {
+    // ============================================================
+    // 🧾 Normalizar campos vacíos → null
+    // ============================================================
+    const normalize = <T extends Record<string, unknown>>(obj: T): T => {
+      const result = {} as T;
+
+      for (const key in obj) {
+        const value = obj[key];
+
+        if (
+          value === "" ||
+          value === undefined ||
+          (typeof value === "number" && isNaN(value))
+        ) {
+          (result as Record<string, unknown>)[key] = null;
+        } else if (Array.isArray(value)) {
+          (result as Record<string, unknown>)[key] = value.map((v) =>
+            typeof v === "object" && v !== null
+              ? normalize(v as Record<string, unknown>)
+              : v
+          );
+        } else if (typeof value === "object" && value !== null) {
+          (result as Record<string, unknown>)[key] = normalize(
+            value as Record<string, unknown>
+          );
+        } else {
+          (result as Record<string, unknown>)[key] = value;
+        }
+      }
+
+      return result;
+    };
+
+    // ============================================================
+    // 🧠 Armar payload limpio
+    // ============================================================
+    const payload: TrabajadorRequest = normalize({
       ...data,
       idTrabajador: trabajador?.idTrabajador ?? 0,
-      cuentas: data.cuentas.map((c) => ({
+      cuentas: (data.cuentas || []).map((c) => ({
         ...c,
         idCuentaBanco: c.idCuentaBanco || undefined,
-        cci: c.cci || undefined,
+        cci: c.cci || null,
         principal: Number(c.principal),
       })),
       idTipoDocumento: Number(data.idTipoDocumento),
       idCategoria: Number(data.idCategoria),
       idRegimen: Number(data.idRegimen),
-    };
+    });
 
     try {
       const response = await postTrabajador(payload);
 
       if (!response?.success) {
+        toast.error("No se pudo guardar el trabajador", {
+          position: "top-right",
+        });
         return;
       }
 
-      setTrabajador(null);
+      toast.success(
+        trabajador?.idTrabajador
+          ? "El trabajador se actualizó correctamente."
+          : "El trabajador se registró correctamente.",
+        { position: "top-right" }
+      );
+
       navigate("/trabajador");
     } catch (error) {
       console.error(error);
-      toast.error("Ocurrió un error al guardar el trabajador", {
+      toast.error("Ocurrió un error al guardar el trabajador.", {
         position: "top-right",
       });
     }
@@ -267,7 +312,7 @@ const TrabajadorIdPage = () => {
                 <select
                   {...register("idTipoDocumento", {
                     valueAsNumber: true,
-                    required: "Tipo Doc. requerido",
+                    validate: (v) => v > 0 || "Tipo Doc. requerido",
                   })}
                   className="w-full border rounded p-2"
                 >
@@ -332,7 +377,7 @@ const TrabajadorIdPage = () => {
                 <select
                   {...register("idCategoria", {
                     valueAsNumber: true,
-                    required: "Categoría requerida",
+                    validate: (v) => v > 0 || "Categoría requerida",
                   })}
                   className="w-full border rounded p-2"
                 >
@@ -357,7 +402,7 @@ const TrabajadorIdPage = () => {
                 <select
                   {...register("idRegimen", {
                     valueAsNumber: true,
-                    required: "Régimen requerido",
+                    validate: (v) => v > 0 || "Régimen requerido",
                   })}
                   className="w-full border rounded p-2"
                 >
@@ -390,62 +435,77 @@ const TrabajadorIdPage = () => {
                 )}
               </div>
 
-              {/* Fecha Nacimiento */}
+              {/* Fecha Nacimiento (opcional) */}
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="fechaNacimiento">Fecha Nacimiento</Label>
-                <Input type="date" {...register("fechaNacimiento")} />
+                <Input
+                  type="date"
+                  {...register("fechaNacimiento", {
+                    setValueAs: (v) => (v ? v : null),
+                  })}
+                />
               </div>
 
-              {/* Correo */}
+              {/* Correo (opcional) */}
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="correo">Correo</Label>
                 <Input
                   type="email"
                   placeholder="correo@ejemplo.com"
-                  {...register("email")}
+                  {...register("email", {
+                    setValueAs: (v) => v?.trim() || null,
+                  })}
                 />
               </div>
 
-              {/* Teléfono */}
+              {/* Teléfono (opcional) */}
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="telefono">Teléfono</Label>
                 <Input
                   type="text"
                   placeholder="9xxxxxxxx"
-                  {...register("telefono")}
+                  {...register("telefono", {
+                    setValueAs: (v) => v?.trim() || null,
+                  })}
                 />
               </div>
 
-              {/* Dirección */}
+              {/* Dirección (opcional) */}
               <div className="flex flex-col space-y-2 col-span-1 md:col-span-2">
                 <Label htmlFor="direccion">Dirección</Label>
                 <Input
                   type="text"
                   placeholder="Dirección completa"
-                  {...register("direccion")}
+                  {...register("direccion", {
+                    setValueAs: (v) => v?.trim() || null,
+                  })}
                 />
               </div>
-              {/* Sexo */}
+
+              {/* Sexo (opcional) */}
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="sexo">Sexo</Label>
-                {
                 <select
                   id="sexo"
-                  {...register("sexo")}
-                  className="border p-2 rounded"
+                  {...register("sexo", {
+                    setValueAs: (v) => v || null,
+                  })}
+                  className="w-full border rounded p-2"
                 >
-                    <option value="">Selecciona...</option>
-                    <option value="M">M</option>
-                    <option value="F">F</option>
-                  </select>
-                }
-            </div>
-              {/* Estado Civil */}
+                  <option value="">Selecciona...</option>
+                  <option value="M">Masculino</option>
+                  <option value="F">Femenino</option>
+                </select>
+              </div>
+
+              {/* Estado Civil (opcional) */}
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="estadoCivil">Estado Civil</Label>
                 <select
                   id="estadoCivil"
-                  {...register("estadoCivil")}
+                  {...register("estadoCivil", {
+                    setValueAs: (v) => v || null,
+                  })}
                   className="w-full border rounded p-2"
                 >
                   <option value="">Selecciona Estado Civil</option>
@@ -453,27 +513,23 @@ const TrabajadorIdPage = () => {
                   <option value="CASADO">Casado(a)</option>
                   <option value="VIUDO">Viudo(a)</option>
                   <option value="DIVORCIADO">Divorciado(a)</option>
-                 </select>
-               </div>
-               {/* Asignación Familiar */}
-              <div className="flex flex-col space-y-2">
-                <Label htmlFor="asignacionFamiliar">Asignación Familiar</Label>
-                <Input
-                  type="text"
-                  placeholder="Asignación Familiar"
-                  {...register("asignacionFamiliar")}
-                />
+                </select>
               </div>
-              {/* Hijos */}
+
+              {/* Hijos (opcional) */}
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="hijos">Hijos</Label>
                 <Input
-                  type="text"
-                  placeholder="Hijos"
-                  {...register("hijos")}
+                  type="number"
+                  placeholder="Cantidad de hijos"
+                  {...register("hijos", {
+                    valueAsNumber: true,
+                    setValueAs: (v) => (v === "" ? null : Number(v)),
+                  })}
                 />
               </div>
-              {/* Estado (Solo en Edición) */}
+
+              {/* Estado (solo en edición) */}
               {isEdit && (
                 <div className="flex flex-col space-y-2">
                   <Label htmlFor="estado">Estado</Label>
@@ -497,24 +553,26 @@ const TrabajadorIdPage = () => {
               <Button
                 type="button"
                 size="sm"
-                // Valores por defecto para una nueva cuenta
-                onClick={() =>
+                onClick={() => {
+                  // 🧠 Determinar si será principal automáticamente
+                  const esPrimera = fields.length === 0;
                   append({
                     idBanco: 0,
                     numeroCuenta: "",
                     tipoCuenta: "AHORRO",
                     moneda: "PEN",
-                    principal: 0,
+                    principal: esPrimera ? 1 : 0, // ✅ si es la primera, principal = 1
                     cci: undefined,
                     fechaInicio: new Date().toISOString().substring(0, 10),
-                  })
-                }
+                  });
+                }}
               >
                 + Agregar Cuenta
               </Button>
             </CardTitle>
             <hr />
           </CardHeader>
+
           <CardContent>
             {fields.length === 0 && (
               <p className="text-sm text-gray-500">
@@ -522,6 +580,7 @@ const TrabajadorIdPage = () => {
                 continuar.
               </p>
             )}
+
             {fields.map((field, index) => (
               <div
                 key={field.id}
@@ -554,7 +613,7 @@ const TrabajadorIdPage = () => {
                   <select
                     {...register(`cuentas.${index}.idBanco` as const, {
                       valueAsNumber: true,
-                      required: "Banco requerido",
+                      validate: (v) => v > 0 || "Banco requerido",
                     })}
                     className="w-full border rounded p-2"
                   >
@@ -566,7 +625,9 @@ const TrabajadorIdPage = () => {
                     ))}
                   </select>
                   {errors.cuentas?.[index]?.idBanco && (
-                    <p className="msg-error">Banco requerido</p>
+                    <p className="msg-error">
+                      {errors.cuentas[index].idBanco?.message}
+                    </p>
                   )}
                 </div>
 
@@ -584,7 +645,9 @@ const TrabajadorIdPage = () => {
                     })}
                   />
                   {errors.cuentas?.[index]?.numeroCuenta && (
-                    <p className="msg-error">Nro. Cta. requerido</p>
+                    <p className="msg-error">
+                      {errors.cuentas[index].numeroCuenta?.message}
+                    </p>
                   )}
                 </div>
 
@@ -639,13 +702,14 @@ const TrabajadorIdPage = () => {
                   </Label>
                   <select
                     {...register(`cuentas.${index}.principal` as const, {
-                      setValueAs: (v) => v === "true",
-                      required: true,
+                      valueAsNumber: true,
+                      required: "Campo requerido",
                     })}
                     className="w-full border rounded p-2"
+                    disabled={fields.length === 1} // ✅ si hay solo una cuenta, no se puede cambiar
                   >
-                    <option value="true">Sí</option>
-                    <option value="false">No</option>
+                    <option value={1}>Sí</option>
+                    <option value={0}>No</option>
                   </select>
                 </div>
 
@@ -663,7 +727,7 @@ const TrabajadorIdPage = () => {
                   />
                 </div>
 
-                {/* Fecha Fin (Opcional) */}
+                {/* Fecha Fin */}
                 <div className="flex flex-col space-y-2">
                   <Label>Fecha Fin (Cierre)</Label>
                   <Input
@@ -676,8 +740,6 @@ const TrabajadorIdPage = () => {
           </CardContent>
         </Card>
         {/* -------------------- FOOTER -------------------- */}
-  
-
         <CardFooter className="flex justify-end gap-5">
           {/* 🔹 Si es NUEVO: guarda directamente */}
           {id === "nuevo" ? (
@@ -733,7 +795,6 @@ const TrabajadorIdPage = () => {
             Cancelar
           </Button>
         </CardFooter>
-
       </form>
     </>
   );

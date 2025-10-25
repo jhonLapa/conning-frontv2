@@ -17,15 +17,23 @@ export const columnNames: Record<string, string> = {
   estado: "Estado",
   actions: "Acciones",
 };
-
+ 
 export const columnFilter: FilterConfig[] = [
   {
-    id: "serie",
-    label: "Serie",
+    id: "numeroComprobante",
+    label: "N° Comprobante", // ahora busca F001-001, F001, 001, etc.
   },
   {
-    id: "numero",
-    label: "Número",
+    id: "proveedor",
+    label: "proveedor",
+  },
+  {
+    id: "tipocomprobante",
+    label: "Tipo Comprobante",
+  },
+  {
+    id: "status",
+    label: "Estado",
   },
 ];
 
@@ -64,7 +72,7 @@ export const getColumns = (
   refreshDataTable: () => void
 ): ColumnDef<Compra>[] => [
   {
-    id: "comprobante",
+    id: "tipocomprobante",
     header: "Comprobante",
     cell: ({ row }) => (
       <div className="flex flex-col">
@@ -78,7 +86,7 @@ export const getColumns = (
     ),
   },
   {
-    id: "serieNumero",
+    id: "numeroComprobante",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -176,7 +184,7 @@ export const getColumns = (
   },
   {
     accessorKey: "estado",
-    id: "estado",
+    id: "status",
     header: "Estado",
     cell: ({ row }) => {
       const state: boolean = row.original.estado === 1;

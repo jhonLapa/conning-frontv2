@@ -40,6 +40,9 @@ import { fetchData } from "@/hooks/use-fetchDatatable";
 import Pagination from "./pagination";
 import EmptyTable from "./empty-table";
 
+/* ============================================================
+   Tipos
+   ============================================================ */
 export interface FilterConfig {
   id: string;
   label: string;
@@ -54,8 +57,12 @@ interface DataTableProps<TData, TValue> {
   stateFilter: FilterConfig[];
   onRefresh?: (refreshFn: () => void) => void;
   customFilters?: React.ComponentType<{ table: TableInterfaz<TData> }>;
+  onSearchChange?: (value: string, filterId: string) => void; // 👈 para exportar búsqueda
 }
 
+/* ============================================================
+   Componente principal
+   ============================================================ */
 export function DataTable<TData, TValue>({
   columns,
   url,
@@ -64,12 +71,12 @@ export function DataTable<TData, TValue>({
   stateFilter,
   onRefresh,
   customFilters: CustomFilters,
+  onSearchChange,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 1,
     pageSize: 10,
   });
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [currentStatus, setCurrentStatus] = useState(
@@ -78,14 +85,15 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [data, setData] = useState<TData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [lastpage, setLastpage] = useState(0);
   const [typeInput, setTypeInput] = useState<"string" | "number">(
     typeFilter[0].type ?? "string"
   );
-
   const [selectTypeFilter, setSelectTypeFilter] = useState(typeFilter[0].id);
 
+  /* ============================================================
+     Obtener datos (fetchData)
+     ============================================================ */
   const getList = useCallback(async () => {
     const response = await fetchData(url, {
       pageIndex: pagination.pageIndex,
@@ -95,34 +103,30 @@ export function DataTable<TData, TValue>({
         : undefined,
       filters: columnFilters,
     });
-    const { data, meta } = response;
 
-    setLastpage(meta.totalPages);
+    const { data, meta } = response;
     setData(data as TData[]);
-    setPagination((prev) => ({
-      ...prev,
-      pageIndex: meta.page,
-    }));
+    setLastpage(meta.totalPages);
+    setPagination((prev) => ({ ...prev, pageIndex: meta.page }));
   }, [pagination.pageIndex, pagination.pageSize, sorting, columnFilters, url]);
 
+  /* ============================================================
+     Hooks
+     ============================================================ */
   useEffect(() => {
-    if (onRefresh) {
-      onRefresh(getList);
-    }
+    if (onRefresh) onRefresh(getList);
   }, [getList, onRefresh]);
 
   useEffect(() => {
     getList();
   }, [getList]);
 
+  /* ============================================================
+     Configuración de tabla (TanStack)
+     ============================================================ */
   const table = useReactTable({
     data: data ?? [],
-    state: {
-      pagination,
-      sorting,
-      columnFilters,
-      columnVisibility,
-    },
+    state: { pagination, sorting, columnFilters, columnVisibility },
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -134,11 +138,12 @@ export function DataTable<TData, TValue>({
     manualFiltering: true,
   });
 
-  const handlePageChange = (page: number) => {
-    table.setPageIndex(page);
-  };
+  const handlePageChange = (page: number) => table.setPageIndex(page);
 
-  const handleSearch = useDebouncedCallback((value) => {
+  /* ============================================================
+     Búsqueda (con debounce)
+     ============================================================ */
+  const handleSearch = useDebouncedCallback((value: string) => {
     table.getColumn(selectTypeFilter)?.setFilterValue(value);
   }, 300);
 
@@ -146,33 +151,34 @@ export function DataTable<TData, TValue>({
     const value = event.target.value;
     setSearchTerm(value);
     handleSearch(value);
+
+    // 🔹 Notificar búsqueda al padre (para exportar)
+    if (onSearchChange) onSearchChange(value, selectTypeFilter);
   };
 
+  /* ============================================================
+     Render
+     ============================================================ */
   return (
     <div className="mt-4">
+      {/* 🔹 Cabecera de filtros */}
       <div className="flex flex-col gap-3 sm:flex-row justify-between items-center py-4">
+        {/* 🔹 Filtro de tipo + buscador */}
         <div className="flex flex-row w-full">
           {typeFilter.length > 1 && (
             <Select
               value={selectTypeFilter}
               onValueChange={(value) => {
                 const filter = typeFilter.find((e) => e.id === value);
-                if (filter?.type) {
-                  setTypeInput(filter.type);
-                } else {
-                  setTypeInput("string");
-                }
+                setTypeInput(filter?.type ?? "string");
 
+                // Reiniciar filtros del campo previo
                 if (columnFilters.length > 0) {
                   setSearchTerm("");
                   const status = columnFilters.find(
                     (item) => item.id === "status"
                   );
-                  if (status) {
-                    setColumnFilters([status]);
-                  } else {
-                    setColumnFilters([]);
-                  }
+                  setColumnFilters(status ? [status] : []);
                 }
 
                 setSelectTypeFilter(value);
@@ -203,6 +209,7 @@ export function DataTable<TData, TValue>({
           />
         </div>
 
+        {/* 🔹 Filtro de estado + columnas */}
         <div className="flex w-full justify-between">
           {stateFilter.length > 0 && (
             <Select
@@ -228,6 +235,7 @@ export function DataTable<TData, TValue>({
             </Select>
           )}
 
+          {/* 🔹 Selector de columnas */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -237,55 +245,50 @@ export function DataTable<TData, TValue>({
             <DropdownMenuContent align="end">
               {table
                 .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .filter((column) => column.id !== "actions")
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {columnNames[column.id] || column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
+                .filter((col) => col.getCanHide() && col.id !== "actions")
+                .map((col) => (
+                  <DropdownMenuCheckboxItem
+                    key={col.id}
+                    className="capitalize"
+                    checked={col.getIsVisible()}
+                    onCheckedChange={(value) => col.toggleVisibility(!!value)}
+                  >
+                    {columnNames[col.id] || col.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
+      {/* 🔹 Filtros personalizados */}
       {CustomFilters && <CustomFilters table={table} />}
 
-      {data.length === 0 && <EmptyTable text="No hay resultados" />}
-
-      {data.length > 0 && (
+      {/* 🔹 Tabla principal */}
+      {data.length === 0 ? (
+        <EmptyTable text="No hay resultados" />
+      ) : (
         <>
           <div className="rounded-md border bg-white">
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      );
-                    })}
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
                   </TableRow>
                 ))}
               </TableHeader>
               <TableBody>
-                {table.getRowModel().rows?.length ? (
+                {table.getRowModel().rows.length ? (
                   table.getRowModel().rows.map((row) => (
                     <TableRow
                       key={row.id}

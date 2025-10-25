@@ -15,7 +15,7 @@ export interface Venta {
   subTotal: number;
   anticipos: number;
   descuentos: number;
-  valorVenta: number;
+  valorPago: number;
   isc: number;
   igv: number;
   icbper: number;
@@ -37,6 +37,7 @@ export interface Venta {
   proyecto: Proyecto;
   detalles: DetalleVenta[];
   pagosCredito: PagoCredito[];
+  depositosVenta: DepositosVentaRequest[];
 }
 
 export interface DetalleVenta {
@@ -67,13 +68,15 @@ export interface VentaRequest {
   observacion?: string;
   subTotal: number;
   descuentos: number;
-  valorVenta: number;
+  valorPago: number;
   igv: number;
   importeTotal: number;
   idProyecto: number;
+  estado: number;
 
   detalles: DetalleRequest[];
   pagosCredito: PagoCreditoRequest[];
+  depositosVenta: DepositosVentaRequest[];
 }
 
 export interface DetalleRequest {
@@ -87,4 +90,9 @@ export interface DetalleRequest {
 export interface PagoCreditoRequest {
   fechaVencimiento: string;
   montoCuota: number;
+}
+
+export interface DepositosVentaRequest {
+  fechaDeposito: string;
+  monto: number;
 }

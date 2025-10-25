@@ -14,12 +14,4 @@ export const callLogin = async (payload: LoginDto): Promise<ApiResponse<LoginRes
     return handleApiError<LoginResponse>(error);
   }
 };
-
-// export const verficarCode = async (payload: ValidateCodeDto) => {
-//   try {
-//     const response = await api.post("/auth/validate", payload);
-//     return response.data as ApiResponse<User>;
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+ 

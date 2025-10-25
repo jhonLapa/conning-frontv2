@@ -1,4 +1,5 @@
 import { User } from "@/stores/auth.store"
+import { Rol } from "./rol.interface"
 
 export interface LoginDto {
     email: string
@@ -8,4 +9,5 @@ export interface LoginResponse {
     accessToken: string,
     refreshToken: string,
     user: User
+    rol: Rol
 }

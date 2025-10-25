@@ -47,6 +47,7 @@ export const ModalConceptoCategoria = ({
       nombreConcepto: "",
       valor: 0,
       idCategoria,
+      tipoConcepto: "",
     },
   });
 
@@ -55,6 +56,7 @@ export const ModalConceptoCategoria = ({
       conceptoSeleccionado
         ? {
             nombreConcepto: conceptoSeleccionado.nombreConcepto,
+            tipoConcepto: conceptoSeleccionado.tipoConcepto,
             valor: conceptoSeleccionado.valor,
             idCategoria,
           }
@@ -110,6 +112,7 @@ export const ModalConceptoCategoria = ({
             <Input
               {...register("nombreConcepto", { required: "Campo requerido" })}
               placeholder="Ej. Jornal, Dominical, etc."
+              disabled={!!conceptoSeleccionado} // 🔹 Se desactiva en modo edición
             />
             {errors.nombreConcepto && (
               <p className="text-sm text-red-500 mt-1">
@@ -129,6 +132,23 @@ export const ModalConceptoCategoria = ({
             {errors.valor && (
               <p className="text-sm text-red-500 mt-1">
                 {errors.valor.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Tipo</label>
+            <select
+              {...register("tipoConcepto", { required: "Campo requerido" })}
+              className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Selecciona tipo</option>
+              <option value="INGRESO">INGRESO</option>
+              <option value="DESCUENTO">DESCUENTO</option>
+            </select>
+            {errors.tipoConcepto && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.tipoConcepto.message}
               </p>
             )}
           </div>

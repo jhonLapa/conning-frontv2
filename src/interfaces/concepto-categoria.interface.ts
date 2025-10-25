@@ -3,6 +3,7 @@ export interface ConceptoCategoria {
   idCategoria: number;
   nombreConcepto: string;
   valor: number;
+  tipoConcepto: string;
   estado: number;
   fechaCreacion: string;
   usuarioCreacion: string;
@@ -23,4 +24,5 @@ export interface ConceptoCategoriaRequest {
   nombreConcepto: string;
   valor: number;
   idCategoria: number;
+  tipoConcepto: string;
 }

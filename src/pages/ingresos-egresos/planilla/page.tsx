@@ -23,7 +23,7 @@ export default function PlanillaPage() {
       />
 
       <DataTable
-        columns={getColumns()}
+        columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
         url="planilla/busquedapaginado"
         typeFilter={columnFilter}

@@ -3,19 +3,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoginDto } from "@/interfaces/auth.interface";
 import { useAuthStore } from "@/stores/auth.store";
+import { callLogin } from "@/services/auth.service";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-
 export default function LoginPage() {
   const navigate = useNavigate();
-
-  const [showPassword, setShowPassword] = useState(false);
-
   const { login } = useAuthStore((state) => state);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     handleSubmit,
@@ -29,71 +27,62 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (values: LoginDto) => {
-    // ============================================
-    // TODO: TEMPORAL - Reemplazar con autenticación real
-    // Este código es solo para desarrollo del frontend
-    // Revertir a callLogin(values) cuando el backend esté disponible
-    // ============================================
+    try {
+      const response = await callLogin(values);
 
-    // Simulación de login sin backend (TEMPORAL)
-    if (values.email === "admincommig@gmail.com" && values.password === "admin") {
-      const mockUser = {
-        userId: 1,
-        firstName: "Admin",
-        lasName: "User",
-        email: values.email,
-        state: true
-      };
-      const mockToken = "mock-token-123";
+      if (!response.success) {
+        toast.warning(response.message, { position: "top-center" });
+        return;
+      }
 
-      login(mockUser, mockToken);
-      toast.success("Inicio de sesión exitoso", { position: "top-center" });
-      navigate("/cobranza");
-    } else {
-      toast.warning("Credenciales incorrectas", { position: "top-center" });
+      const { user, accessToken, rol } = response.data!;
+
+      // ✅ Guarda datos del usuario y token en Zustand/localStorage
+      login(user, accessToken);
+
+      // Puedes guardar el rol si lo necesitas en otro estado global
+      localStorage.setItem("rol", JSON.stringify(rol));
+
+      toast.success("✅ Sesión iniciada correctamente", {
+        position: "top-center",
+      });
+
+      // Redirigir a página principal
+      navigate("/");
+    } catch (error) {
+      console.error("Error en login:", error);
+      toast.error("❌ Error al iniciar sesión", { position: "top-center" });
     }
-
-    // ============================================
-    // Código original comentado (descomentar cuando backend esté listo):
-    // const response = await callLogin(values);
-    // if (!response?.success) {
-    //   toast.warning(response?.message, { position: "top-center" });
-    //   return;
-    // }
-    // if (response.data) {
-    //   login(response.data?.user, response.data?.accessToken);
-    //   navigate("/");
-    // }
-    // ============================================
   };
 
   return (
     <div className="w-full sm:w-[350px] mx-auto">
       <h2 className="text-4xl font-bold text-center text-[#efa159]">LOGIN</h2>
       <div className="bg-[#efa159] rounded-lg h-2 w-20 mt-2 mb-10 mx-auto"></div>
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4">
+          {/* EMAIL */}
           <div className="grid w-full items-center gap-1.5">
             <Label htmlFor="email">Correo</Label>
             <Input
-              {...register("email", {
-                required: "El nombre de usuario es requerido",
-              })}
+              {...register("email", { required: "El correo es obligatorio" })}
               type="email"
               id="email"
-              placeholder="Ingrese su email de usuario"
+              placeholder="Ingrese su correo"
             />
             {errors.email && (
               <p className="msg-error">{errors.email.message}</p>
             )}
           </div>
 
+          {/* PASSWORD */}
           <div className="grid w-full items-center gap-1.5">
             <Label htmlFor="password">Contraseña</Label>
             <div className="relative">
               <Input
                 {...register("password", {
-                  required: "La contraseña es requerida",
+                  required: "La contraseña es obligatoria",
                 })}
                 type={showPassword ? "text" : "password"}
                 id="password"
@@ -102,42 +91,36 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className={`absolute right-3 -translate-y-1/2 text-gray-500 cursor-pointer ${
-                  errors.password ? "top-1/3" : "top-1/2"
-                }`}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
               >
                 {showPassword ? <Eye /> : <EyeOff />}
               </button>
-
-              {errors.password && (
-                <p className="msg-error">{errors.password.message}</p>
-              )}
             </div>
+            {errors.password && (
+              <p className="msg-error">{errors.password.message}</p>
+            )}
           </div>
         </div>
-        <div className="mt-1">
+
+        {/* OLVIDAR CONTRASEÑA */}
+        <div className="mt-2">
           <Link
             className="text-sm font-semibold text-[#47455a] hover:underline"
-            to="/auth"
+            to="/auth/forgot-password"
           >
             ¿Olvidó su contraseña?
           </Link>
         </div>
 
-        <Button variant="sidebar" className="w-full mt-4" type="submit" disabled={isSubmitting}>
+        {/* BOTÓN DE LOGIN */}
+        <Button
+          variant="sidebar"
+          className="w-full mt-4"
+          type="submit"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
-            Iniciar sesión
         </Button>
-
-        <div className="mt-4 flex flex-col justify-center items-center">
-          <p className="text-sm text-gray-600">¿No tienes una cuenta?</p>
-          <Link
-            className="text-sm font-semibold text-[#47455a] hover:underline"
-            to="/auth/registro"
-          >
-            Regístrate aquí
-          </Link>
-        </div>
       </form>
     </div>
   );
