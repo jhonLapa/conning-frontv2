@@ -19,6 +19,7 @@ import {
   IdCard,
   UserCogIcon,
   ClipboardListIcon,
+  ClipboardCheck,
 } from "lucide-react";
 
 export interface MenuConfigProps {
@@ -188,6 +189,15 @@ export const menusConfig = (): MenuConfigProps => {
               rol: "Todos",
             },
           ],
+        },
+        // =====================================================
+        //  INFORMES
+        // =====================================================
+        {
+          title: "Informes",
+          icon: ClipboardCheck,
+          rol: "Todos",
+          href: "/informes",
         },
       ],
     },

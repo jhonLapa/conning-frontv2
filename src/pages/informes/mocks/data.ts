@@ -1,0 +1,26 @@
+export const CONCEPTOS_BOLETA = [
+  { codigo: "C0001", nombre: "BÁSICO" },
+  { codigo: "C0002", nombre: "DOMINICAL" },
+  { codigo: "C0003", nombre: "FERIADO" },
+  { codigo: "C0004", nombre: "H.E. 60%" },
+  { codigo: "C0005", nombre: "H.E. 100%" },
+  { codigo: "C0003", nombre: "B.U.C." },
+  { codigo: "C0007", nombre: "MOVILIDAD" },
+  { codigo: "C0004", nombre: "CTS" },
+  { codigo: "C0005", nombre: "VACACIONES TRUNCAS" },
+  { codigo: "C0006", nombre: "GRATIFICACIONES TRUNCAS" },
+  { codigo: "C0011", nombre: "ASIG. ESCOLAR" },
+  { codigo: "C0007", nombre: "BON. 29351" },
+  { codigo: "C0008", nombre: "CONAFOVICER" },
+
+  { codigo: "C0017", nombre: "ONP", esDescuento: true },
+  { codigo: "C0010", nombre: "AFP APORTE OBLIGATORIO", esDescuento: true },
+  { codigo: "C0011", nombre: "AFP COMIS. VARIABLE", esDescuento: true },
+  { codigo: "C0012", nombre: "AFP PRIMA SEGURO", esDescuento: true },
+  { codigo: "C0013", nombre: "APORT. VOLUNTARIO 1%", esDescuento: true },
+
+  { codigo: "C0014", nombre: "SEGURO VIDA LEY", esAporte: true },
+  { codigo: "C0015", nombre: "ESSALUD", esAporte: true },
+  { codigo: "C0016", nombre: "SCTR", esAporte: true },
+  { codigo: "C0017", nombre: "APORT. VOLUNTARIO 1%", esAporte: true },
+];

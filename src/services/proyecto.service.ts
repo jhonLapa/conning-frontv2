@@ -1,4 +1,5 @@
 import { ApiResponse } from "@/interfaces";
+import { Paginado, ProyectoResumen } from "@/interfaces/informes.interface";
 import { Proyecto, ProyectoFormData } from "@/interfaces/proyecto.interface";
 import api from "@/lib/api";
 import { type AxiosResponse } from "axios";
@@ -37,6 +38,24 @@ export const postProyectoCompleto = async (
   const response: AxiosResponse<ApiResponse<Proyecto>> = await api.post(
     "/proyecto/registrarcompleto",
     payload
+  );
+  return response.data;
+};
+
+// Obtener proyectos y total pagado de un trabajador
+export const getProyectosPorTrabajador = async (
+  idTrabajador: number,
+  params: { page?: number; take?: number } = {}
+): Promise<Paginado<ProyectoResumen>> => {
+  const response: AxiosResponse<Paginado<ProyectoResumen>> = await api.get(
+    "/proyecto/busquedapaginadotrabajador",
+    {
+      params: {
+        Page: params.page ?? 1,
+        Take: params.take ?? 10,
+        idTrabajador,
+      },
+    }
   );
   return response.data;
 };

@@ -1,4 +1,5 @@
 import { ApiResponse } from "@/interfaces";
+import { Paginado, PlanillaBusqueda } from "@/interfaces/informes.interface";
 import { Planilla, PlanillaRequest } from "@/interfaces/planilla";
 import api from "@/lib/api";
 import { type AxiosResponse } from "axios";
@@ -40,5 +41,33 @@ export const activeOrdesactivePlanilla = async (
   const response: AxiosResponse<ApiResponse<Planilla>> = await api.delete(
     `/planilla/${id}`
   );
+  return response.data;
+};
+
+// Obtener planillas filtradas por trabajador, proyecto y fecha
+export const getPlanillasPorProyectoTrabajador = async (
+  params: {
+    idTrabajador?: number;
+    idProyecto?: number;
+    fechaIni?: string;
+    fechaFin?: string;
+    page?: number;
+    take?: number;
+  } = {}
+): Promise<Paginado<PlanillaBusqueda>> => {
+  const response: AxiosResponse<Paginado<PlanillaBusqueda>> = await api.get(
+    "/planilla/busquedapaginadoproyectotrabajador",
+    {
+      params: {
+        Page: params.page ?? 1,
+        Take: params.take ?? 10,
+        idTrabajador: params.idTrabajador,
+        idProyecto: params.idProyecto,
+        fechaIni: params.fechaIni,
+        fechaFin: params.fechaFin,
+      },
+    }
+  );
+
   return response.data;
 };
