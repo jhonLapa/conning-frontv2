@@ -14,9 +14,12 @@ import api from "@/lib/api";
 export default function VentasPage() {
   const refreshDataTable = useRef<() => void>(null);
 
-  // 🔹 Guarda lo que el usuario escribe en el buscador
   const [searchValue, setSearchValue] = useState("");
   const [searchField, setSearchField] = useState("numerocomprobante");
+
+  // 🔹 NUEVO: Filtros de fecha
+  const [fechaIni, setFechaIni] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
 
   // ============================================================
   // 🔹 DESCARGAR EXCEL con el filtro actual
@@ -25,10 +28,13 @@ export default function VentasPage() {
     try {
       const params = new URLSearchParams();
 
-      // Si el usuario escribió algo, se manda como filtro
       if (searchValue.trim()) {
         params.append("filters", `${searchField}:${searchValue}`);
       }
+
+      // Enviar las fechas si existen
+      if (fechaIni) params.append("fechaIni", fechaIni);
+      if (fechaFin) params.append("fechaFin", fechaFin);
 
       const response = await api.get(`/venta/descargar?${params.toString()}`, {
         responseType: "blob",
@@ -48,22 +54,37 @@ export default function VentasPage() {
     }
   };
 
-  // ============================================================
-  // 🔹 RENDER PRINCIPAL
-  // ============================================================
   return (
     <>
       <HeaderPage
         title="Ventas"
         descripcion="Listado de todas las ventas."
-        linkConfig={{
-          title: "Nueva venta",
-          url: "/venta/nuevo",
-        }}
+        linkConfig={{ title: "Nueva venta", url: "/venta/nuevo" }}
       />
 
-      {/* 🔹 Botón Descargar Excel */}
-      <div className="flex justify-end mb-4">
+      {/* 🔹 Filtros arriba de la tabla */}
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <div className="flex gap-2">
+          <input
+            type="date"
+            value={fechaIni}
+            onChange={(e) => setFechaIni(e.target.value)}
+            className="border rounded px-2 py-1"
+          />
+          <input
+            type="date"
+            value={fechaFin}
+            onChange={(e) => setFechaFin(e.target.value)}
+            className="border rounded px-2 py-1"
+          />
+          <Button
+            onClick={() => refreshDataTable.current?.()}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Aplicar filtro
+          </Button>
+        </div>
+
         <Button
           onClick={handleDownload}
           className="bg-green-600 hover:bg-green-700 text-white"
@@ -77,7 +98,11 @@ export default function VentasPage() {
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-        url="venta/busquedapaginado"
+url={`venta/busquedapaginado${
+  fechaIni || fechaFin
+    ? `?fechaIni=${fechaIni}&fechaFin=${fechaFin}`
+    : ""
+}`}
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

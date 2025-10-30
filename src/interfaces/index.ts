@@ -16,7 +16,7 @@ export * from "./menu-Interface";
 export * from "./movimiento-especial";
 export * from "./option.interface";
 export * from "./pagination.interface";
-export * from "./planilla";
+export * from "./planilla.interface";
 export * from "./proveedor.interface";
 export * from "./proyecto.interface";
 export * from "./regimen.interface";

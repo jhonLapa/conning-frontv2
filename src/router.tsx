@@ -42,6 +42,8 @@ import CobranzaIdPage from "./pages/administracion/cobranza/[id]/page";
 import PlanillaPage from "./pages/ingresos-egresos/planilla/page";
 import PlanillaIdPage from "./pages/ingresos-egresos/planilla/[id]/page";
 import InformesPage from "./pages/informes/page";
+import ProyectosPage from "./pages/informes/proyectos/page";
+import PlanillasPage from "./pages/informes/planillas/page";
 
 export const router = createBrowserRouter([
   {
@@ -220,6 +222,14 @@ export const router = createBrowserRouter([
       {
         path: "/informes",
         element: <InformesPage />,
+      },
+       {
+        path: "informes/proyectosInforme", // /informes/proyectos?idTrabajador=1
+        element: <ProyectosPage />,
+      },
+      {
+        path: "informes/planillasInformeBoleta", // /informes/planillas?idTrabajador=1&idProyecto=9
+        element: <PlanillasPage />,
       },
     ],
   },

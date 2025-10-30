@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Planilla, PlanillaRequest } from "@/interfaces/planilla";
+import { Planilla, PlanillaRequest } from "@/interfaces/planilla.interface";
 import {
   getFetchPlanillaById,
   postPlanilla,

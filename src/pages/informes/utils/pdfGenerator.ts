@@ -1,32 +1,11 @@
+import { getObtenerBoleta } from "@/services/planilla.service";
 import jsPDF from "jspdf";
 import autoTable, { RowInput } from "jspdf-autotable";
-import { getPlanillasPorProyectoTrabajador } from "@/services/planilla.service";
-import { getDetallePlanillaTrabajador } from "@/services/trabajador.service";
-import { CONCEPTOS_BOLETA } from "../mocks/data";
 
+// Datos fijos
 const EMPRESA = "CONING CONTRATISTAS GENERALES S.A.C";
 const RUC = "20608147625";
 const DIRECCION = "MZ I LT 37 URB EL PINAR COMAS";
-
-function formatearPeriodo(periodo: string | undefined): string {
-  if (!periodo) return "";
-  const [anio, mes] = periodo.split("-");
-  const meses = [
-    "ENERO",
-    "FEBRERO",
-    "MARZO",
-    "ABRIL",
-    "MAYO",
-    "JUNIO",
-    "JULIO",
-    "AGOSTO",
-    "SETIEMBRE",
-    "OCTUBRE",
-    "NOVIEMBRE",
-    "DICIEMBRE",
-  ];
-  return `${meses[parseInt(mes) - 1]} ${anio}`;
-}
 
 declare module "jspdf" {
   interface jsPDF {
@@ -34,234 +13,209 @@ declare module "jspdf" {
   }
 }
 
-export async function generarPDFBoleta({
-  idTrabajador,
-  idProyecto,
-  fechaIni,
-  fechaFin,
-}: {
-  idTrabajador: number;
-  idProyecto: number;
-  fechaIni?: string;
-  fechaFin?: string;
-}) {
-  // Planilla base
-  const res = await getPlanillasPorProyectoTrabajador({
-    idTrabajador,
-    idProyecto,
-    fechaIni,
-    fechaFin,
-  });
-  const data = res.data?.[0];
-  if (!data) throw new Error("No hay datos");
+// 📄 Función principal
+export async function generarPDFBoleta(
+  idPlanilla: number,
+  idTrabajador: number
+) {
+  console.log("🧾 Generar PDF Boleta");
+  console.log("➡️ idPlanilla:", idPlanilla);
+  console.log("➡️ idTrabajador:", idTrabajador);
 
-  const detalle = data.detalles?.[0];
-  const trabajadorNode = data.proyecto.trabajadores[0].trabajador;
+  // ==========================
+  // 🔹 Obtener datos de API
+  // ==========================
+  const res = await getObtenerBoleta(idPlanilla, idTrabajador);
+  if (!res) throw new Error("No se encontró la boleta");
+  const data = res;
 
-  const detalleTrab = (await getDetallePlanillaTrabajador(idTrabajador))?.data;
-  if (!detalleTrab)
-    throw new Error("No se pudo obtener detalle del trabajador");
+  const {
+    proyecto,
+    periodo,
+    apellidosNombres,
+    dni,
+    categoria,
+    regimen,
+    diasTrabajados,
+    horas60,
+    horas100,
+    indemnizacion,
+    totalIngresos,
+    totalDescuentos,
+    totalAportes,
+    netoPagar,
+    conceptos,
+  } = data;
 
-  // Datos superiores
-  const dni = trabajadorNode.numeroDocumento;
-  const trabajador = trabajadorNode.apellidosNombres;
-  const fechaIngreso = data.proyecto.trabajadores[0].fechaInicio.substring(
-    0,
-    10
-  );
-  const fechaCese =
-    data.proyecto.trabajadores[0].fechaFin?.substring(0, 10) ?? "";
-  const fechaNacimiento = trabajadorNode.fechaNacimiento?.startsWith("0001")
-    ? ""
-    : trabajadorNode.fechaNacimiento?.substring(0, 10) ?? "";
-  const hijos = trabajadorNode.hijos ?? 0;
-  const categoria = detalleTrab.categoria?.nombre ?? "";
-  const sisPension = detalleTrab.regimen?.nombre ?? "";
-  const prima = detalleTrab.regimen?.total ?? 0;
-  const periodo = formatearPeriodo(data.mes);
+  // Mapeo tabla
+  const tablaConceptos: RowInput[] = conceptos.map((c) => [
+    c.codigo,
+    c.nombreMostrar,
+    c.tipo === "INGRESO" ? c.valor.toFixed(2) : "",
+    c.tipo === "DESCUENTO" ? c.valor.toFixed(2) : "",
+    c.tipo === "APORTE" ? c.valor.toFixed(2) : "",
+  ]);
 
-  // Métricas
-  const he60 = detalle?.horas60 ?? 0;
-  const he100 = detalle?.horas100 ?? 0;
-  const diasLaborados = detalle?.diasTrabajados ?? 0;
-  const salarioBasico =
-    detalleTrab.conceptos.find(
-      (c) =>
-        c.nombreConcepto.replace(/\s+/g, "").toLowerCase() === "salariobasico"
-    )?.valor ?? 0;
-  const jornalBasico = salarioBasico.toFixed(2);
-  const faltas = 0;
-  const feriados = 0;
-  const tardanza = 0;
-
-  // Tabla conceptos
-  const tablaConceptos: RowInput[] = CONCEPTOS_BOLETA.map((item) => {
-    const c = detalleTrab.conceptos.find(
-      (x) =>
-        x.nombreConcepto.toLowerCase().replace(/\s+/g, "") ===
-        item.nombre.toLowerCase().replace(/\s+/g, "")
-    );
-    const monto = c?.valor ?? 0;
-    return [
-      item.codigo,
-      item.nombre,
-      !item.esDescuento && !item.esAporte ? monto.toFixed(2) : "",
-      item.esDescuento ? monto.toFixed(2) : "",
-      item.esAporte ? monto.toFixed(2) : "",
-    ];
-  });
-
-  const netoPagar = Number(data.totalGeneral ?? 0);
-
-  // PDF
+  // ==========================
+  // 🧾 Configuración PDF
+  // ==========================
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-  doc.setTextColor(0, 0, 0);
+  doc.setFont("times", "normal");
 
-  // Layout de 2 boletas lado a lado
-  const WIDTH = 140; // ancho útil de cada boleta
-  const LEFT = 10; // x de la boleta izquierda
-  const RIGHT = LEFT + WIDTH + 5; // x de la boleta derecha
+  const WIDTH = 140;
+  const LEFT = 10;
+  const RIGHT = LEFT + WIDTH + 5;
 
-  // Estilos compactos (sin fondos, texto negro)
-  const headColor = [0, 0, 0] as [number, number, number];
-  const lineColor = [0, 0, 0] as [number, number, number];
-  const white = [255, 255, 255] as [number, number, number];
-
-  // Estilo para tablas superiores (datos del trabajador)
-  const topTableStyle = {
+  const estilos = {
     theme: "grid" as const,
-    tableWidth: WIDTH - 1,
     styles: {
       fontSize: 7,
       cellPadding: 0.6,
       lineWidth: 0.2,
-      lineColor,
-      textColor: headColor,
-      halign: "left" as const,
+      textColor: [0, 0, 0] as [number, number, number], // ✅ tupla
       valign: "middle" as const,
+      halign: "center" as const,
     },
     headStyles: {
-      fillColor: white,
-      textColor: headColor,
+      fillColor: [230, 230, 230] as [number, number, number], // ✅ tupla
+      textColor: [0, 0, 0] as [number, number, number], // ✅ tupla
       fontStyle: "bold" as const,
-      lineColor,
-      lineWidth: 0.2,
     },
-    bodyStyles: {
-      fillColor: white,
-      textColor: headColor,
+    columnStyles: {
+      0: { halign: "center" as const, cellWidth: 18 },
+      1: { halign: "left" as const, cellWidth: 55 },
+      2: { halign: "right" as const, cellWidth: 20 },
+      3: { halign: "right" as const, cellWidth: 20 },
+      4: { halign: "right" as const, cellWidth: 20 },
     },
-    pageBreak: "avoid" as const,
     margin: { left: 0 },
-  };
-
-  // Estilo para la tabla de conceptos (más compacta)
-  const conceptosTableStyle = {
-    ...topTableStyle,
-    styles: {
-      ...topTableStyle.styles,
-      fontSize: 6.5,
-      cellPadding: 0.45,
-    },
     tableWidth: WIDTH - 2,
   };
 
+  // ==========================
+  // ✍️ Función de dibujo boleta
+  // ==========================
   function dibujarBoleta(x: number) {
     let y = 14;
 
-    // Encabezado
+    // ======== ENCABEZADO ========
     doc.setFont("times", "bold").setFontSize(13.5);
     doc.text("BOLETA DE PAGO", x + WIDTH / 2, y, { align: "center" });
-    doc.rect(x + WIDTH - 35, y - 9, 30, 14); // espacio de logo
-    y += 10.5;
 
+    const logoUrl = "/logo_coning.png";
+    // 🔹 Aumentamos ancho (de 27 → 34) y bajamos un poco el alto (de 13 → 11) para alargarlo visualmente
+    doc.addImage(logoUrl, "PNG", x + WIDTH - 38, y - 8, 34, 11);
+    y += 10;
     doc.setFont("times", "bold").setFontSize(9);
     doc.text(`RAZÓN SOCIAL: ${EMPRESA}`, x, y);
-    doc.text(`RUC N°: ${RUC}`, x, y + 4.5);
-    doc.text(DIRECCION, x, y + 9);
-    y += 15;
+    doc.text(`RUC N°: ${RUC}`, x, y + 4);
+    doc.text(DIRECCION, x, y + 8);
+    y += 13;
 
-    // Fila 1
+    // ======== DATOS PERSONALES ========
     autoTable(doc, {
-      ...topTableStyle,
+      ...estilos,
       startY: y,
       margin: { left: x },
-      head: [["DNI", "Apellidos y Nombres", "Boleta Nº"]],
-      body: [[dni, trabajador, data.idPlanilla]],
+      head: [["DNI", "Apellidos y Nombres", "Proyecto"]],
+      body: [[dni, apellidosNombres, proyecto]],
     });
     y = doc.lastAutoTable.finalY;
 
-    // Fila 2
+    // ======== CATEGORÍA / RÉGIMEN / PERIODO ========
     autoTable(doc, {
-      ...topTableStyle,
+      ...estilos,
       startY: y,
       margin: { left: x },
-      head: [
-        [
-          "Fecha Ingreso",
-          "Fecha Cese",
-          "Fecha Nac.",
-          "N° Hijos",
-          "Categoría",
-          "Periodo",
-        ],
-      ],
-      body: [
-        [fechaIngreso, fechaCese, fechaNacimiento, hijos, categoria, periodo],
-      ],
+      head: [["Categoría", "Régimen", "Periodo"]],
+      body: [[categoria, regimen, periodo]],
     });
     y = doc.lastAutoTable.finalY;
 
-    // Fila 3
+    // ======== HORAS / INGRESOS ========
     autoTable(doc, {
-      ...topTableStyle,
-      startY: y,
-      margin: { left: x },
-      head: [["Tardanza", "Del", "Al", "Sis.Pensión", "Prima"]],
-      body: [[tardanza, fechaIngreso, fechaCese, sisPension, prima.toFixed(2)]],
-    });
-    y = doc.lastAutoTable.finalY;
-
-    // Fila 4
-    autoTable(doc, {
-      ...topTableStyle,
+      ...estilos,
       startY: y,
       margin: { left: x },
       head: [
         [
           "Días Laborados",
-          "Jornal Básico",
-          "N° Faltas",
-          "Feriados",
           "H.E. 60%",
           "H.E. 100%",
+          "Indemnización",
+          "Total Ingresos",
         ],
       ],
-      body: [[diasLaborados, jornalBasico, faltas, feriados, he60, he100]],
+      body: [[diasTrabajados, horas60, horas100, indemnizacion, totalIngresos]],
     });
     y = doc.lastAutoTable.finalY + 1.5;
 
-    // Conceptos (compacto)
+    // ======== CONCEPTOS ========
     autoTable(doc, {
-      ...conceptosTableStyle,
+      ...estilos,
       startY: y,
       margin: { left: x },
-      head: [["CODIFICACIÓN", "CONCEPTO", "INGRESOS", "DESCUENTO", "APORTES"]],
+      head: [["CODIFICACIÓN", "CONCEPTO", "INGRESOS", "DESCUENTO", "APORTE"]],
       body: tablaConceptos,
-      pageBreak: "avoid",
     });
+    y = doc.lastAutoTable.finalY + 3;
 
-    y = doc.lastAutoTable.finalY + 2;
-    doc.setFont("times", "bold").setFontSize(9.5);
-    doc.text(`NETO A PAGAR: S/ ${netoPagar.toFixed(2)}`, x, y);
+    // ======== BLOQUE TOTALES ========
+    doc.setFont("times", "bold").setFontSize(9);
+
+    const margenMonto = x + WIDTH - 30; // margen derecho donde terminan los montos
+    y += 5;
+
+    // 🔹 Línea 1: TOTAL INGRESOS
+    doc.text("TOTAL INGRESOS:", x, y, { align: "left" });
+    doc.text(`S/ ${totalIngresos.toFixed(2)}`, margenMonto, y, {
+      align: "right",
+    });
+    y += 5;
+
+    // 🔹 Línea 2: TOTAL DESCUENTOS
+    doc.text("TOTAL DESCUENTOS:", x, y, { align: "left" });
+    doc.text(`S/ ${totalDescuentos.toFixed(2)}`, margenMonto, y, {
+      align: "right",
+    });
+    y += 5;
+
+    // 🔹 Línea 3: TOTAL APORTES
+    doc.text("TOTAL APORTES:", x, y, { align: "left" });
+    doc.text(`S/ ${totalAportes.toFixed(2)}`, margenMonto, y, {
+      align: "right",
+    });
+    y += 8;
+
+    // 🔹 Línea 4: NETO A PAGAR
+    doc.setFontSize(10);
+    doc.text("NETO A PAGAR:", x, y, { align: "left" });
+    doc.text(`S/ ${netoPagar.toFixed(2)}`, margenMonto, y, { align: "right" });
+    y += 10;
+
+    // Línea divisoria
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.25);
+    doc.line(x, y, x + WIDTH - 5, y);
+    y += 10;
+
+    // ======== FIRMAS ========
+    doc.setFontSize(8).setFont("times", "normal");
+    const centro = x + WIDTH / 2;
+
+    doc.text("__________________", x + 25, y);
+    doc.text("EMPLEADOR", x + 33, y + 4);
+    doc.text("__________________", centro + 25, y);
+    doc.text("TRABAJADOR", centro + 33, y + 4);
   }
 
-  // 2 boletas lado a lado
+  // Dibuja dos boletas
   dibujarBoleta(LEFT);
   dibujarBoleta(RIGHT);
 
-  const blob = doc.output("blob");
-  const url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  // ==========================
+  // 🖥️ Mostrar PDF (con botones de imprimir/descargar)
+  // ==========================
+  const pdfUrl = doc.output("bloburl");
+  window.open(pdfUrl, "_blank");
 }

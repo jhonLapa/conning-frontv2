@@ -190,6 +190,7 @@ export const menusConfig = (): MenuConfigProps => {
             },
           ],
         },
+
         // =====================================================
         //  INFORMES
         // =====================================================
@@ -197,8 +198,16 @@ export const menusConfig = (): MenuConfigProps => {
           title: "Informes",
           icon: ClipboardCheck,
           rol: "Todos",
-          href: "/informes",
+          child: [
+            {
+              title: "Planilla trabajador",
+              icon: Landmark,
+              href: "/informes",
+              rol: "Todos",
+            },
+          ],
         },
+
       ],
     },
   };

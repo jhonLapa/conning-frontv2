@@ -3,7 +3,7 @@ import { SortedIcon } from "@/components/sorted-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { Planilla } from "@/interfaces/planilla";
+import { Planilla } from "@/interfaces/planilla.interface";
 import ActionsPlanilla from "./action-planillas";
 
 export const columnNames: Record<string, string> = {

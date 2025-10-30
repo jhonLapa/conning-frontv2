@@ -16,6 +16,25 @@ export interface Proyecto {
   aportesSindicato: SindicatoDto[];
   proyectoEncargado: ProyectoEncargadoDto[];
 }
+
+export interface ProyectoInformePlanilla {
+  idProyecto?: number; // 👈 hazlo opcional
+  idCliente: number;
+  nombre: string;
+  descripcion: string;
+  fechaInicio: Date | null;
+  fechaFin: Date | null;
+  frecuenciaPago: string;
+  email: string;
+  estado: number;
+  totalPlanillas: number;
+  fechaCreacion: string;
+  cliente: Cliente;
+  trabajadores: TrabajadorProyectoCreate[];
+  aportesSindicato: SindicatoDto[];
+  proyectoEncargado: ProyectoEncargadoDto[];
+}
+
 // 🧩 DTO principal — agrupa todo lo que enviarás al backend
 export interface ProyectoFormData {
   proyecto: ProyectoCreate;

@@ -1,6 +1,5 @@
 import { ApiResponse } from "@/interfaces";
-import { Paginado, PlanillaBusqueda } from "@/interfaces/informes.interface";
-import { Planilla, PlanillaRequest } from "@/interfaces/planilla";
+import { BoletaDto, Planilla, PlanillaRequest } from "@/interfaces/planilla.interface";
 import api from "@/lib/api";
 import { type AxiosResponse } from "axios";
 
@@ -45,29 +44,11 @@ export const activeOrdesactivePlanilla = async (
 };
 
 // Obtener planillas filtradas por trabajador, proyecto y fecha
-export const getPlanillasPorProyectoTrabajador = async (
-  params: {
-    idTrabajador?: number;
-    idProyecto?: number;
-    fechaIni?: string;
-    fechaFin?: string;
-    page?: number;
-    take?: number;
-  } = {}
-): Promise<Paginado<PlanillaBusqueda>> => {
-  const response: AxiosResponse<Paginado<PlanillaBusqueda>> = await api.get(
-    "/planilla/busquedapaginadoproyectotrabajador",
-    {
-      params: {
-        Page: params.page ?? 1,
-        Take: params.take ?? 10,
-        idTrabajador: params.idTrabajador,
-        idProyecto: params.idProyecto,
-        fechaIni: params.fechaIni,
-        fechaFin: params.fechaFin,
-      },
-    }
-  );
-
-  return response.data;
+// Obtener boleta por idPlanilla e idTrabajador
+export const getObtenerBoleta = async (
+  idPlanilla: number,
+  idTrabajador: number
+): Promise<BoletaDto> => {
+  const response = await api.get(`/planilla/obtenerboletaasync/${idPlanilla}/${idTrabajador}`);
+  return response.data.data; // ✅ esto devuelve directamente la boleta
 };

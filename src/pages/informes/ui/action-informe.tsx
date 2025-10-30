@@ -1,27 +1,32 @@
 import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
-import { generarPDFBoleta } from "../utils/pdfGenerator";
-import { InformeRow } from "@/interfaces/informes.interface";
+import { Trabajador } from "@/interfaces/trabajador.interface";
+import { Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
-  row: InformeRow;
-  fechaIni: string;
-  fechaFin: string;
+  trabajador: Trabajador;
+  onRefresh: () => void;
 }
 
-export default function ActionsInforme({ row, fechaIni, fechaFin }: Props) {
-  const handlePDF = async () => {
-    await generarPDFBoleta({
-      idTrabajador: row.idTrabajador,
-      idProyecto: row.idProyecto,
-      fechaIni,
-      fechaFin,
-    });
+export default function ActionsInforme({ trabajador }: Props) {
+  const navigate = useNavigate();
+
+  const handleVerProyectos = () => {
+    const id = trabajador.idTrabajador;
+    navigate(`/informes/proyectosInforme?idTrabajador=${id}`);
   };
 
   return (
-    <Button size="icon" className="bg-blue-600 text-white" onClick={handlePDF}>
-      <FileText size={16} />
-    </Button>
+    <div className="flex items-center justify-center gap-2">
+      {/* 🔵 Ver proyectos */}
+      <Button
+        size="icon"
+        className="rounded-md bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+        title="Ver proyectos del trabajador"
+        onClick={handleVerProyectos}
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+    </div>
   );
 }
