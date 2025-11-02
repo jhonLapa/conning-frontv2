@@ -7,7 +7,12 @@ export const fetchData = async <T>(
 ) => {
   const { pageIndex, pageSize, sortBy, filters } = filtersAndPagination;
 
-  let customURL = `${url}?Page=${pageIndex}&Take=${pageSize}`;
+  // 👇 separador correcto según si 'url' ya trae query y cómo termina
+  const sep = url.includes("?")
+    ? (url.endsWith("?") || url.endsWith("&") ? "" : "&")
+    : "?";
+
+  let customURL = `${url}${sep}Page=${pageIndex}&Take=${pageSize}`;
 
   if (filters && filters.length > 0) {
     const filterParams = filters
