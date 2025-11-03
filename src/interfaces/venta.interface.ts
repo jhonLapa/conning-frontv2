@@ -77,6 +77,8 @@ export interface VentaRequest {
   detalles: DetalleRequest[];
   pagosCredito: PagoCreditoRequest[];
   depositosVenta: DepositosVentaRequest[];
+    calcularFondoGarantia?: "SI" | "NO";
+
 }
 
 export interface DetalleRequest {

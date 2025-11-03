@@ -100,12 +100,14 @@ export default function ProyectoCompletoIdPage() {
     fields: trabajadores,
     append: addTrabajador,
     remove: removeTrabajador,
+    replace: replaceTrabajadores, // 👈 agrega esta
   } = useFieldArray({ control, name: "trabajador" });
 
   const {
     fields: sindicatos,
     append: addSindicato,
     remove: removeSindicato,
+    replace: replaceSindicatos, // 👈 agrega esta
   } = useFieldArray({ control, name: "sindicato" });
 
   const [trabajadoresActivos, setTrabajadoresActivos] = useState<
@@ -161,6 +163,7 @@ export default function ProyectoCompletoIdPage() {
 
     const fetchProyecto = async () => {
       setLoading(true);
+
       try {
         const data = await getFechtProyectoById(Number(id));
         data.idCliente = Number(data.idCliente ?? 0);
@@ -171,6 +174,26 @@ export default function ProyectoCompletoIdPage() {
           encargado.idTrabajador > 0 &&
           encargado.fechaInicio
         );
+
+        // 👇 reemplazar arrays correctamente en edición
+        replaceTrabajadores(
+          (data.trabajadores ?? []).map((t: TrabajadorProyectoCreate) => ({
+            idTrabajador: t.idTrabajador ?? 0,
+            fechaInicio: parseDate(t.fechaInicio),
+            fechaFin: parseDate(t.fechaFin),
+            usuarioCreacion: "ADMIN",
+          }))
+        );
+
+        replaceSindicatos(
+          (data.aportesSindicato ?? []).map((s: SindicatoDto) => ({
+            mes: s.mes ?? "",
+            monto: s.monto ?? 0,
+            fechaPago: parseDate(s.fechaPago),
+            usuarioCreacion: "ADMIN",
+          }))
+        );
+
         reset({
           proyecto: {
             idProyecto: data.idProyecto ?? 0,
@@ -223,10 +246,45 @@ export default function ProyectoCompletoIdPage() {
     setLoading(true);
     try {
       // 👇 solo incluir encargado si tiene datos válidos
-      const hasEncargado =
-        data.proyectoEncargado &&
-        data.proyectoEncargado.idTrabajador > 0 &&
-        data.proyectoEncargado.fechaInicio;
+
+      const errores: string[] = [];
+
+      // 📌 Validar encargado si el checkbox está activo
+      if (hasEncargado) {
+        const encargado = data.proyectoEncargado;
+        if (!encargado || !encargado.fechaInicio) {
+          errores.push("El encargado debe tener una fecha de inicio válida.");
+        }
+        if (!encargado?.idTrabajador || encargado.idTrabajador <= 0) {
+          errores.push("Debe seleccionar un encargado de proyecto.");
+        }
+      }
+
+      // 📌 Validar que todos los trabajadores tengan fecha de inicio
+      data.trabajador.forEach((t, index) => {
+        if (!t.fechaInicio) {
+          errores.push(
+            `El trabajador N°${index + 1} debe tener una fecha de inicio.`
+          );
+        }
+      });
+
+      // 📌 Si hay errores, mostrar alerta y detener envío
+      if (errores.length > 0) {
+        toast.error(
+          <div>
+            <strong>Corrige los siguientes errores:</strong>
+            <ul className="list-disc ml-5 mt-1">
+              {errores.map((e, i) => (
+                <li key={i}>{e}</li>
+              ))}
+            </ul>
+          </div>,
+          { position: "top-right" }
+        );
+        setLoading(false);
+        return;
+      }
 
       const payload: ProyectoFormData = {
         ...data,
@@ -240,20 +298,25 @@ export default function ProyectoCompletoIdPage() {
               : 0,
           fechaFin: data.proyecto.fechaFin || null,
         },
-        trabajador: (data.trabajador || []).map((t) => ({
-          ...t,
-          fechaFin: t.fechaFin || null,
-        })),
-        sindicato: data.sindicato || [],
-        // 👇 solo agregamos si tiene datos válidos
-        ...(hasEncargado
+        // ✅ Solo enviamos trabajadores si el usuario los modificó o agregó
+        ...(id === "nuevo" || (data.trabajador && data.trabajador.length > 0)
           ? {
-              proyectoEncargado: {
-                ...data.proyectoEncargado!,
-                fechaFin: data.proyectoEncargado?.fechaFin || null,
-              },
+              trabajador: data.trabajador.map((t) => ({
+                ...t,
+                fechaFin: t.fechaFin || null,
+              })),
             }
+          : {}), // 👈 en edición, si está vacío, NO lo enviamos
+        // ✅ Igual para sindicato, si quieres mismo comportamiento
+        ...(id === "nuevo" || (data.sindicato && data.sindicato.length > 0)
+          ? { sindicato: data.sindicato }
           : {}),
+        proyectoEncargado: hasEncargado
+          ? {
+              ...data.proyectoEncargado!,
+              fechaFin: data.proyectoEncargado?.fechaFin || null,
+            }
+          : null,
       };
       const response = await postProyectoCompleto(payload);
 

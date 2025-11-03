@@ -59,3 +59,9 @@ export const getProyectosPorTrabajador = async (
   );
   return response.data;
 };
+
+
+export const getTrabajadoresByProyecto = async (idProyecto: number) => {
+  const res = await api.get(`/trabajador/SelectByProyecto/${idProyecto}`);
+  return res.data;
+};

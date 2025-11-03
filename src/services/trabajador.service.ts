@@ -112,6 +112,7 @@ export const getDetallePlanillaTrabajador = async (
 ): Promise<
   ApiResponse<{
     idTrabajador: number;
+    idTrabajadorProyecto?:number;
     apellidosNombres: string;
     categoria: { idCategoria: number; nombre: string } | null;
     regimen: {

@@ -98,11 +98,11 @@ export default function VentasPage() {
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}
         columnNames={columnNames}
-url={`venta/busquedapaginado${
-  fechaIni || fechaFin
-    ? `?fechaIni=${fechaIni}&fechaFin=${fechaFin}`
-    : ""
-}`}
+        url={`venta/busquedapaginado${
+          fechaIni || fechaFin
+            ? `?fechaIni=${fechaIni}&fechaFin=${fechaFin}`
+            : ""
+        }`}
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

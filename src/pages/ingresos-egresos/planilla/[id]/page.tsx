@@ -14,15 +14,15 @@ import {
   getFetchPlanillaById,
   postPlanilla,
 } from "@/services/planilla.service";
-import { getProyectosActivos } from "@/services/proyecto.service";
-import { getRegimenesActivos } from "@/services/regimen.service";
 import {
-  getTrabajadoresActivos,
-  getDetallePlanillaTrabajador,
-} from "@/services/trabajador.service";
+  getProyectosActivos,
+  getTrabajadoresByProyecto,
+} from "@/services/proyecto.service";
+import { getRegimenesActivos } from "@/services/regimen.service";
+import { getDetallePlanillaTrabajador } from "@/services/trabajador.service";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -49,7 +49,7 @@ interface Regimen {
 
 interface DetalleTrabajador {
   id: number;
-  idTrabajador?: number;
+  idTrabajadorProyecto?: number;
   nombre: string;
   dias: number;
   horas60?: number;
@@ -78,9 +78,10 @@ export default function PlanillaIdPage() {
   const [proyectos, setProyectos] = useState<
     { idProyecto: number; nombre: string }[]
   >([]);
+
   const [trabajadores, setTrabajadores] = useState<
     {
-      idTrabajador: number;
+      idTrabajadorProyecto: number;
       apellidosNombres: string;
       categoria?: {
         idCategoria: number;
@@ -88,6 +89,7 @@ export default function PlanillaIdPage() {
       } | null;
     }[]
   >([]);
+
   const [, setRegimenes] = useState<{ idRegimen: number; nombre: string }[]>(
     []
   );
@@ -96,7 +98,7 @@ export default function PlanillaIdPage() {
   const [aportes, setAportes] = useState<Aporte[]>([]);
   const [totalPlanilla, setTotalPlanilla] = useState<number>(0);
 
-  const { register, handleSubmit, setValue, formState } =
+  const { register, handleSubmit, setValue, control, formState } =
     useForm<PlanillaRequest>({
       defaultValues: {
         planilla: {
@@ -110,23 +112,39 @@ export default function PlanillaIdPage() {
         aportes: [],
       },
     });
+
+  // 👇 Nuevo hook que observa el proyecto seleccionado
+  const proyectoSeleccionado = useWatch({
+    control,
+    name: "planilla.idProyecto",
+  });
   /* ============================================================
      Cargar datos iniciales
      ============================================================ */
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [proyRes, trabRes, regRes] = await Promise.allSettled([
+        const [proyRes, regRes] = await Promise.allSettled([
           getProyectosActivos(),
-          getTrabajadoresActivos(),
           getRegimenesActivos(),
         ]);
 
         if (proyRes.status === "fulfilled") setProyectos(proyRes.value);
-        else console.warn("⚠️ No se pudieron cargar proyectos");
+        if (regRes.status === "fulfilled") {
+          setRegimenes(regRes.value);
+          setAportes((prev) =>
+            prev.length > 0
+              ? prev
+              : regRes.value.map((r) => ({
+                  id: r.idRegimen,
+                  tipo: r.nombre,
+                  monto: 0,
+                }))
+          );
+        }
 
-        if (trabRes.status === "fulfilled") setTrabajadores(trabRes.value);
-        else console.warn("⚠️ No se pudieron cargar trabajadores");
+        if (proyRes.status === "fulfilled") setProyectos(proyRes.value);
+        else console.warn("⚠️ No se pudieron cargar proyectos");
 
         if (regRes.status === "fulfilled") {
           setRegimenes(regRes.value);
@@ -149,6 +167,25 @@ export default function PlanillaIdPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (!proyectoSeleccionado || proyectoSeleccionado === 0) {
+      setTrabajadores([]);
+      return;
+    }
+
+    const fetchTrabajadores = async () => {
+      try {
+        const res = await getTrabajadoresByProyecto(proyectoSeleccionado);
+        setTrabajadores(res);
+      } catch (err) {
+        console.error(err);
+        toast.error("Error al cargar trabajadores por proyecto");
+      }
+    };
+
+    fetchTrabajadores();
+  }, [proyectoSeleccionado]);
+
   /* ============================================================
    Cargar planilla si estamos en modo edición
    ============================================================ */
@@ -160,7 +197,6 @@ export default function PlanillaIdPage() {
         const data = await getFetchPlanillaById(Number(id));
         setPlanilla(data);
 
-        // ✅ Datos generales
         setValue("planilla.idProyecto", data.idProyecto);
         setValue("planilla.mes", data.mes);
         setValue("planilla.fechaPago", data.fechaPago.split("T")[0]);
@@ -172,7 +208,7 @@ export default function PlanillaIdPage() {
           setDetalles(
             detallesData.map((d) => ({
               id: d.idDetallePlanilla,
-              idTrabajador: d.idTrabajadorProyecto,
+              idTrabajadorProyecto: d.idTrabajadorProyecto,
               nombre: "",
               dias: d.diasTrabajados,
               horas60: d.horas60 ?? 0,
@@ -292,6 +328,7 @@ export default function PlanillaIdPage() {
             ? {
                 id: d.id,
                 idTrabajador,
+                idTrabajadorProyecto: detalle?.idTrabajadorProyecto,
                 nombre: detalle?.apellidosNombres ?? "",
                 dias: 0,
                 montoTotal: 0,
@@ -585,7 +622,7 @@ export default function PlanillaIdPage() {
 
       detalle: detalles.map((d) => ({
         idPlanilla: planilla?.idPlanilla ?? 0,
-        idTrabajadorProyecto: d.idTrabajador ?? 0,
+        idTrabajadorProyecto: d.idTrabajadorProyecto ?? 0,
         diasTrabajados: d.dias,
         horasTrabajadas: (d.horas60 ?? 0) + (d.horas100 ?? 0),
         totalMonto: d.montoTotal ?? 0,
@@ -648,6 +685,7 @@ export default function PlanillaIdPage() {
               <select
                 {...register("planilla.idProyecto", { valueAsNumber: true })}
                 className="w-full border rounded p-2"
+                disabled={id !== "nuevo" && detalles.length > 0} // ✅ corregido
               >
                 <option value="">Seleccione Proyecto</option>
                 {proyectos.map((p) => (
@@ -656,6 +694,13 @@ export default function PlanillaIdPage() {
                   </option>
                 ))}
               </select>
+
+              {(id !== "nuevo" || detalles.length > 0) && (
+                <p className="text-sm text-amber-600 mt-1">
+                  ⚠️ No puede cambiar el proyecto cuando la planilla ya tiene
+                  trabajadores o está en edición.
+                </p>
+              )}
             </div>
             <div>
               <Label>Mes</Label>
@@ -710,7 +755,7 @@ export default function PlanillaIdPage() {
                     {/* Trabajador */}
                     <td className="p-2">
                       <select
-                        value={item.idTrabajador ?? ""}
+                        value={item.idTrabajadorProyecto ?? ""}
                         onChange={(e) => {
                           const val = Number(e.target.value);
                           if (val) obtenerDetalleTrabajador(val, item.id);
@@ -720,7 +765,7 @@ export default function PlanillaIdPage() {
                       >
                         <option value="">Seleccione</option>
                         {trabajadores.map((t) => (
-                          <option key={t.idTrabajador} value={t.idTrabajador}>
+                          <option key={t.idTrabajadorProyecto} value={t.idTrabajadorProyecto}>
                             {t.apellidosNombres} -{" "}
                             {t.categoria?.nombre ?? "Sin categoría"}
                           </option>

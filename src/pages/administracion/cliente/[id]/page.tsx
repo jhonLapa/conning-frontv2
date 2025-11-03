@@ -174,52 +174,34 @@ const ClientesIdPage = () => {
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="direccion">
                   Dirección
-                  <span className="font-semibold text-red-600">*</span>
                 </Label>
                 <Input
                   type="text"
                   placeholder="Dirección"
-                  {...register("direccion", {
-                    required: "La dirección es requerida",
-                  })}
+                  {...register("direccion")}
                 />
-                {errors.direccion && (
-                  <p className="msg-error">{errors.direccion.message}</p>
-                )}
               </div>
 
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="telefono">
                   Teléfono
-                  <span className="font-semibold text-red-600">*</span>
                 </Label>
                 <Input
                   type="text"
                   placeholder="Teléfono"
-                  {...register("telefono", {
-                    required: "El teléfono es requerido",
-                  })}
+                  {...register("telefono")}
                 />
-                {errors.telefono && (
-                  <p className="msg-error">{errors.telefono.message}</p>
-                )}
               </div>
 
               <div className="flex flex-col space-y-2">
                 <Label htmlFor="email">
                   Correo electrónico
-                  <span className="font-semibold text-red-600">*</span>
                 </Label>
                 <Input
                   type="text"
                   placeholder="Correo electrónico"
-                  {...register("email", {
-                    required: "El correo es requerido",
-                  })}
+                  {...register("email")}
                 />
-                {errors.email && (
-                  <p className="msg-error">{errors.email.message}</p>
-                )}
               </div>
             </div>
           </CardContent>

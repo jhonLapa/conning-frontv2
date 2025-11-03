@@ -84,7 +84,6 @@ export default function PlanillasPage() {
           onClick={() => {
             const idPlanilla =
               row.original.idPlanilla ?? row.original.idPlanilla;
-            const idTrabajador = row.original.proyecto.trabajadores[0].idTrabajadorProyecto;
 
             console.log("✅ Enviando a PDF:", { idPlanilla, idTrabajador });
 

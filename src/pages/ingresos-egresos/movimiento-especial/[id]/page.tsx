@@ -77,14 +77,6 @@ const MovimientoEspecialIdPage = () => {
     getMovimientoEspecial();
   }, [id]);
 
-  const getTodayLocal = () => {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
-  };
-
   return (
     <>
       <HeaderPage
@@ -92,7 +84,7 @@ const MovimientoEspecialIdPage = () => {
         descripcion="Informacion detallada del movimiento"
       />
       <form
-        className="flex  flex-col gap-5 mt-4"
+        className="flex flex-col gap-5 mt-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         <Card>
@@ -102,109 +94,99 @@ const MovimientoEspecialIdPage = () => {
             </CardTitle>
             <hr />
           </CardHeader>
+
           <CardContent>
-            <div className="flex flex-col space-y-2">
-              <div className="flex flex-col col-span-4 space-y-2 gap-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Fecha</Label>
-                    <Input
-                      type="date"
-                      min={getTodayLocal()}
-                      {...register("fecha", {
-                        required: "La fecha es obligatoria",
-                        validate: (value) => {
-                          const today = getTodayLocal();
-                          return (
-                            value >= today ||
-                            "La fecha no puede ser anterior a hoy"
-                          );
-                        },
-                      })}
-                    />
-                    {errors.fecha && (
-                      <p className="msg-error">{errors.fecha.message}</p>
-                    )}
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <Label htmlFor="descripcion">
-                      Descripcion
-                      <span className="font-semibold text-red-600">*</span>
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="descripcion"
-                      {...register("descripcion", {
-                        required: "La descripcion es requerida",
-                      })}
-                    />
-                    {errors.descripcion && (
-                      <p className="msg-error">{errors.descripcion.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label>Monto</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      {...register("monto", {
-                        required: "Debes poner un monto",
-                        valueAsNumber: true,
-                        min: {
-                          value: 1,
-                          message: "El monto debe ser mayor a 0",
-                        },
-                      })}
-                    />
-                    {errors.monto && (
-                      <p className="msg-error">{errors.monto.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label>Tipo de movimiento</Label>
-                    <select
-                      {...register("tipoMovimiento", { required: true })}
-                      className="w-full border rounded p-2"
-                    >
-                      <option value="INGRESO">Ingreso</option>
-                      <option value="EGRESO">Egreso</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col space-y-2">
-                    <Label htmlFor="cuentaBancaria">
-                      Cuenta bancaria
-                      <span className="font-semibold text-red-600">*</span>
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="cta.bancaria"
-                      {...register("cuentaBancaria", {
-                        required: "La cuenta bancaria es requerida",
-                      })}
-                    />
-                    {errors.cuentaBancaria && (
-                      <p className="msg-error">
-                        {errors.cuentaBancaria.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label>Observación</Label>
-                    <textarea
-                      className="w-full border rounded p-2"
-                      {...register("observacion")}
-                    />
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* FECHA */}
+              <div>
+                <Label>Fecha</Label>
+                <Input
+                  type="date"
+                  {...register("fecha", {
+                    required: "La fecha es obligatoria",
+                  })}
+                />
+                {errors.fecha && (
+                  <p className="msg-error">{errors.fecha.message}</p>
+                )}
+              </div>
+
+              {/* TIPO DE MOVIMIENTO */}
+              <div>
+                <Label>Tipo de movimiento</Label>
+                <select
+                  {...register("tipoMovimiento", { required: true })}
+                  className="w-full border rounded p-2"
+                >
+                  <option value="INGRESO">Ingreso</option>
+                  <option value="EGRESO">Egreso</option>
+                </select>
+              </div>
+
+              {/* PROYECTO */}
+              <div className="md:col-span-2">
+                <Label>Proyecto</Label>
+                <Input
+                  type="text"
+                  placeholder="Ej. Proyecto Ferre"
+                  {...register("observacion")}
+                />
+              </div>
+
+              {/* MONTO */}
+              <div>
+                <Label>Monto</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...register("monto", {
+                    required: "Debes poner un monto",
+                    valueAsNumber: true,
+                    min: { value: 1, message: "El monto debe ser mayor a 0" },
+                  })}
+                />
+                {errors.monto && (
+                  <p className="msg-error">{errors.monto.message}</p>
+                )}
+              </div>
+
+              {/* CUENTA BANCARIA */}
+              <div>
+                <Label>Cuenta bancaria</Label>
+                <Input
+                  type="text"
+                  placeholder="Ej. BBVA 123-456-789"
+                  {...register("cuentaBancaria")}
+                />
+              </div>
+
+              {/* DESCRIPCIÓN */}
+              <div className="md:col-span-2">
+                <Label htmlFor="descripcion">
+                  Descripción{" "}
+                  <span className="font-semibold text-red-600">*</span>
+                </Label>
+                <textarea
+                  rows={3}
+                  className="w-full border rounded p-2"
+                  placeholder="Escribe la descripción del movimiento"
+                  {...register("descripcion", {
+                    required: "La descripción es requerida",
+                  })}
+                />
+                {errors.descripcion && (
+                  <p className="msg-error">{errors.descripcion.message}</p>
+                )}
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-nowrap justify-end gap-5">
-            <Button variant={"sidebar"} type="submit" disabled={isSubmitting}>
+
+          <CardFooter className="flex justify-end gap-4">
+            <Button variant="sidebar" type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Guardando..." : "Guardar"}
             </Button>
             <Button
-              variant={"default"}
+              variant="default"
               type="button"
               onClick={() => navigate("/movimientoespecial")}
             >

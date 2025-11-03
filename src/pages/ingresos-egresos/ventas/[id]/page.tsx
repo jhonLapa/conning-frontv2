@@ -163,11 +163,25 @@ const VentasIdPage = () => {
 
   const igv = Number((subTotal * 0.18).toFixed(2));
   const importeTotal = Number(subTotal.toFixed(2)) + igv;
-  const detraccion = importeTotal * 0.4;
+  const detraccion = importeTotal * 0.04;
   const totalDepositos = (watch("depositosVenta") || []).reduce(
     (acc, item) => acc + (item?.monto || 0),
     0
   );
+
+  // 👇 Al inicio del componente (junto con otros watch)
+  const calcularFondo = watch("calcularFondoGarantia"); // 👈 nuevo
+
+  // 👇 Efecto para calcular automáticamente si selecciona “Sí”
+  useEffect(() => {
+    if (calcularFondo === "SI") {
+      const fondo = Number((subTotal * 0.05).toFixed(2));
+      setValue("valorPago", fondo);
+    } else if (calcularFondo === "NO") {
+      setValue("valorPago", 0); // 👈 limpia el valor si elige NO
+    }
+  }, [calcularFondo, subTotal, setValue]);
+
   const mapDetalles = (
     detalles: VentaRequest["detalles"] = []
   ): VentaRequest["detalles"] =>
@@ -516,18 +530,33 @@ const VentasIdPage = () => {
                     <p className="msg-error">{errors.tipoMoneda.message}</p>
                   )}
                 </div>
-                <div>
-                  <Label>Valor Pago</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Ingrese el valor depositado en banco"
-                    {...register("valorPago", {
-                      valueAsNumber: true,
-                      setValueAs: (v) => (v === "" || isNaN(v) ? 0 : Number(v)), // 👈 convierte vacío en 0
-                    })}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>¿Aplicar fondo de garantía?</Label>
+                    <select
+                      {...register("calcularFondoGarantia")}
+                      className="w-full border rounded p-2"
+                    >
+                      <option value="NO">No</option>
+                      <option value="SI">Sí (5% del subtotal)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label>Fondo de garantía</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Ingrese el valor depositado en banco"
+                      readOnly={watch("calcularFondoGarantia") === "SI"} // 👈 bloquea si se calcula auto
+                      {...register("valorPago", {
+                        valueAsNumber: true,
+                        setValueAs: (v) =>
+                          v === "" || isNaN(v) ? 0 : Number(v),
+                      })}
+                    />
+                  </div>
                 </div>
               </div>
 

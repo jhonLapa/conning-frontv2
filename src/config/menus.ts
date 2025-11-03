@@ -142,7 +142,7 @@ export const menusConfig = (): MenuConfigProps => {
               rol: "Todos",
             },
             {
-              title: "Cobranzas",
+              title: "Compras",
               icon: CreditCard,
               href: "/cobranza",
               rol: "Todos",
