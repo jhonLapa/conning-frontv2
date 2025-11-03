@@ -1,29 +1,70 @@
 import { useState, useRef } from "react";
 import { DataTable } from "@/components/datatable";
 import HeaderPage from "@/components/header-page";
+import { Button } from "@/components/ui/button";
+import { FileSpreadsheet } from "lucide-react";
+import api from "@/lib/api";
 import {
   columnFilter,
   columnNames,
   getColumns,
   stateFilter,
 } from "./ui/columns";
-import { Button } from "@/components/ui/button";
-import { FileSpreadsheet } from "lucide-react";
-import api from "@/lib/api";
 
 export default function CobranzaPage() {
   const refreshDataTable = useRef<() => void>(null);
 
-  // 🔹 Filtros de fecha
+  // ============================================================
+  // 🔹 Estados
+  // ============================================================
+  const [searchValue, setSearchValue] = useState("");
+  const [searchField, setSearchField] = useState("numerocomprobante");
   const [fechaIni, setFechaIni] = useState("");
   const [fechaFin, setFechaFin] = useState("");
+  const [errorFecha, setErrorFecha] = useState("");
 
   // ============================================================
-  // 🔹 DESCARGAR EXCEL
+  // 🔹 Validación de rango de fechas
+  // ============================================================
+  const validarRangoFechas = (ini?: string, fin?: string) => {
+    if ((ini && !fin) || (!ini && fin)) {
+      return { ok: false, message: "Debes seleccionar ambas fechas (inicio y fin)." };
+    }
+    if (ini && fin && ini > fin) {
+      return { ok: false, message: "La fecha inicial no puede ser mayor que la fecha final." };
+    }
+    return { ok: true, message: "" };
+  };
+
+  // ============================================================
+  // 🔹 Aplicar filtro
+  // ============================================================
+  const handleApplyFilter = () => {
+    const { ok, message } = validarRangoFechas(fechaIni, fechaFin);
+    if (!ok) {
+      setErrorFecha(message);
+      return;
+    }
+    setErrorFecha("");
+    refreshDataTable.current?.();
+  };
+
+  // ============================================================
+  // 🔹 Descargar Excel
   // ============================================================
   const handleDownload = async () => {
+    const { ok, message } = validarRangoFechas(fechaIni, fechaFin);
+    if (!ok) {
+      setErrorFecha(message);
+      alert(message);
+      return;
+    }
+    setErrorFecha("");
+
     try {
       const params = new URLSearchParams();
+
+      if (searchValue.trim()) params.append("filters", `${searchField}:${searchValue}`);
       if (fechaIni) params.append("fechaIni", fechaIni);
       if (fechaFin) params.append("fechaFin", fechaFin);
 
@@ -36,15 +77,17 @@ export default function CobranzaPage() {
       const a = document.createElement("a");
       a.href = url;
       a.download = "compras.xlsx";
-      document.body.appendChild(a);
       a.click();
-      a.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error al descargar compras:", error);
+      alert("Ocurrió un error al descargar el archivo.");
     }
   };
 
+  // ============================================================
+  // 🔹 Render principal
+  // ============================================================
   return (
     <>
       <HeaderPage
@@ -56,36 +99,51 @@ export default function CobranzaPage() {
         }}
       />
 
-      {/* 🔹 Filtros arriba de la tabla */}
-      <div className="flex items-center justify-between mb-4 gap-2">
-        <div className="flex gap-2">
-          <input
-            type="date"
-            value={fechaIni}
-            onChange={(e) => setFechaIni(e.target.value)}
-            className="border rounded px-2 py-1"
-          />
-          <input
-            type="date"
-            value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
-            className="border rounded px-2 py-1"
-          />
+      {/* 🔹 Filtros y acciones */}
+      <div className="flex flex-col gap-2 mb-4">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap">
+            <input
+              type="date"
+              value={fechaIni}
+              onChange={(e) => {
+                setFechaIni(e.target.value);
+                if (errorFecha) setErrorFecha("");
+              }}
+              max={fechaFin || undefined}
+              className="border rounded px-2 py-1"
+            />
+            <input
+              type="date"
+              value={fechaFin}
+              onChange={(e) => {
+                setFechaFin(e.target.value);
+                if (errorFecha) setErrorFecha("");
+              }}
+              min={fechaIni || undefined}
+              className="border rounded px-2 py-1"
+            />
+            <Button
+              onClick={handleApplyFilter}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={!!errorFecha}
+            >
+              Aplicar filtro
+            </Button>
+          </div>
+
           <Button
-            onClick={() => refreshDataTable.current?.()}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={handleDownload}
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
-            Aplicar filtro
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Descargar Excel
           </Button>
         </div>
 
-        <Button
-          onClick={handleDownload}
-          className="bg-green-600 hover:bg-green-700 text-white"
-        >
-          <FileSpreadsheet className="mr-2 h-4 w-4" />
-          Descargar Excel
-        </Button>
+        {errorFecha && (
+          <p className="text-red-600 text-sm font-medium">{errorFecha}</p>
+        )}
       </div>
 
       {/* 🔹 Tabla principal */}
@@ -99,8 +157,10 @@ export default function CobranzaPage() {
         }`}
         typeFilter={columnFilter}
         stateFilter={stateFilter}
-        onRefresh={(callback) => {
-          refreshDataTable.current = callback;
+        onRefresh={(callback) => (refreshDataTable.current = callback)}
+        onSearchChange={(value, field) => {
+          setSearchValue(value);
+          setSearchField(field);
         }}
       />
     </>

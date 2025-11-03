@@ -16,15 +16,49 @@ export default function VentasPage() {
 
   const [searchValue, setSearchValue] = useState("");
   const [searchField, setSearchField] = useState("numerocomprobante");
-
-  // 🔹 NUEVO: Filtros de fecha
   const [fechaIni, setFechaIni] = useState("");
   const [fechaFin, setFechaFin] = useState("");
+  const [errorFecha, setErrorFecha] = useState("");
 
   // ============================================================
-  // 🔹 DESCARGAR EXCEL con el filtro actual
+  // 🔹 Validación de fechas (reutilizable)
+  // ============================================================
+  const validarRangoFechas = (ini?: string, fin?: string) => {
+    if ((ini && !fin) || (!ini && fin)) {
+      return { ok: false, message: "Debes seleccionar ambas fechas (inicio y fin)." };
+    }
+    if (ini && fin && ini > fin) {
+      return { ok: false, message: "La fecha inicial no puede ser mayor que la fecha final." };
+    }
+    return { ok: true, message: "" };
+  };
+
+  // ============================================================
+  // 🔹 Aplicar filtro (usa validación)
+  // ============================================================
+  const handleApplyFilter = () => {
+    const { ok, message } = validarRangoFechas(fechaIni, fechaFin);
+    if (!ok) {
+      setErrorFecha(message);
+      //alert(message);
+      return;
+    }
+    setErrorFecha("");
+    refreshDataTable.current?.();
+  };
+
+  // ============================================================
+  // 🔹 Descargar Excel con el filtro actual (usa validación)
   // ============================================================
   const handleDownload = async () => {
+    const { ok, message } = validarRangoFechas(fechaIni, fechaFin);
+    if (!ok) {
+      setErrorFecha(message);
+      alert(message);
+      return;
+    }
+    setErrorFecha("");
+
     try {
       const params = new URLSearchParams();
 
@@ -32,7 +66,6 @@ export default function VentasPage() {
         params.append("filters", `${searchField}:${searchValue}`);
       }
 
-      // Enviar las fechas si existen
       if (fechaIni) params.append("fechaIni", fechaIni);
       if (fechaFin) params.append("fechaFin", fechaFin);
 
@@ -63,35 +96,53 @@ export default function VentasPage() {
       />
 
       {/* 🔹 Filtros arriba de la tabla */}
-      <div className="flex items-center justify-between mb-4 gap-2">
-        <div className="flex gap-2">
-          <input
-            type="date"
-            value={fechaIni}
-            onChange={(e) => setFechaIni(e.target.value)}
-            className="border rounded px-2 py-1"
-          />
-          <input
-            type="date"
-            value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
-            className="border rounded px-2 py-1"
-          />
+      <div className="flex flex-col gap-2 mb-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <input
+              type="date"
+              value={fechaIni}
+              onChange={(e) => {
+                setFechaIni(e.target.value);
+                if (errorFecha) setErrorFecha("");
+              }}
+              // ayuda nativa (opcional): no permite escoger > fechaFin
+              max={fechaFin || undefined}
+              className="border rounded px-2 py-1"
+            />
+            <input
+              type="date"
+              value={fechaFin}
+              onChange={(e) => {
+                setFechaFin(e.target.value);
+                if (errorFecha) setErrorFecha("");
+              }}
+              // ayuda nativa (opcional): no permite escoger < fechaIni
+              min={fechaIni || undefined}
+              className="border rounded px-2 py-1"
+            />
+            <Button
+              onClick={handleApplyFilter}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={!!errorFecha}
+            >
+              Aplicar filtro
+            </Button>
+          </div>
+
           <Button
-            onClick={() => refreshDataTable.current?.()}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={handleDownload}
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
-            Aplicar filtro
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Descargar Excel
           </Button>
         </div>
 
-        <Button
-          onClick={handleDownload}
-          className="bg-green-600 hover:bg-green-700 text-white"
-        >
-          <FileSpreadsheet className="mr-2 h-4 w-4" />
-          Descargar Excel
-        </Button>
+        {/* Mensaje de validación visible */}
+        {errorFecha && (
+          <p className="text-red-600 text-sm font-medium">{errorFecha}</p>
+        )}
       </div>
 
       {/* 🔹 Tabla principal */}
