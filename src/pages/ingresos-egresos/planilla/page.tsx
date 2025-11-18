@@ -28,10 +28,16 @@ export default function PlanillaPage() {
   // ============================================================
   const validarRangoFechas = (ini?: string, fin?: string) => {
     if ((ini && !fin) || (!ini && fin)) {
-      return { ok: false, message: "Debes seleccionar ambas fechas (inicio y fin)." };
+      return {
+        ok: false,
+        message: "Debes seleccionar ambas fechas (inicio y fin).",
+      };
     }
     if (ini && fin && ini > fin) {
-      return { ok: false, message: "La fecha inicial no puede ser mayor que la fecha final." };
+      return {
+        ok: false,
+        message: "La fecha inicial no puede ser mayor que la fecha final.",
+      };
     }
     return { ok: true, message: "" };
   };
@@ -63,13 +69,17 @@ export default function PlanillaPage() {
     try {
       const params = new URLSearchParams();
 
-      if (searchValue.trim()) params.append("filters", `${searchField}:${searchValue}`);
+      if (searchValue.trim())
+        params.append("filters", `${searchField}:${searchValue}`);
       if (fechaIni) params.append("fechaIni", fechaIni);
       if (fechaFin) params.append("fechaFin", fechaFin);
 
-      const response = await api.get(`/planilla/descargar?${params.toString()}`, {
-        responseType: "blob",
-      });
+      const response = await api.get(
+        `/planilla/descargar?${params.toString()}`,
+        {
+          responseType: "blob",
+        }
+      );
 
       const blob = new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
@@ -97,53 +107,67 @@ export default function PlanillaPage() {
           url: "/planilla/nuevo",
         }}
       />
+      <br />
+      {/* 🔹 Filtros y acciones responsive */}
+      <div className="flex flex-col w-full mb-4 gap-3">
+        {/* 🔸 Etiqueta del filtro */}
+        <label className="text-sm font-medium text-gray-700">
+          Filtrar por{" "}
+          <span className="font-semibold text-gray-800">Fecha de Pago</span>
+        </label>
 
-      {/* 🔹 Controles superiores */}
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <div className="flex flex-wrap gap-2 items-center">
-          <input
-            type="date"
-            value={fechaIni}
-            onChange={(e) => {
-              setFechaIni(e.target.value);
-              if (errorFecha) setErrorFecha("");
-            }}
-            max={fechaFin || undefined}
-            className="border rounded px-2 py-1"
-          />
-          <input
-            type="date"
-            value={fechaFin}
-            onChange={(e) => {
-              setFechaFin(e.target.value);
-              if (errorFecha) setErrorFecha("");
-            }}
-            min={fechaIni || undefined}
-            className="border rounded px-2 py-1"
-          />
-          <Button
-            onClick={handleApplyFilter}
-            disabled={!!errorFecha}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            Aplicar filtro
-          </Button>
+        <div className="flex flex-col lg:flex-row w-full gap-3 justify-between items-start lg:items-center">
+          {/* 🔸 Filtros de fecha + botón aplicar */}
+          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            <input
+              type="date"
+              value={fechaIni}
+              onChange={(e) => {
+                setFechaIni(e.target.value);
+                if (errorFecha) setErrorFecha("");
+              }}
+              max={fechaFin || undefined}
+              className="border rounded px-2 py-1 w-full sm:w-auto flex-1 min-w-[140px]"
+            />
+            <span className="text-gray-500 flex items-center justify-center">
+              hasta
+            </span>
+            <input
+              type="date"
+              value={fechaFin}
+              onChange={(e) => {
+                setFechaFin(e.target.value);
+                if (errorFecha) setErrorFecha("");
+              }}
+              min={fechaIni || undefined}
+              className="border rounded px-2 py-1 w-full sm:w-auto flex-1 min-w-[140px]"
+            />
+            <Button
+              onClick={handleApplyFilter}
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
+              disabled={!!errorFecha}
+            >
+              Aplicar filtro
+            </Button>
+          </div>
+
+          {/* 🔸 Botón Excel */}
+          <div className="flex w-full lg:w-auto justify-end">
+            <Button
+              onClick={handleDownload}
+              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
+            >
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
+              Descargar Excel
+            </Button>
+          </div>
         </div>
 
-        <Button
-          onClick={handleDownload}
-          className="bg-green-600 hover:bg-green-700 text-white"
-        >
-          <FileSpreadsheet className="mr-2 h-4 w-4" />
-          Descargar Excel
-        </Button>
+        {/* 🔸 Mensaje de validación */}
+        {errorFecha && (
+          <p className="text-red-600 text-sm font-medium">{errorFecha}</p>
+        )}
       </div>
-
-      {/* Mensaje de validación */}
-      {errorFecha && (
-        <p className="text-red-600 text-sm font-medium mb-2">{errorFecha}</p>
-      )}
-
       {/* 🔹 Tabla principal */}
       <DataTable
         columns={getColumns(() => refreshDataTable.current?.())}

@@ -25,10 +25,16 @@ export default function VentasPage() {
   // ============================================================
   const validarRangoFechas = (ini?: string, fin?: string) => {
     if ((ini && !fin) || (!ini && fin)) {
-      return { ok: false, message: "Debes seleccionar ambas fechas (inicio y fin)." };
+      return {
+        ok: false,
+        message: "Debes seleccionar ambas fechas (inicio y fin).",
+      };
     }
     if (ini && fin && ini > fin) {
-      return { ok: false, message: "La fecha inicial no puede ser mayor que la fecha final." };
+      return {
+        ok: false,
+        message: "La fecha inicial no puede ser mayor que la fecha final.",
+      };
     }
     return { ok: true, message: "" };
   };
@@ -95,39 +101,49 @@ export default function VentasPage() {
         linkConfig={{ title: "Nueva venta", url: "/venta/nuevo" }}
       />
 
+      <br />
+
       {/* 🔹 Filtros arriba de la tabla */}
       <div className="flex flex-col gap-2 mb-4">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2 flex-wrap">
-            <input
-              type="date"
-              value={fechaIni}
-              onChange={(e) => {
-                setFechaIni(e.target.value);
-                if (errorFecha) setErrorFecha("");
-              }}
-              // ayuda nativa (opcional): no permite escoger > fechaFin
-              max={fechaFin || undefined}
-              className="border rounded px-2 py-1"
-            />
-            <input
-              type="date"
-              value={fechaFin}
-              onChange={(e) => {
-                setFechaFin(e.target.value);
-                if (errorFecha) setErrorFecha("");
-              }}
-              // ayuda nativa (opcional): no permite escoger < fechaIni
-              min={fechaIni || undefined}
-              className="border rounded px-2 py-1"
-            />
-            <Button
-              onClick={handleApplyFilter}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              disabled={!!errorFecha}
-            >
-              Aplicar filtro
-            </Button>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">
+              Filtrar por{" "}
+              <span className="font-semibold text-gray-800">
+                Fecha de emisión
+              </span>
+            </label>
+
+            <div className="flex gap-2 flex-wrap items-center">
+              <input
+                type="date"
+                value={fechaIni}
+                onChange={(e) => {
+                  setFechaIni(e.target.value);
+                  if (errorFecha) setErrorFecha("");
+                }}
+                max={fechaFin || undefined}
+                className="border rounded px-2 py-1"
+              />
+              <span className="text-gray-500">hasta</span>
+              <input
+                type="date"
+                value={fechaFin}
+                onChange={(e) => {
+                  setFechaFin(e.target.value);
+                  if (errorFecha) setErrorFecha("");
+                }}
+                min={fechaIni || undefined}
+                className="border rounded px-2 py-1"
+              />
+              <Button
+                onClick={handleApplyFilter}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={!!errorFecha}
+              >
+                Aplicar filtro
+              </Button>
+            </div>
           </div>
 
           <Button

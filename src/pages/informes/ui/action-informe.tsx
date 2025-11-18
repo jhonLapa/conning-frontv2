@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Trabajador } from "@/interfaces/trabajador.interface";
 import { Eye } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface Props {
   trabajador: Trabajador;
@@ -10,15 +10,21 @@ interface Props {
 
 export default function ActionsInforme({ trabajador }: Props) {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
 
   const handleVerProyectos = () => {
     const id = trabajador.idTrabajador;
-    navigate(`/informes/proyectosInforme?idTrabajador=${id}`);
+    const fechaInicio = params.get("fechaInicio");
+    const fechaFin = params.get("fechaFin");
+
+    // 🔗 Propagamos fechas al siguiente nivel
+    navigate(
+      `/informes/proyectosInforme?idTrabajador=${id}&fechaInicio=${fechaInicio || ""}&fechaFin=${fechaFin || ""}`
+    );
   };
 
   return (
     <div className="flex items-center justify-center gap-2">
-      {/* 🔵 Ver proyectos */}
       <Button
         size="icon"
         className="rounded-md bg-blue-600 hover:bg-blue-700 text-white shadow-sm"

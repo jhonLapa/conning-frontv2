@@ -11,6 +11,8 @@ export default function ProyectosPage() {
   const refreshDataTable = useRef<() => void>(null);
   const [params] = useSearchParams();
   const idTrabajador = Number(params.get("idTrabajador"));
+  const fechaInicio = params.get("fechaInicio") || "";
+  const fechaFin = params.get("fechaFin") || "";
 
   const columns: ColumnDef<ProyectoInformePlanilla>[] = [
     {
@@ -18,8 +20,12 @@ export default function ProyectosPage() {
       header: "Proyecto",
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="font-semibold text-gray-800">{row.original.nombre}</span>
-          <span className="text-xs text-gray-500">{row.original.descripcion}</span>
+          <span className="font-semibold text-gray-800">
+            {row.original.nombre}
+          </span>
+          <span className="text-xs text-gray-500">
+            {row.original.descripcion}
+          </span>
         </div>
       ),
     },
@@ -50,7 +56,7 @@ export default function ProyectosPage() {
           className="bg-blue-600 text-white hover:bg-blue-700"
           onClick={() =>
             window.location.assign(
-              `/informes/planillasInformeBoleta?idTrabajador=${idTrabajador}&idProyecto=${row.original.idProyecto}`
+              `/informes/planillasInformeBoleta?idTrabajador=${idTrabajador}&idProyecto=${row.original.idProyecto}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
             )
           }
         >
@@ -82,7 +88,7 @@ export default function ProyectosPage() {
           totalPlanillas: "Total Planillas (S/.)",
           actions: "Acciones",
         }}
-        url={`proyecto/busquedapaginadotrabajador?idTrabajador=${idTrabajador}&`}
+        url={`proyecto/busquedapaginadotrabajador?idTrabajador=${idTrabajador}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}&`}
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

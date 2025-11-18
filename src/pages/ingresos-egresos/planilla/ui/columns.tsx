@@ -82,6 +82,24 @@ export const getColumns = (
       <span className="ml-4">{row.original.mes}</span>
     ),
   },
+    {
+    id: "fechaPago",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(isSorted === "asc")}
+        >
+          Fecha pago
+          <SortedIcon isSorted={isSorted} />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="ml-4">{row.original.fechaPago}</span>
+    ),
+  },
   {
     id: "frecuenciaPago",
     header: ({ column }) => {

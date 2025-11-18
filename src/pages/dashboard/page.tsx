@@ -12,26 +12,54 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const [data, setData] = useState<Dashboard | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fechaIni, setFechaIni] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
 
+  // ============================================================
+  // 🔹 Inicializar fechas: del primer día del mes hasta hoy
+  // ============================================================
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getDashboard();
-        setData(response);
-      } catch (error) {
-        console.error("Error al cargar dashboard:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    const hoy = new Date();
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+    const formato = (d: Date) => d.toISOString().split("T")[0];
+    setFechaIni(formato(inicioMes));
+    setFechaFin(formato(hoy));
   }, []);
 
+  // ============================================================
+  // 🔹 Cargar datos del dashboard con fechas
+  // ============================================================
+  const fetchData = async (ini?: string, fin?: string) => {
+    setLoading(true);
+    try {
+      const response = await getDashboard(ini, fin);
+      setData(response);
+    } catch (error) {
+      console.error("Error al cargar dashboard:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Ejecutar primera carga solo cuando ya se tienen fechas inicializadas
+  // ✅ Solo se ejecuta una vez al montar el componente
+  useEffect(() => {
+    // 🚀 Ejecutar solo cuando ambas fechas se inicialicen por primera vez
+    if (fechaIni && fechaFin && !data) {
+      fetchData(fechaIni, fechaFin);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fechaIni, fechaFin]);
+  // ============================================================
+  // 🔹 Interfaz de carga
+  // ============================================================
   if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -49,7 +77,9 @@ export default function DashboardPage() {
     );
   }
 
-  // 🔹 Fusionar por mes
+  // ============================================================
+  // 🔹 Fusión de datos por mes
+  // ============================================================
   const mergedData = Array.from(
     new Set([
       ...data.ventasMensuales.map((v) => v.mes),
@@ -75,11 +105,43 @@ export default function DashboardPage() {
       new Date(`2025-${b.mes}-01`).getMonth()
   );
 
+  // ============================================================
+  // 🔹 Render principal
+  // ============================================================
   return (
     <div className="p-6 space-y-6">
+      {/* ================= Filtros de fecha ================= */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end justify-between">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div>
+            <label className="block text-sm text-gray-700">Fecha inicio</label>
+            <input
+              type="date"
+              value={fechaIni}
+              max={fechaFin}
+              onChange={(e) => setFechaIni(e.target.value)}
+              className="border rounded px-2 py-1 w-full sm:w-auto"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-700">Fecha fin</label>
+            <input
+              type="date"
+              value={fechaFin}
+              min={fechaIni}
+              onChange={(e) => setFechaFin(e.target.value)}
+              className="border rounded px-2 py-1 w-full sm:w-auto"
+            />
+          </div>
+        </div>
+
+        <Button onClick={() => fetchData(fechaIni, fechaFin)}>
+          Aplicar filtro
+        </Button>
+      </div>
+
       {/* ================= Tarjetas resumen ================= */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
-        {/* Ventas */}
         <Card>
           <CardHeader>
             <CardTitle>Ventas del Mes</CardTitle>
@@ -89,7 +151,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Compras */}
         <Card>
           <CardHeader>
             <CardTitle>Compras</CardTitle>
@@ -99,7 +160,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Planillas */}
         <Card>
           <CardHeader>
             <CardTitle>Planillas</CardTitle>
@@ -109,7 +169,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Ingresos */}
         <Card>
           <CardHeader>
             <CardTitle>Ingresos Especial</CardTitle>
@@ -119,7 +178,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Egresos */}
         <Card>
           <CardHeader>
             <CardTitle>Egresos Especial</CardTitle>
@@ -129,7 +187,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Movimientos (total general) */}
         <Card>
           <CardHeader>
             <CardTitle>Total General</CardTitle>
@@ -139,7 +196,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Proyectos Activos */}
         <Card>
           <CardHeader>
             <CardTitle>Proyectos Activos</CardTitle>

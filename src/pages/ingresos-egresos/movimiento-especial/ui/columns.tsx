@@ -27,6 +27,10 @@ export const columnFilter: FilterConfig[] = [
     id: "tipoMovimiento",
     label: "Movimiento",
   },
+  {
+    id: "observacion",
+    label: "Proyecto",
+  },
 ];
 
 export const stateFilter: FilterConfig[] = [

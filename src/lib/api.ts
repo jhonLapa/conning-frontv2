@@ -5,8 +5,8 @@ import { toast } from "sonner"; // 🔔 Para mostrar notificaciones globales
 // ⚙️ Configuración base de Axios
 // =============================
 const api = axios.create({
-  // baseURL: "https://localhost:7109/api/",
-  baseURL: "http://cotos02-002-site3.qtempurl.com/api/",
+  baseURL: "https://localhost:7109/api/",
+   //baseURL: "http://cotos02-002-site3.qtempurl.com/api/",
   headers: {
     "Content-Type": "application/json",
   },

@@ -21,7 +21,7 @@ export const columnNames: Record<string, string> = {
 export const columnFilter: FilterConfig[] = [
   {
     id: "numerocomprobante",
-    label: "N° Comprobante", // ahora busca F001-001, F001, 001, etc.
+    label: "N° Comprobante",
   },
   {
     id: "cliente",
@@ -68,15 +68,20 @@ export const getColumns = (
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Serie - Número
+          Serie - Número / Tipo
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <span className="ml-4">
-        {row.original.serie}-{row.original.numero}
-      </span>
+      <div className="ml-4 flex flex-col">
+        <span>
+          {row.original.serie}-{row.original.numero}
+        </span>
+        <span className="text-sm text-muted-foreground">
+          {row.original.tipoComprobante?.nombre ?? "—"}
+        </span>
+      </div>
     ),
   },
   {
@@ -116,7 +121,7 @@ export const getColumns = (
     ),
   },
   {
-    id: "tipocomprobante",
+    id: "fechaEmision",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
@@ -124,13 +129,13 @@ export const getColumns = (
           variant="ghost"
           onClick={() => column.toggleSorting(isSorted === "asc")}
         >
-          Tipo de comprobante
+          Fecha emision
           <SortedIcon isSorted={isSorted} />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <span className="ml-4">{row.original.tipoComprobante.nombre}</span>
+      <span className="ml-4">{row.original.fechaEmision}</span>
     ),
   },
 

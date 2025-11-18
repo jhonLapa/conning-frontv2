@@ -28,10 +28,16 @@ export default function CobranzaPage() {
   // ============================================================
   const validarRangoFechas = (ini?: string, fin?: string) => {
     if ((ini && !fin) || (!ini && fin)) {
-      return { ok: false, message: "Debes seleccionar ambas fechas (inicio y fin)." };
+      return {
+        ok: false,
+        message: "Debes seleccionar ambas fechas (inicio y fin).",
+      };
     }
     if (ini && fin && ini > fin) {
-      return { ok: false, message: "La fecha inicial no puede ser mayor que la fecha final." };
+      return {
+        ok: false,
+        message: "La fecha inicial no puede ser mayor que la fecha final.",
+      };
     }
     return { ok: true, message: "" };
   };
@@ -64,7 +70,8 @@ export default function CobranzaPage() {
     try {
       const params = new URLSearchParams();
 
-      if (searchValue.trim()) params.append("filters", `${searchField}:${searchValue}`);
+      if (searchValue.trim())
+        params.append("filters", `${searchField}:${searchValue}`);
       if (fechaIni) params.append("fechaIni", fechaIni);
       if (fechaFin) params.append("fechaFin", fechaFin);
 
@@ -98,38 +105,49 @@ export default function CobranzaPage() {
           url: "/cobranza/nuevo",
         }}
       />
-
+      <br />
       {/* 🔹 Filtros y acciones */}
+      {/* 🔹 Filtros arriba de la tabla */}
       <div className="flex flex-col gap-2 mb-4">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex gap-2 flex-wrap">
-            <input
-              type="date"
-              value={fechaIni}
-              onChange={(e) => {
-                setFechaIni(e.target.value);
-                if (errorFecha) setErrorFecha("");
-              }}
-              max={fechaFin || undefined}
-              className="border rounded px-2 py-1"
-            />
-            <input
-              type="date"
-              value={fechaFin}
-              onChange={(e) => {
-                setFechaFin(e.target.value);
-                if (errorFecha) setErrorFecha("");
-              }}
-              min={fechaIni || undefined}
-              className="border rounded px-2 py-1"
-            />
-            <Button
-              onClick={handleApplyFilter}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              disabled={!!errorFecha}
-            >
-              Aplicar filtro
-            </Button>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">
+              Filtrar por{" "}
+              <span className="font-semibold text-gray-800">
+                Fecha de emisión
+              </span>
+            </label>
+
+            <div className="flex gap-2 flex-wrap items-center">
+              <input
+                type="date"
+                value={fechaIni}
+                onChange={(e) => {
+                  setFechaIni(e.target.value);
+                  if (errorFecha) setErrorFecha("");
+                }}
+                max={fechaFin || undefined}
+                className="border rounded px-2 py-1"
+              />
+              <span className="text-gray-500">hasta</span>
+              <input
+                type="date"
+                value={fechaFin}
+                onChange={(e) => {
+                  setFechaFin(e.target.value);
+                  if (errorFecha) setErrorFecha("");
+                }}
+                min={fechaIni || undefined}
+                className="border rounded px-2 py-1"
+              />
+              <Button
+                onClick={handleApplyFilter}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={!!errorFecha}
+              >
+                Aplicar filtro
+              </Button>
+            </div>
           </div>
 
           <Button
@@ -141,6 +159,7 @@ export default function CobranzaPage() {
           </Button>
         </div>
 
+        {/* Mensaje de validación visible */}
         {errorFecha && (
           <p className="text-red-600 text-sm font-medium">{errorFecha}</p>
         )}

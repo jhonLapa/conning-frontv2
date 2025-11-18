@@ -14,6 +14,8 @@ export default function PlanillasPage() {
   const [params] = useSearchParams();
   const idTrabajador = Number(params.get("idTrabajador"));
   const idProyecto = Number(params.get("idProyecto"));
+  const fechaInicio = params.get("fechaInicio") || "";
+  const fechaFin = params.get("fechaFin") || "";
 
   const columns: ColumnDef<PlanillaInforme>[] = [
     {
@@ -22,23 +24,6 @@ export default function PlanillasPage() {
       cell: ({ row }) => (
         <span className="text-gray-700">{row.original.mes}</span>
       ),
-    },
-    {
-      accessorKey: "totalHoras",
-      header: "Horas trabajadas",
-      cell: ({ row }) => {
-        const detalles: Partial<DetallePlanilla>[] =
-          row.original.detalles ?? [];
-        const totalHoras = detalles.reduce(
-          (sum, d) => sum + (d.totalHoras ?? 0),
-          0
-        );
-        return (
-          <span className="font-semibold text-gray-700">
-            {totalHoras.toFixed(2)}
-          </span>
-        );
-      },
     },
     {
       accessorKey: "totalDescuentos",
@@ -112,12 +97,11 @@ export default function PlanillasPage() {
         columns={columns}
         columnNames={{
           periodoTexto: "Periodo",
-          totalHoras: "Horas trabajadas",
           totalDescuentos: "Total Descuentos (S/.)",
           totalMonto: "Total Pagado (S/.)",
           actions: "Acciones",
         }}
-        url={`planilla/BusquedaPaginadoProyectoTrabajador?idTrabajador=${idTrabajador}&idProyecto=${idProyecto}&`}
+        url={`planilla/BusquedaPaginadoProyectoTrabajador?idTrabajador=${idTrabajador}&idProyecto=${idProyecto}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}&`}
         typeFilter={columnFilter}
         stateFilter={stateFilter}
         onRefresh={(callback) => {

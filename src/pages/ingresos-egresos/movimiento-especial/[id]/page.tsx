@@ -128,7 +128,7 @@ const MovimientoEspecialIdPage = () => {
                 <Label>Proyecto</Label>
                 <Input
                   type="text"
-                  placeholder="Ej. Proyecto Ferre"
+                  placeholder="Ej. Proyecto"
                   {...register("observacion")}
                 />
               </div>
